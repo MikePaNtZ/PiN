@@ -10,6 +10,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Platformer
 {
@@ -57,10 +58,16 @@ namespace Platformer
             }
         }
 
+        public bool IsAlive { get; private set; }
+
         // Animations
         private Animation runAnimation;
         private Animation idleAnimation;
+        private Animation dieAnimation;
         private AnimationPlayer sprite;
+
+        // Sounds
+        private SoundEffect killedSound;
 
         /// <summary>
         /// The direction this enemy is facing and moving along the X axis.
@@ -89,6 +96,7 @@ namespace Platformer
         {
             this.level = level;
             this.position = position;
+            this.IsAlive = true;
 
             LoadContent(spriteSet);
         }
@@ -102,7 +110,11 @@ namespace Platformer
             spriteSet = "Sprites/" + spriteSet + "/";
             runAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Run"), 0.1f, true);
             idleAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Idle"), 0.15f, true);
+            dieAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Die"), 0.07f, false);
             sprite.PlayAnimation(idleAnimation);
+
+            // Load sounds.
+            killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
 
             // Calculate bounds within texture size.
             int width = (int)(idleAnimation.FrameWidth * 0.35);
@@ -119,6 +131,9 @@ namespace Platformer
         public void Update(GameTime gameTime)
         {
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (!IsAlive)
+                return;
 
             // Calculate tile position based on the side we are walking towards.
             float posX = Position.X + localBounds.Width / 2 * (int)direction;
@@ -158,10 +173,14 @@ namespace Platformer
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // Stop running when the game is paused or before turning around.
-            if (!Level.Player.IsAlive ||
-                Level.ReachedExit ||
-                Level.TimeRemaining == TimeSpan.Zero ||
-                waitTime > 0)
+            if (!IsAlive)
+            {
+                sprite.PlayAnimation(dieAnimation);
+            }
+            else if (!Level.Player.IsAlive ||
+                      Level.ReachedExit ||
+                      Level.TimeRemaining == TimeSpan.Zero ||
+                      waitTime > 0)
             {
                 sprite.PlayAnimation(idleAnimation);
             }
@@ -170,10 +189,16 @@ namespace Platformer
                 sprite.PlayAnimation(runAnimation);
             }
 
-
             // Draw facing the way the enemy is moving.
             SpriteEffects flip = direction > 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             sprite.Draw(gameTime, spriteBatch, Position, flip);
         }
+
+        public void OnKilled(Player killedBy)
+        {
+            IsAlive = false;
+            killedSound.Play();
+        }
+    
     }
 }

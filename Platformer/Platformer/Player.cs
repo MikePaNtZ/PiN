@@ -47,6 +47,21 @@ namespace Platformer
         }
         bool isAlive;
 
+        // Powerup state
+        private const float MaxPowerUpTime = 6.0f;
+        private float powerUpTime;
+        public bool IsPoweredUp
+        {
+            get { return powerUpTime > 0.0f; }
+        }
+        private readonly Color[] poweredUpColors = {
+                               Color.Red,
+                               Color.Blue,
+                               Color.Orange,
+                               Color.Yellow,
+                                               };
+        private SoundEffect powerUpSound;
+
         // Physics state
         public Vector2 Position
         {
@@ -151,6 +166,7 @@ namespace Platformer
             killedSound = Level.Content.Load<SoundEffect>("Sounds/PlayerKilled");
             jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
+            powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
         }
 
         /// <summary>
@@ -163,6 +179,7 @@ namespace Platformer
             Velocity = Vector2.Zero;
             isAlive = true;
             sprite.PlayAnimation(idleAnimation);
+            powerUpTime = 0.0f;
         }
 
         /// <summary>
@@ -200,6 +217,9 @@ namespace Platformer
             // Clear input.
             movement = 0.0f;
             isJumping = false;
+
+            if (IsPoweredUp)
+                powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
         }
 
         /// <summary>
@@ -454,8 +474,28 @@ namespace Platformer
             else if (Velocity.X < 0)
                 flip = SpriteEffects.None;
 
+            // Calculate a tint color based on power up state.
+            Color color;
+            if (IsPoweredUp)
+            {
+                float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
+                int colorIndex = (int)t % poweredUpColors.Length;
+                color = poweredUpColors[colorIndex];
+            }
+            else
+            {
+                color = Color.White;
+            }
+
             // Draw that sprite.
-            sprite.Draw(gameTime, spriteBatch, Position, flip);
+            sprite.Draw(gameTime, spriteBatch, Position, flip, color);
         }
+
+        public void PowerUp()
+        {
+            powerUpTime = MaxPowerUpTime;
+            powerUpSound.Play();
+        }
+    
     }
 }

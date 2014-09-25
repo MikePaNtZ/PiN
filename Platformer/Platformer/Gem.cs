@@ -23,8 +23,9 @@ namespace Platformer
         private Vector2 origin;
         private SoundEffect collectedSound;
 
-        public const int PointValue = 30;
-        public readonly Color Color = Color.Yellow;
+        public readonly int PointValue;
+        public bool IsPowerUp { get; private set; }
+        public readonly Color Color;
 
         // The gem is animated from a base position along the Y axis.
         private Vector2 basePosition;
@@ -61,11 +62,23 @@ namespace Platformer
         /// <summary>
         /// Constructs a new gem.
         /// </summary>
-        public Gem(Level level, Vector2 position)
+        public Gem(Level level, Vector2 position, bool isPowerUp)
         {
             this.level = level;
             this.basePosition = position;
 
+            IsPowerUp = isPowerUp;
+            if (IsPowerUp)
+            {
+                PointValue = 100;
+                Color = Color.Red;
+            }
+            else
+            {
+                PointValue = 30;
+                Color = Color.Yellow;
+            }
+    
             LoadContent();
         }
 
@@ -105,6 +118,10 @@ namespace Platformer
         public void OnCollected(Player collectedBy)
         {
             collectedSound.Play();
+
+            if (IsPowerUp)
+                collectedBy.PowerUp();
+    
         }
 
         /// <summary>

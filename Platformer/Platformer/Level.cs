@@ -189,7 +189,11 @@ namespace Platformer
 
                 // Gem
                 case 'G':
-                    return LoadGemTile(x, y);
+                    return LoadGemTile(x, y, false);
+
+                // Power-up gem
+                case 'P':
+                    return LoadGemTile(x, y, true);
 
                 // Floating platform
                 case '-':
@@ -302,10 +306,10 @@ namespace Platformer
         /// <summary>
         /// Instantiates a gem and puts it in the level.
         /// </summary>
-        private Tile LoadGemTile(int x, int y)
+        private Tile LoadGemTile(int x, int y, bool isPowerUp)
         {
             Point position = GetBounds(x, y).Center;
-            gems.Add(new Gem(this, new Vector2(position.X, position.Y)));
+            gems.Add(new Gem(this, new Vector2(position.X, position.Y), isPowerUp));
 
             return new Tile(null, TileCollision.Passable);
         }
@@ -451,11 +455,23 @@ namespace Platformer
                 enemy.Update(gameTime);
 
                 // Touching an enemy instantly kills the player
-                if (enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
+                if (enemy.IsAlive && enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
                 {
-                    OnPlayerKilled(enemy);
+                    if (Player.IsPoweredUp)
+                    {
+                        OnEnemyKilled(enemy, Player);
+                    }
+                    else
+                    {
+                        OnPlayerKilled(enemy);
+                    }
                 }
             }
+        }
+
+        private void OnEnemyKilled(Enemy enemy, Player killedBy)
+        {
+            enemy.OnKilled(killedBy);
         }
 
         /// <summary>
@@ -465,7 +481,7 @@ namespace Platformer
         /// <param name="collectedBy">The player who collected this gem.</param>
         private void OnGemCollected(Gem gem, Player collectedBy)
         {
-            score += Gem.PointValue;
+            score += gem.PointValue;
 
             gem.OnCollected(collectedBy);
         }
