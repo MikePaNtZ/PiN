@@ -46,6 +46,7 @@ namespace Platformer
         // then we use the same input state wherever needed
         private GamePadState gamePadState;
         private KeyboardState keyboardState;
+        private MouseState mouseState;
         private TouchCollection touchState;
         private AccelerometerState accelerometerState;
         
@@ -110,7 +111,7 @@ namespace Platformer
             HandleInput();
 
             // update our level, passing down the GameTime along with all of our input states
-            level.Update(gameTime, keyboardState, gamePadState, touchState, 
+            level.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, 
                          accelerometerState, Window.CurrentOrientation);
 
             base.Update(gameTime);
@@ -120,6 +121,7 @@ namespace Platformer
         {
             // get all of our input states
             keyboardState = Keyboard.GetState();
+            mouseState = Mouse.GetState();
             gamePadState = GamePad.GetState(PlayerIndex.One);
             touchState = TouchPanel.GetState();
             accelerometerState = Accelerometer.GetState();

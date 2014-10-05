@@ -377,6 +377,7 @@ namespace Platformer
         public void Update(
             GameTime gameTime, 
             KeyboardState keyboardState, 
+            MouseState mouseState, 
             GamePadState gamePadState, 
             TouchCollection touchState, 
             AccelerometerState accelState,
@@ -399,7 +400,7 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-                Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
+                Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
                 UpdateGems(gameTime);
 
                 // Falling off the bottom of the level kills the player.

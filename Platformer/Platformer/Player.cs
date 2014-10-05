@@ -35,6 +35,10 @@ namespace Platformer
         private SoundEffect jumpSound;
         private SoundEffect fallSound;
 
+        // Shooting objects
+        GameObject arm;
+        GameObject crosshair;
+
         public Level Level
         {
             get { return level; }
@@ -167,6 +171,10 @@ namespace Platformer
             jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
+
+            // load shooting related object
+            arm = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
+            crosshair = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
         }
 
         /// <summary>
@@ -193,12 +201,13 @@ namespace Platformer
         public void Update(
             GameTime gameTime, 
             KeyboardState keyboardState, 
+            MouseState mouseState, 
             GamePadState gamePadState, 
             TouchCollection touchState, 
             AccelerometerState accelState,
             DisplayOrientation orientation)
         {
-            GetInput(keyboardState, gamePadState, touchState, accelState, orientation);
+            GetInput(keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
 
             ApplyPhysics(gameTime);
 
@@ -220,6 +229,14 @@ namespace Platformer
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            // Shooting related updates
+            crosshair.position = new Vector2(mouseState.X, mouseState.Y);
+
+            if (flip == SpriteEffects.FlipHorizontally)
+                arm.position = new Vector2(position.X + 5, position.Y - 60);
+            else
+                arm.position = new Vector2(position.X - 5, position.Y - 60);
         }
 
         /// <summary>
@@ -227,6 +244,7 @@ namespace Platformer
         /// </summary>
         private void GetInput(
             KeyboardState keyboardState, 
+            MouseState mouseState,
             GamePadState gamePadState, 
             TouchCollection touchState,
             AccelerometerState accelState, 
@@ -271,6 +289,42 @@ namespace Platformer
                 keyboardState.IsKeyDown(Keys.Up) ||
                 keyboardState.IsKeyDown(Keys.W) ||
                 touchState.AnyTouch();
+
+            updateShooting(mouseState);
+
+        }
+
+        private void updateShooting(MouseState mouseState)
+        {
+            //Arm rotation
+            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI/2; //this will return the mouse angle(in radians).
+             
+            if (flip == SpriteEffects.FlipHorizontally) //Facing right
+            {
+                //If we try to aim behind our head then flip the
+                //character around so he doesn't break his arm!
+                if (arm.rotation < 0)
+                    flip = SpriteEffects.None;
+             
+                //If we aren't rotating our arm then set it to the
+                //default position. Aiming in front of us.
+                if (arm.rotation == 0)
+                    arm.rotation = MathHelper.PiOver2;
+            }
+            else //Facing left
+            {
+                //Once again, if we try to aim behind us then
+                //flip our character.
+                if (arm.rotation > 0)
+                    flip = SpriteEffects.FlipHorizontally;
+             
+                //If we're not rotating our arm, default it to
+                //aim the same direction we're facing.
+                if (arm.rotation == 0)
+                    arm.rotation = -MathHelper.PiOver2;
+            }
+
         }
 
         /// <summary>
@@ -489,6 +543,31 @@ namespace Platformer
 
             // Draw that sprite.
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
+
+            // Shooting related drawing.
+            if(IsAlive)
+            {
+                spriteBatch.Draw(
+                    arm.sprite,
+                    arm.position,
+                    null,
+                    Color.White,
+                    arm.rotation,
+                    arm.center,
+                    1.0f,
+                    flip,
+                    0);
+                spriteBatch.Draw(
+                    crosshair.sprite,
+                    crosshair.position,
+                    null,
+                    Color.White,
+                    crosshair.rotation,
+                    crosshair.center,
+                    1.0f,
+                    flip,
+                    0);
+            }
         }
 
         public void PowerUp()
