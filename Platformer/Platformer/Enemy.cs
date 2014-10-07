@@ -58,7 +58,7 @@ namespace Platformer
             }
         }
 
-        public bool IsAlive { get; private set; }
+        public bool IsAlive { get; set; }
 
         // Animations
         private Animation runAnimation;

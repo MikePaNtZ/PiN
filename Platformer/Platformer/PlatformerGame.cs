@@ -60,6 +60,7 @@ namespace Platformer
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics.IsFullScreen = true;
 
 #if WINDOWS_PHONE
             graphics.IsFullScreen = true;
@@ -127,7 +128,7 @@ namespace Platformer
             accelerometerState = Accelerometer.GetState();
 
             // Exit the game when back is pressed.
-            if (gamePadState.Buttons.Back == ButtonState.Pressed)
+            if (gamePadState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
             bool continuePressed =

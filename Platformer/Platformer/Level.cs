@@ -40,7 +40,7 @@ namespace Platformer
         Player player;
 
         private List<Gem> gems = new List<Gem>();
-        private List<Enemy> enemies = new List<Enemy>();
+        public List<Enemy> enemies = new List<Enemy>();
 
         // Key locations in the level.        
         private Vector2 start;
@@ -50,6 +50,7 @@ namespace Platformer
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
         private float cameraPosition;
+
 
         public int Score
         {
@@ -555,7 +556,7 @@ namespace Platformer
 #if ZUNE
 const float ViewMargin = 0.45f;
 #else
-            const float ViewMargin = 0.35f;
+            const float ViewMargin = 0.45f;
 #endif
 
             // Calculate the edges of the screen.
