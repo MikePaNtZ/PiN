@@ -55,7 +55,7 @@ namespace Platformer
         {
             get
             {
-                return new Circle(Position, Tile.Width / 3.0f);
+                return new Circle(Position, level.TileWidth / 3.0f);
             }
         }
 
