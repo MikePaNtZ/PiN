@@ -282,7 +282,7 @@ namespace Platformer
                 throw new NotSupportedException("A level may only have one starting point.");
 
             start = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
-            player = new Player(this, new Vector2(x,y));
+            player = new Player(this, start);
 
         }
 
@@ -368,7 +368,7 @@ namespace Platformer
         /// </summary>        
         public Rectangle GetBounds(int x, int y)
         {
-            return new Rectangle(x, y, x + this.TileWidth, y + this.TileHeight);
+            return new Rectangle(x, y, map.TileWidth,map.TileHeight);
         }
 
         /// <summary>
@@ -437,15 +437,37 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
+
+                if (keyboardState.IsKeyDown(Keys.K))
+                {
+                    Player.Position = new Vector2(Player.Position.X + 50, Player.Position.Y);
+                    //cam.Move(new Vector2(10, 0));
+                }
+
+                else if (keyboardState.IsKeyDown(Keys.H))
+                {
+                    Player.Position = new Vector2(Player.Position.X - 50, Player.Position.Y);
+                    //cam.Move(new Vector2(-10, 0));
+                }
+                if (keyboardState.IsKeyDown(Keys.J))
+                {
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y + 50);
+                    //cam.Move(new Vector2(0, 10));
+                }
+                else if (keyboardState.IsKeyDown(Keys.U))
+                {
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 50);
+                    //cam.Move(new Vector2(0, -10));
+                }
                 Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
-                //cam.LookAt(new Vector2(0,544));
-                UpdateGems(gameTime);
+                cam.LookAt(Player.Position);
+                //UpdateGems(gameTime);
 
                 // Falling off the bottom of the level kills the player.
                 if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
                     //OnPlayerKilled(null);
 
-                UpdateEnemies(gameTime);
+                //UpdateEnemies(gameTime);
 
                 // The player has reached the exit if they are standing on the ground and
                 // his bounding rectangle contains the center of the exit tile. They can only
@@ -458,14 +480,8 @@ namespace Platformer
                 }
             }
 
-            if (keyboardState.IsKeyDown(Keys.K))
-                cam.Move(new Vector2(10, 0));
-            else if (keyboardState.IsKeyDown(Keys.H))
-                cam.Move(new Vector2(-10, 0));
-            if (keyboardState.IsKeyDown(Keys.J))
-                cam.Move(new Vector2(0, 10));
-            else if (keyboardState.IsKeyDown(Keys.U))
-                cam.Move(new Vector2(0, -10));
+            
+                
 
             // Clamp the time remaining at zero.
             if (timeRemaining < TimeSpan.Zero)
@@ -577,12 +593,22 @@ namespace Platformer
             
             //ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
            // Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0.0f);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
-                              RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); ;
+
+            spriteBatch.Begin(SpriteSortMode.BackToFront,
+                        BlendState.AlphaBlend,
+                        null,
+                        null,
+                        null,
+                        null,
+                        cam.GetViewMatrix(Vector2.One) /*Send the variable that has your graphic device here*/);
+
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
+                              //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); ;
+
             //cameraPosition.Y = 544;
             //DrawTiles(spriteBatch);
             cam.Position = new Vector2(0, 544);
-            map.Draw(spriteBatch, spriteBatch.GraphicsDevice.Viewport.Bounds, cam.Position);
+            map.Draw(spriteBatch, new Rectangle(0, 0, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
             /*foreach (Gem gem in gems)
                 gem.Draw(gameTime, spriteBatch);*/
