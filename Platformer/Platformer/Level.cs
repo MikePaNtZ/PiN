@@ -440,26 +440,26 @@ namespace Platformer
 
                 if (keyboardState.IsKeyDown(Keys.K))
                 {
-                    Player.Position = new Vector2(Player.Position.X + 50, Player.Position.Y);
+                    Player.Position = new Vector2(Player.Position.X + 20, Player.Position.Y);
                     //cam.Move(new Vector2(10, 0));
                 }
 
                 else if (keyboardState.IsKeyDown(Keys.H))
                 {
-                    Player.Position = new Vector2(Player.Position.X - 50, Player.Position.Y);
+                    Player.Position = new Vector2(Player.Position.X - 20, Player.Position.Y);
                     //cam.Move(new Vector2(-10, 0));
                 }
                 if (keyboardState.IsKeyDown(Keys.J))
                 {
-                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y + 50);
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y + 20);
                     //cam.Move(new Vector2(0, 10));
                 }
                 else if (keyboardState.IsKeyDown(Keys.U))
                 {
-                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 50);
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 20);
                     //cam.Move(new Vector2(0, -10));
                 }
-                Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
+                //Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
                 cam.LookAt(Player.Position);
                 //UpdateGems(gameTime);
 
@@ -607,13 +607,17 @@ namespace Platformer
 
             //cameraPosition.Y = 544;
             //DrawTiles(spriteBatch);
-            cam.Position = new Vector2(0, 544);
-            map.Draw(spriteBatch, new Rectangle(0, 0, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
+            //cam.Position = new Vector2(0, 544);
+            
+            
 
             /*foreach (Gem gem in gems)
                 gem.Draw(gameTime, spriteBatch);*/
+            map.Draw(spriteBatch, new Rectangle(0, 0, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
             Player.Draw(gameTime, spriteBatch);
+            
+            
 
             /*foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);*/
