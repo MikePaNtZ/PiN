@@ -59,6 +59,9 @@ namespace Platformer
         public PlatformerGame()
         {
             graphics = new GraphicsDeviceManager(this);
+
+            //graphics.ToggleFullScreen();
+
             Content.RootDirectory = "Content";
 
 #if WINDOWS_PHONE
@@ -165,9 +168,8 @@ namespace Platformer
                 level.Dispose();
 
             // Load the level.
-            string levelPath = string.Format("Content/Levels/{0}.txt", levelIndex);
-            using (Stream fileStream = TitleContainer.OpenStream(levelPath))
-                level = new Level(Services, fileStream, levelIndex);
+            
+            level = new Level(Services,levelIndex,spriteBatch.GraphicsDevice.Viewport);
         }
 
         private void ReloadCurrentLevel()

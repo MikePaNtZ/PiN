@@ -137,8 +137,8 @@ namespace Platformer
 
             // Calculate tile position based on the side we are walking towards.
             float posX = Position.X + localBounds.Width / 2 * (int)direction;
-            int tileX = (int)Math.Floor(posX / Tile.Width) - (int)direction;
-            int tileY = (int)Math.Floor(Position.Y / Tile.Height);
+            int tileX = (int)Math.Floor(posX / level.TileWidth) - (int)direction;
+            int tileY = (int)Math.Floor(Position.Y / level.TileHeight);
 
             if (waitTime > 0)
             {

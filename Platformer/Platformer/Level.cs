@@ -16,6 +16,7 @@ using Microsoft.Xna.Framework.Audio;
 using System.IO;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Input;
+using Squared.Tiled;
 
 namespace Platformer
 {
@@ -26,8 +27,10 @@ namespace Platformer
     /// </summary>
     class Level : IDisposable
     {
+
+        private Map map;
         // Physical structure of the level.
-        private Tile[,] tiles;
+        //private Tile[,] tiles;
         private Layer[] layers;
         // The layer which entities are drawn on top of.
         private const int EntityLayer = 2;
@@ -49,7 +52,8 @@ namespace Platformer
 
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
-        private float cameraPosition;
+        //private Vector2 cameraPosition;
+        private Camera cam;
 
 
         public int Score
@@ -89,17 +93,18 @@ namespace Platformer
         /// <param name="serviceProvider">
         /// The service provider that will be used to construct a ContentManager.
         /// </param>
-        /// <param name="fileStream">
-        /// A stream containing the tile data.
-        /// </param>
-        public Level(IServiceProvider serviceProvider, Stream fileStream, int levelIndex)
+        public Level(IServiceProvider serviceProvider, int levelIndex, Viewport viewport)
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-
+            //cameraPosition = new Vector2(0, this.TileHeight * Height - spriteBatch.GraphicsDevice.Viewport.Height);
             timeRemaining = TimeSpan.FromMinutes(2.0);
 
-            LoadTiles(fileStream);
+            string levelPath = string.Format("Levels/{0}.tmx", levelIndex);
+
+            LoadMap(levelPath);
+            cam = new Camera(viewport);
+            cam.Limits = new Rectangle(0, 0, map.Width*map.TileWidth, map.Height*map.TileHeight);
 
             // Load background layer textures. For now, all levels must
             // use the same backgrounds and only use the left-most part of them.
@@ -113,53 +118,62 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Iterates over every tile in the structure file and loads its
-        /// appearance and behavior. This method also validates that the
-        /// file is well-formed with a player start point, exit, etc.
+        /// Uses the Tiled library to load .tmx tile map
         /// </summary>
-        /// <param name="fileStream">
-        /// A stream containing the tile data.
-        /// </param>
-        private void LoadTiles(Stream fileStream)
+        private void LoadMap(String levelPathName) 
         {
-            // Load the level and ensure all of the lines are the same length.
-            int width;
-            List<string> lines = new List<string>();
-            using (StreamReader reader = new StreamReader(fileStream))
-            {
-                string line = reader.ReadLine();
-                width = line.Length;
-                while (line != null)
-                {
-                    lines.Add(line);
-                    if (line.Length != width)
-                        throw new Exception(String.Format("The length of line {0} is different from all preceeding lines.", lines.Count));
-                    line = reader.ReadLine();
-                }
-            }
+            
 
-            // Allocate the tile grid.
-            tiles = new Tile[width, lines.Count];
+            map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
 
-            // Loop over every tile position,
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = 0; x < Width; ++x)
-                {
-                    // to load each tile.
-                    char tileType = lines[y][x];
-                    tiles[x, y] = LoadTile(tileType, x, y);
-                }
-            }
+            //get player start point. Have to convert to tilebased so divide by tile dimensions
+            LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
 
-            // Verify that the level has a beginning and an end.
-            if (Player == null)
-                throw new NotSupportedException("A level must have a starting point.");
-            if (exit == InvalidPosition)
-                throw new NotSupportedException("A level must have an exit.");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].Y / map.TileHeight), "MonsterA");
+
+            //exit point
+            LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
+                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight));
+
+            #region load map commented Code
+            //// Load the level and ensure all of the lines are the same length.
+            //int width;
+            //List<string> lines = new List<string>();
+            //using (StreamReader reader = new StreamReader(fileStream)) {
+            //    string line = reader.ReadLine();
+            //    width = line.Length;
+            //    while (line != null) {
+            //        lines.Add(line);
+            //        if (line.Length != width)
+            //            throw new Exception(String.Format("The length of line {0} is different from all preceeding lines.", lines.Count));
+            //        line = reader.ReadLine();
+            //    }
+            //}
+
+            //// Allocate the tile grid.
+            //tiles = new Tile[width, lines.Count];
+
+            //// Loop over every tile position,
+            //for (int y = 0; y < Height; ++y) {
+            //    for (int x = 0; x < Width; ++x) {
+            //        // to load each tile.
+            //        char tileType = lines[y][x];
+            //        tiles[x, y] = LoadTile(tileType, x, y);
+            //    }
+            //}
+
+            //// Verify that the level has a beginning and an end.
+            //if (Player == null)
+            //    throw new NotSupportedException("A level must have a starting point.");
+            //if (exit == InvalidPosition)
+            //    throw new NotSupportedException("A level must have an exit.");
+            #endregion
 
         }
-
+        #region load tiles commented code
+        /*
         /// <summary>
         /// Loads an individual tile's appearance and behavior.
         /// </summary>
@@ -262,12 +276,13 @@ namespace Platformer
             int index = random.Next(variationCount);
             return LoadTile(baseName + index, collision);
         }
-
+        */
+        #endregion
 
         /// <summary>
         /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
         /// </summary>
-        private Tile LoadStartTile(int x, int y)
+        private void LoadPlayer(int x, int y)
         {
             if (Player != null)
                 throw new NotSupportedException("A level may only have one starting point.");
@@ -275,44 +290,38 @@ namespace Platformer
             start = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
             player = new Player(this, start);
 
-            return new Tile(null, TileCollision.Passable);
         }
 
         /// <summary>
         /// Remembers the location of the level's exit.
         /// </summary>
-        private Tile LoadExitTile(int x, int y)
+        private void LoadExit(int x, int y)
         {
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
 
             exit = GetBounds(x, y).Center;
-
-            return LoadTile("Exit", TileCollision.Passable);
         }
 
         /// <summary>
         /// Instantiates an enemy and puts him in the level.
         /// </summary>
-        private Tile LoadEnemyTile(int x, int y, string spriteSet)
+        private void LoadEnemy(int x, int y, string spriteSet)
         {
             Vector2 position = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
             enemies.Add(new Enemy(this, position, spriteSet));
-
-            return new Tile(null, TileCollision.Passable);
         }
 
         /// <summary>
         /// Instantiates a gem and puts it in the level.
         /// </summary>
-        private Tile LoadGemTile(int x, int y, bool isPowerUp)
+        private void LoadGem(int x, int y, bool isPowerUp)
         {
             Point position = GetBounds(x, y).Center;
             gems.Add(new Gem(this, new Vector2(position.X, position.Y), isPowerUp));
-
-            return new Tile(null, TileCollision.Passable);
         }
-
+        
+        
         /// <summary>
         /// Unloads the level content.
         /// </summary>
@@ -333,6 +342,7 @@ namespace Platformer
         /// </summary>
         public TileCollision GetCollision(int x, int y)
         {
+            
             // Prevent escaping past the level ends.
             if (x < 0 || x >= Width)
                 return TileCollision.Impassable;
@@ -340,7 +350,27 @@ namespace Platformer
             if (y < 0 || y >= Height)
                 return TileCollision.Passable;
 
-            return tiles[x, y].Collision;
+            //get the id of tile
+            int tileId = map.Layers["Foreground"].GetTile(x, y);
+
+            //get list of properties for tile
+            Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
+
+            if (currentTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(currentTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+            
+
+            return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
         }
 
         /// <summary>
@@ -348,7 +378,7 @@ namespace Platformer
         /// </summary>        
         public Rectangle GetBounds(int x, int y)
         {
-            return new Rectangle(x * Tile.Width, y * Tile.Height, Tile.Width, Tile.Height);
+            return new Rectangle(x * map.TileWidth, y * map.TileHeight, map.TileWidth, map.TileHeight);
         }
 
         /// <summary>
@@ -356,7 +386,7 @@ namespace Platformer
         /// </summary>
         public int Width
         {
-            get { return tiles.GetLength(0); }
+            get { return map.Width; }
         }
 
         /// <summary>
@@ -364,7 +394,23 @@ namespace Platformer
         /// </summary>
         public int Height
         {
-            get { return tiles.GetLength(1); }
+            get { return map.Height; }
+        }
+
+        /// <summary>
+        /// Width of tiles in this level.
+        /// </summary>
+        public int TileWidth
+        {
+            get { return map.TileWidth; }
+        }
+
+        /// <summary>
+        /// Height of the tiles in this level.
+        /// </summary>
+        public int TileHeight
+        {
+            get { return map.TileHeight; }
         }
 
         #endregion
@@ -389,6 +435,7 @@ namespace Platformer
             {
                 // Still want to perform physics on the player.
                 Player.ApplyPhysics(gameTime);
+                
             }
             else if (ReachedExit)
             {
@@ -401,18 +448,58 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
+
+
+
+                //manually move player for debugging purposes
+                if (keyboardState.IsKeyDown(Keys.K))
+                {
+                    Player.Position = new Vector2(Player.Position.X + 20, Player.Position.Y);
+                    //cam.Move(new Vector2(10, 0));
+                }
+
+                else if (keyboardState.IsKeyDown(Keys.H))
+                {
+                    Player.Position = new Vector2(Player.Position.X - 20, Player.Position.Y);
+                    //cam.Move(new Vector2(-10, 0));
+                }
+                if (keyboardState.IsKeyDown(Keys.J))
+                {
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y + 20);
+                    //cam.Move(new Vector2(0, 10));
+                }
+                else if (keyboardState.IsKeyDown(Keys.U))
+                {
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 20);
+                    //cam.Move(new Vector2(0, -10));
+                }
+
                 Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
                 UpdateGems(gameTime);
 
+                //follow player
+                cam.LookAt(Player.Position);
+
+
                 // Falling off the bottom of the level kills the player.
-                if (Player.BoundingRectangle.Top >= Height * Tile.Height)
+                if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
                     OnPlayerKilled(null);
 
-                UpdateEnemies(gameTime);
+                    UpdateEnemies(gameTime);
 
-                // The player has reached the exit if they are standing on the ground and
-                // his bounding rectangle contains the center of the exit tile. They can only
-                // exit when they have collected all of the gems.
+                //just making sure collision is working
+                switch (GetCollision((int)Math.Floor((float)Player.Position.X / map.TileWidth),
+                                     (int)Math.Floor((float)Player.Position.Y / map.TileHeight)))
+                {
+                    case TileCollision.Impassable:
+                        score++;
+                        break;
+                }
+
+                    // The player has reached the exit if they are standing on the ground and
+                    // his bounding rectangle contains the center of the exit tile. They can only
+                    // exit when they have collected all of the gems.
+                
                 if (Player.IsAlive &&
                     Player.IsOnGround &&
                     Player.BoundingRectangle.Contains(exit))
@@ -420,6 +507,9 @@ namespace Platformer
                     OnExitReached();
                 }
             }
+
+            
+                
 
             // Clamp the time remaining at zero.
             if (timeRemaining < TimeSpan.Zero)
@@ -522,36 +612,55 @@ namespace Platformer
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin();
+            /*spriteBatch.Begin();
             for (int i = 0; i <= EntityLayer; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition);
-            spriteBatch.End();
+                layers[i].Draw(spriteBatch, cameraPosition.X);
+            spriteBatch.End();*/
 
-            ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
-            Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition, 0.0f, 0.0f);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
-                              RasterizerState.CullCounterClockwise, null, cameraTransform); ;
 
-            DrawTiles(spriteBatch);
+            
+            //ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
+           // Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0.0f);
 
-            foreach (Gem gem in gems)
-                gem.Draw(gameTime, spriteBatch);
+            spriteBatch.Begin(SpriteSortMode.BackToFront,
+                        BlendState.AlphaBlend,
+                        null,
+                        null,
+                        null,
+                        null,
+                        cam.GetViewMatrix(Vector2.One));
+            
+
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
+                              //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
+
+            //cameraPosition.Y = 544;
+            //DrawTiles(spriteBatch);
+            //cam.Position = new Vector2(0, 544);
+            
+            
+            //spriteBatch.Begin();
+            /*foreach (Gem gem in gems)
+                gem.Draw(gameTime, spriteBatch);*/
+            map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
             Player.Draw(gameTime, spriteBatch);
+            
+            
 
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
 
             spriteBatch.End();
 
-            spriteBatch.Begin();
+            /*spriteBatch.Begin();
             for (int i = EntityLayer + 1; i < layers.Length; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition);
-            spriteBatch.End();
+                layers[i].Draw(spriteBatch, cameraPosition.X);
+            spriteBatch.End();*/
         }
     
 
-        private void ScrollCamera(Viewport viewport)
+        /*private void ScrollCamera(Viewport viewport)
         {
 #if ZUNE
 const float ViewMargin = 0.45f;
@@ -561,21 +670,33 @@ const float ViewMargin = 0.45f;
 
             // Calculate the edges of the screen.
             float marginWidth = viewport.Width * ViewMargin;
-            float marginLeft = cameraPosition + marginWidth;
-            float marginRight = cameraPosition + viewport.Width - marginWidth;
+            float marginLeft = cameraPosition.X + marginWidth;
+            float marginRight = cameraPosition.X + viewport.Width - marginWidth;
+
+            float marginHeight = viewport.Height * ViewMargin;
+            float marginTop = cameraPosition.Y + marginHeight;
+            float marginBottom = cameraPosition.Y + viewport.Height - marginHeight;
 
             // Calculate how far to scroll when the player is near the edges of the screen.
-            float cameraMovement = 0.0f;
+            Vector2 cameraMovement = new Vector2(0.0f, 0.0f);
             if (Player.Position.X < marginLeft)
-                cameraMovement = Player.Position.X - marginLeft;
+                cameraMovement.X = Player.Position.X - marginLeft;
             else if (Player.Position.X > marginRight)
-                cameraMovement = Player.Position.X - marginRight;
+                cameraMovement.X = Player.Position.X - marginRight;
+
+            if (Player.Position.Y < marginTop)
+                cameraMovement.Y = Player.Position.Y - marginTop;
+            else if (Player.Position.Y > marginBottom)
+                cameraMovement.Y = Player.Position.Y - marginBottom;
 
             // Update the camera position, but prevent scrolling off the ends of the level.
-            float maxCameraPosition = Tile.Width * Width - viewport.Width;
-            cameraPosition = MathHelper.Clamp(cameraPosition + cameraMovement, 0.0f, maxCameraPosition);
-        }
+            Vector2 maxCameraPosition = new Vector2(this.TileWidth * Width - viewport.Width, this.TileHeight * Height - viewport.Height);
+            cameraPosition.X = MathHelper.Clamp(cameraPosition.X + cameraMovement.X, 0.0f, maxCameraPosition.X);
+            cameraPosition.Y = MathHelper.Clamp(cameraPosition.Y + cameraMovement.Y, 0.0f, maxCameraPosition.Y);
+        }*/
 
+        #region drawTiles commented code
+        /*
         /// <summary>
         /// Draws each tile in the level.
         /// </summary>
@@ -602,6 +723,8 @@ const float ViewMargin = 0.45f;
                 }
             }
         }
+        */
+        #endregion
 
         #endregion
     }

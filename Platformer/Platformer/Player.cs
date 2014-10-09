@@ -353,10 +353,10 @@ namespace Platformer
                         bulletRect.Center.Y - 6,
                         bulletRect.Width / 4,
                         bulletRect.Height / 4);
-                    int leftTile = (int)Math.Floor((float)bounds.Left / Tile.Width);
-                    int rightTile = (int)Math.Ceiling(((float)bounds.Right / Tile.Width)) - 1;
-                    int topTile = (int)Math.Floor((float)bounds.Top / Tile.Height);
-                    int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / Tile.Height)) - 1;
+                    int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
+                    int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
+                    int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
+                    int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
          
                     // For each potentially colliding tile
                     for (int y = topTile; y <= bottomTile; ++y)
@@ -591,10 +591,10 @@ namespace Platformer
         {
             // Get the player's bounding rectangle and find neighboring tiles.
             Rectangle bounds = BoundingRectangle;
-            int leftTile = (int)Math.Floor((float)bounds.Left / Tile.Width);
-            int rightTile = (int)Math.Ceiling(((float)bounds.Right / Tile.Width)) - 1;
-            int topTile = (int)Math.Floor((float)bounds.Top / Tile.Height);
-            int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / Tile.Height)) - 1;
+            int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
+            int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
+            int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
+            int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
 
             // Reset flag to search for ground collision.
             isOnGround = false;
