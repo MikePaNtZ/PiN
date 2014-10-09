@@ -125,11 +125,13 @@ namespace Platformer
 
             map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
 
-            LoadPlayer(map.ObjectGroups["events"].Objects["player"].X, 
-                       map.ObjectGroups["events"].Objects["player"].Y);
+            //get player start point. Have to convert to tilebased so divide by tile dimensions
+            LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
 
-            exit.X = map.ObjectGroups["events"].Objects["exit"].X;
-            exit.Y = map.ObjectGroups["events"].Objects["exit"].Y;
+            //exit point
+            LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
+                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight));
 
             #region load map commented Code
             //// Load the level and ensure all of the lines are the same length.
@@ -343,12 +345,16 @@ namespace Platformer
             // Allow jumping past the level top and falling through the bottom.
             if (y < 0 || y >= Height)
                 return TileCollision.Passable;
+
+            //get the id of tile
             int tileId = map.Layers["Foreground"].GetTile(x, y);
+
+            //get list of properties for tile
             Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
 
-            if (currentTileProperties != null) //Tile has properties
+            if (currentTileProperties != null) //check if current tile has properties
             {
-                switch (Convert.ToInt32(currentTileProperties["TileCollision"]))
+                switch (Convert.ToInt32(currentTileProperties["TileCollision"]))//should be a number 0-2
                 {
                     case 0:
                         return TileCollision.Passable;
@@ -368,7 +374,7 @@ namespace Platformer
         /// </summary>        
         public Rectangle GetBounds(int x, int y)
         {
-            return new Rectangle(x, y, map.TileWidth,map.TileHeight);
+            return new Rectangle(x * map.TileWidth, y * map.TileHeight, map.TileWidth, map.TileHeight);
         }
 
         /// <summary>
@@ -438,6 +444,7 @@ namespace Platformer
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
 
+                //manually move player for debugging purposes
                 if (keyboardState.IsKeyDown(Keys.K))
                 {
                     Player.Position = new Vector2(Player.Position.X + 20, Player.Position.Y);
@@ -459,19 +466,33 @@ namespace Platformer
                     Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 20);
                     //cam.Move(new Vector2(0, -10));
                 }
-                //Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
+
+                Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
+
+                //follow player
                 cam.LookAt(Player.Position);
+
                 //UpdateGems(gameTime);
 
                 // Falling off the bottom of the level kills the player.
-                if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
+                //if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
                     //OnPlayerKilled(null);
 
-                //UpdateEnemies(gameTime);
+                    //UpdateEnemies(gameTime);
 
-                // The player has reached the exit if they are standing on the ground and
-                // his bounding rectangle contains the center of the exit tile. They can only
-                // exit when they have collected all of the gems.
+                //just making sure collision is working
+                switch (GetCollision((int)Math.Floor((float)Player.Position.X / map.TileWidth),
+                                     (int)Math.Floor((float)Player.Position.Y / map.TileHeight)))
+                {
+                    case TileCollision.Impassable:
+                        score++;
+                        break;
+                }
+
+                    // The player has reached the exit if they are standing on the ground and
+                    // his bounding rectangle contains the center of the exit tile. They can only
+                    // exit when they have collected all of the gems.
+                
                 if (Player.IsAlive &&
                     Player.IsOnGround &&
                     Player.BoundingRectangle.Contains(exit))
@@ -600,20 +621,21 @@ namespace Platformer
                         null,
                         null,
                         null,
-                        cam.GetViewMatrix(Vector2.One) /*Send the variable that has your graphic device here*/);
+                        cam.GetViewMatrix(Vector2.One));
+            
 
             //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
-                              //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); ;
+                              //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
 
             //cameraPosition.Y = 544;
             //DrawTiles(spriteBatch);
             //cam.Position = new Vector2(0, 544);
             
             
-
+            //spriteBatch.Begin();
             /*foreach (Gem gem in gems)
                 gem.Draw(gameTime, spriteBatch);*/
-            map.Draw(spriteBatch, new Rectangle(0, 0, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
+            map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
             Player.Draw(gameTime, spriteBatch);
             
