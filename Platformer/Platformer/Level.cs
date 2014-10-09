@@ -129,6 +129,9 @@ namespace Platformer
             LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
 
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].Y / map.TileHeight), "MonsterA");
+
             //exit point
             LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
                      (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight));
@@ -475,10 +478,10 @@ namespace Platformer
                 //UpdateGems(gameTime);
 
                 // Falling off the bottom of the level kills the player.
-                //if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
-                    //OnPlayerKilled(null);
+                if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
+                    OnPlayerKilled(null);
 
-                    //UpdateEnemies(gameTime);
+                    UpdateEnemies(gameTime);
 
                 //just making sure collision is working
                 switch (GetCollision((int)Math.Floor((float)Player.Position.X / map.TileWidth),
@@ -641,8 +644,8 @@ namespace Platformer
             
             
 
-            /*foreach (Enemy enemy in enemies)
-                enemy.Draw(gameTime, spriteBatch);*/
+            foreach (Enemy enemy in enemies)
+                enemy.Draw(gameTime, spriteBatch);
 
             spriteBatch.End();
 

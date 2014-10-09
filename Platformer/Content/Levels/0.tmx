@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="200" height="32" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="platformertiles" tilewidth="32" tileheight="32">
-  <image source="..\Tiles\platformertiles.png" width="256" height="96"/>
+  <image source="../Tiles/platformertiles.png" width="256" height="96"/>
   <tile id="0">
    <properties>
     <property name="TileCollision" value="1"/>
@@ -6500,5 +6500,10 @@
  <objectgroup name="events">
   <object name="player" x="4" y="893" width="64" height="64"/>
   <object name="exit" x="6332" y="767" width="64" height="64"/>
+  <object name="enemy" x="1457" y="808" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="a"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
