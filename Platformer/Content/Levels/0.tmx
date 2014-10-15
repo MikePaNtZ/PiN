@@ -4337,10 +4337,10 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="20"/>
+   <tile gid="20"/>
+   <tile gid="20"/>
+   <tile gid="20"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -6506,4 +6506,5 @@
    </properties>
   </object>
  </objectgroup>
+ <imagelayer name="Background" x="-640" y="12"/>
 </map>

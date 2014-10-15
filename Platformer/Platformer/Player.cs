@@ -21,6 +21,7 @@ namespace Platformer
     /// </summary>
     class Player
     {
+                            /******************************* CLASS VARIABLES ***********************************/
         // Animations
         private Animation idleAnimation;
         private Animation runAnimation;
@@ -29,6 +30,8 @@ namespace Platformer
         private Animation dieAnimation;
         private SpriteEffects flip = SpriteEffects.None;
         private AnimationPlayer sprite;
+        private Animation shieldAnimation;
+
 
         // Sounds
         private SoundEffect killedSound;
@@ -41,6 +44,8 @@ namespace Platformer
         private GameObject[] bullets;
         private int MAX_BULLETS = 12;
         private MouseState oldMouseState;
+
+
 
         public Level Level
         {
@@ -75,8 +80,8 @@ namespace Platformer
             get { return position; }
             set { position = value; }
         }
-        Vector2 position;
 
+        Vector2 position;
         private float previousBottom;
 
         public Vector2 Velocity
@@ -97,7 +102,7 @@ namespace Platformer
         private const float JumpLaunchVelocity = -3500.0f;
         private const float GravityAcceleration = 3400.0f;
         private const float MaxFallSpeed = 550.0f;
-        private const float JumpControlPower = 0.14f; 
+        private const float JumpControlPower = 0.14f;
 
         // Input configuration
         private const float MoveStickScale = 1.0f;
@@ -122,8 +127,9 @@ namespace Platformer
         private bool isJumping;
         private bool wasJumping;
         private float jumpTime;
-
         private bool isShooting;
+        private bool isBlocking; //is player using his force field shield
+
 
         private Rectangle localBounds;
         /// <summary>
@@ -159,6 +165,7 @@ namespace Platformer
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Idle"), 0.1f, true);
+            shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Shield"), 0.1f, true); //load image for the shield
             runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Run"), 0.1f, true);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
@@ -210,11 +217,11 @@ namespace Platformer
         /// we need to reverse our motion when the orientation is in the LandscapeRight orientation.
         /// </remarks>
         public void Update(
-            GameTime gameTime, 
-            KeyboardState keyboardState, 
-            MouseState mouseState, 
-            GamePadState gamePadState, 
-            TouchCollection touchState, 
+            GameTime gameTime,
+            KeyboardState keyboardState,
+            MouseState mouseState,
+            GamePadState gamePadState,
+            TouchCollection touchState,
             AccelerometerState accelState,
             DisplayOrientation orientation)
         {
@@ -227,10 +234,20 @@ namespace Platformer
                 if (Math.Abs(Velocity.X) - 0.02f > 0)
                 {
                     sprite.PlayAnimation(runAnimation);
+                    //sprite.PlayAnimation(shieldAnimation);
+                }
+
+                else if (isBlocking) //if right-clicking mouse is true
+                {
+                    movement = 0.0f; //if user clicks on right mouse button, then he cannot move
+                    isJumping = false;
+                    sprite.PlayAnimation(shieldAnimation);
+                    oldMouseState = mouseState; //I don't think this really does anything
                 }
                 else
                 {
                     sprite.PlayAnimation(idleAnimation);
+                    //sprite.PlayAnimation(shieldAnimation);
                 }
             }
 
@@ -242,7 +259,11 @@ namespace Platformer
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             // Shooting related updates
-            crosshair.position = new Vector2(mouseState.X, mouseState.Y);
+            crosshair.position = new Vector2(mouseState.X, mouseState.Y);//mouseState.X, mouseState.Y);
+            //if (mouseState.X < 0)
+            //    crosshair.position = new Vector2(0, mouseState.Y);
+            //else if (mouseState.Y < 0)
+            //    crosshair.position = new Vector2(mouseState.X, 0);
 
             if (flip == SpriteEffects.FlipHorizontally)
                 arm.position = new Vector2(position.X + 5, position.Y - 60);
@@ -262,19 +283,19 @@ namespace Platformer
                 {
                     //And set it to alive.
                     bullet.alive = true;
-         
+
                     if (flip == SpriteEffects.FlipHorizontally) //Facing right
                     {
                         float armCos = (float)Math.Cos(arm.rotation - MathHelper.PiOver2);
                         float armSin = (float)Math.Sin(arm.rotation - MathHelper.PiOver2);
-         
+
                         //Set the initial position of our bullet at the end of our gun arm
                         //42 is obtained be taking the width of the Arm_Gun texture / 2
                         //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
                         bullet.position = new Vector2(
                             arm.position.X + 42 * armCos,
                             arm.position.Y + 42 * armSin);
-         
+
                         //And give it a velocity of the direction we're aiming.
                         //Increase/decrease speed by changing 15.0f
                         bullet.velocity = new Vector2(
@@ -285,14 +306,14 @@ namespace Platformer
                     {
                         float armCos = (float)Math.Cos(arm.rotation + MathHelper.PiOver2);
                         float armSin = (float)Math.Sin(arm.rotation + MathHelper.PiOver2);
-         
+
                         //Set the initial position of our bullet at the end of our gun arm
                         //42 is obtained be taking the width of the Arm_Gun texture / 2
                         //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
                         bullet.position = new Vector2(
                             arm.position.X - 42 * armCos,
                             arm.position.Y - 42 * armSin);
-         
+
                         //And give it a velocity of the direction we're aiming.
                         //Increase/decrease speed by changing 15.0f
                         bullet.velocity = new Vector2(
@@ -314,7 +335,7 @@ namespace Platformer
                 {
                     //Move our bullet based on it's velocity
                     bullet.position += bullet.velocity;
-         
+
                     //Rectangle the size of the screen so bullets that
                     //fly off screen are deleted.
                     Rectangle screenRect = new Rectangle(0, 0, 1280, 720);
@@ -325,7 +346,7 @@ namespace Platformer
                         bullet.alive = false;
                         continue;
                     }
-         
+
                     //Collision rectangle for each bullet -Will also be
                     //used for collisions with enemies.
                     Rectangle bulletRect = new Rectangle(
@@ -334,7 +355,7 @@ namespace Platformer
                         bullet.sprite.Width * 4,
                         bullet.sprite.Height * 4);
 
-                                        
+
                     //Check for collisions with the enemies
                     foreach (Enemy enemy in level.enemies)
                     {
@@ -343,10 +364,10 @@ namespace Platformer
                             enemy.IsAlive = false;
                         }
                     }
-             
+
                     //Everything below here can be deleted if you want
                     //your bullets to shoot through all tiles.
-         
+
                     //Look for adjacent tiles to the bullet
                     Rectangle bounds = new Rectangle(
                         bulletRect.Center.X - 6,
@@ -357,14 +378,14 @@ namespace Platformer
                     int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
                     int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
                     int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
-         
+
                     // For each potentially colliding tile
                     for (int y = topTile; y <= bottomTile; ++y)
                     {
                         for (int x = leftTile; x <= rightTile; ++x)
                         {
                             TileCollision collision = Level.GetCollision(x, y);
-         
+
                             //If we collide with an Impassable or Platform tile
                             //then delete our bullet.
                             if (collision == TileCollision.Impassable ||
@@ -384,11 +405,11 @@ namespace Platformer
         /// Gets player horizontal movement and jump commands from input.
         /// </summary>
         private void GetInput(
-            KeyboardState keyboardState, 
+            KeyboardState keyboardState,
             MouseState mouseState,
-            GamePadState gamePadState, 
+            GamePadState gamePadState,
             TouchCollection touchState,
-            AccelerometerState accelState, 
+            AccelerometerState accelState,
             DisplayOrientation orientation)
         {
             // Get analog horizontal movement.
@@ -409,6 +430,7 @@ namespace Platformer
                     movement = -movement;
             }
 
+
             // If any digital horizontal movement input is found, override the analog movement.
             if (gamePadState.IsButtonDown(Buttons.DPadLeft) ||
                 keyboardState.IsKeyDown(Keys.Left) ||
@@ -423,6 +445,9 @@ namespace Platformer
                 movement = 1.0f;
             }
 
+
+            isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
+
             // Check if the player wants to jump.
             isJumping =
                 gamePadState.IsButtonDown(JumpButton) ||
@@ -435,7 +460,6 @@ namespace Platformer
             isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
 
             updateShooting(mouseState);
-
             oldMouseState = mouseState;
 
         }
@@ -451,18 +475,19 @@ namespace Platformer
             //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
             //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
 
+
             Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
             arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
 
             System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
-             
+
             if (flip == SpriteEffects.FlipHorizontally) //Facing right
             {
                 //If we try to aim behind our head then flip the
                 //character around so he doesn't break his arm!
                 if (arm.rotation < 0)
                     flip = SpriteEffects.None;
-             
+
                 //If we aren't rotating our arm then set it to the
                 //default position. Aiming in front of us.
                 if (arm.rotation == 0)
@@ -474,7 +499,7 @@ namespace Platformer
                 //flip our character.
                 if (arm.rotation > 0)
                     flip = SpriteEffects.FlipHorizontally;
-             
+
                 //If we're not rotating our arm, default it to
                 //aim the same direction we're facing.
                 if (arm.rotation == 0)
@@ -705,7 +730,7 @@ namespace Platformer
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
 
             // Shooting related drawing.
-            if(IsAlive)
+            if (IsAlive)
             {
                 spriteBatch.Draw(
                     arm.sprite,
@@ -746,6 +771,6 @@ namespace Platformer
             powerUpTime = MaxPowerUpTime;
             powerUpSound.Play();
         }
-    
+
     }
 }
