@@ -709,7 +709,9 @@ namespace Squared.Tiled {
             var result = new Map();
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.ProhibitDtd = false;
+                
 
+                //at the end of the level, pressing the spacebar causes the game to crash
                 using (var stream = System.IO.File.OpenText(filename))
                 using (var reader = XmlReader.Create(stream, settings))
                     while (reader.Read())

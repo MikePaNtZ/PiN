@@ -130,12 +130,26 @@ namespace Platformer
             LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
 
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].Y / map.TileHeight), "MonsterA");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].Y / map.TileHeight), "MonsterA");
+            /*loading more enemies*/
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");//loaded another enemy
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].Y / map.TileHeight), "MonsterB");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].Y / map.TileHeight), "MonsterC");
+            //LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
+            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");
+
+
+            //Loading a gem
+            LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
 
             //exit point
             LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
-                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight));
+                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight), "Exit");
 
             #region load map commented Code
             //// Load the level and ensure all of the lines are the same length.
@@ -295,7 +309,7 @@ namespace Platformer
         /// <summary>
         /// Remembers the location of the level's exit.
         /// </summary>
-        private void LoadExit(int x, int y)
+        private void LoadExit(int x, int y, string SpriteSet)
         {
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
@@ -353,8 +367,15 @@ namespace Platformer
             //get the id of tile
             int tileId = map.Layers["Foreground"].GetTile(x, y);
 
+
+            /*****************************************************************************************HOW DO I ADD ANOTHER TILESET***********************************/
             //get list of properties for tile
             Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
+            Tileset.TilePropertyList nightmareIceTileProperties = map.Tilesets["Nightmare_Ice"].GetTileProperties(tileId);
+            Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
+            Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
+            Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
+            Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
 
             if (currentTileProperties != null) //check if current tile has properties
             {
@@ -368,9 +389,79 @@ namespace Platformer
                         return TileCollision.Platform;
                 }
             }
-            
 
+
+            /*******************maybe this is how I add the other tileset?**********************************************/
+            /********************and it worked!***************************************************/
+
+            if (nightmareIceTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(nightmareIceTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            if (ruinTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(ruinTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            if (multiPurposeTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(multiPurposeTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            if (oldPlatformerTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(oldPlatformerTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+
+            if (BackgroundTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(BackgroundTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
             return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
+
+
         }
 
         /// <summary>
@@ -543,11 +634,15 @@ namespace Platformer
             foreach (Enemy enemy in enemies)
             {
                 enemy.Update(gameTime);
-
+/****************************************************************************************************************************************************************************/
                 // Touching an enemy instantly kills the player
                 if (enemy.IsAlive && enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
                 {
                     if (Player.IsPoweredUp)
+                    {
+                        OnEnemyKilled(enemy, Player);
+                    }
+                    else if (Player.isBlocking)
                     {
                         OnEnemyKilled(enemy, Player);
                     }
@@ -558,7 +653,7 @@ namespace Platformer
                 }
             }
         }
-
+/*************************************************************************************************************************************************************/
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
             enemy.OnKilled(killedBy);

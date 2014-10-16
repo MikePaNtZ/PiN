@@ -64,6 +64,7 @@ namespace Platformer
         private Animation runAnimation;
         private Animation idleAnimation;
         private Animation dieAnimation;
+        public Animation explosionAnimation;
         private AnimationPlayer sprite;
 
         // Sounds
@@ -87,7 +88,7 @@ namespace Platformer
         /// <summary>
         /// The speed at which this enemy moves along the X axis.
         /// </summary>
-        private const float MoveSpeed = 64.0f;
+        private const float MoveSpeed = 40.0f; //changed from 64 to 40f
 
         /// <summary>
         /// Constructs a new Enemy.
@@ -111,6 +112,7 @@ namespace Platformer
             runAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Run"), 0.1f, true);
             idleAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Idle"), 0.15f, true);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Die"), 0.07f, false);
+            explosionAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/explosion"), 0.1f, false); //false means the animation is not going to loop
             sprite.PlayAnimation(idleAnimation);
 
             // Load sounds.
@@ -175,7 +177,10 @@ namespace Platformer
             // Stop running when the game is paused or before turning around.
             if (!IsAlive)
             {
-                sprite.PlayAnimation(dieAnimation);
+                
+                
+                
+                sprite.PlayAnimation(dieAnimation);//then play the enemy dying
             }
             else if (!Level.Player.IsAlive ||
                       Level.ReachedExit ||
@@ -196,8 +201,11 @@ namespace Platformer
 
         public void OnKilled(Player killedBy)
         {
+            sprite.PlayAnimation(explosionAnimation);//first play the explosion
             IsAlive = false;
+            
             killedSound.Play();
+            
         }
     
     }

@@ -31,6 +31,8 @@ namespace Platformer
         private SpriteEffects flip = SpriteEffects.None;
         private AnimationPlayer sprite;
         private Animation shieldAnimation;
+        private Animation shieldPart1Animation;
+        
 
 
         // Sounds
@@ -44,6 +46,8 @@ namespace Platformer
         private GameObject[] bullets;
         private int MAX_BULLETS = 12;
         private MouseState oldMouseState;
+
+        
 
 
 
@@ -128,7 +132,7 @@ namespace Platformer
         private bool wasJumping;
         private float jumpTime;
         private bool isShooting;
-        private bool isBlocking; //is player using his force field shield
+        public bool isBlocking; //is player using his force field shield
 
 
         private Rectangle localBounds;
@@ -165,7 +169,12 @@ namespace Platformer
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Idle"), 0.1f, true);
+            /*shieldPart1Animation is an image of just the shield alone; I couldn't get the shield to be overlayed onto the sprite
+              I may have to do this later for the overdrive meter of the player*/
+            shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/ShieldPart1"), 0.1f, true);
             shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Shield"), 0.1f, true); //load image for the shield
+
+            
             runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Run"), 0.1f, true);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
@@ -233,27 +242,33 @@ namespace Platformer
             {
                 if (Math.Abs(Velocity.X) - 0.02f > 0)
                 {
+                    //sprite.PlayAnimation(shieldPart1Animation);
                     sprite.PlayAnimation(runAnimation);
-                    //sprite.PlayAnimation(shieldAnimation);
                 }
 
                 else if (isBlocking) //if right-clicking mouse is true
                 {
-                    movement = 0.0f; //if user clicks on right mouse button, then he cannot move
+                    //movement = 0.0f; //if user clicks on right mouse button, then he cannot move
+                    velocity.X = 0;
                     isJumping = false;
                     sprite.PlayAnimation(shieldAnimation);
                     oldMouseState = mouseState; //I don't think this really does anything
                 }
+
                 else
                 {
                     sprite.PlayAnimation(idleAnimation);
-                    //sprite.PlayAnimation(shieldAnimation);
                 }
+                
             }
 
             // Clear input.
             movement = 0.0f;
             isJumping = false;
+
+
+            
+
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -399,6 +414,20 @@ namespace Platformer
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         /// <summary>
@@ -720,6 +749,7 @@ namespace Platformer
                 float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
                 int colorIndex = (int)t % poweredUpColors.Length;
                 color = poweredUpColors[colorIndex];
+                
             }
             else
             {
