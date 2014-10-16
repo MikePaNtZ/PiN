@@ -30,6 +30,7 @@ namespace Platformer
         // Global content.
         private SpriteFont hudFont;
 
+        private Texture2D introOverlay; //so far this is the just team logo. I don't know where to stick it.
         private Texture2D winOverlay;
         private Texture2D loseOverlay;
         private Texture2D diedOverlay;
@@ -37,6 +38,7 @@ namespace Platformer
         // Meta-level game state.
         private int levelIndex = -1;
         private Level level;
+        private Player player;
         private bool wasContinuePressed;
 
         // When the time remaining is less than the warning time, it blinks on the hud
@@ -85,6 +87,7 @@ namespace Platformer
             hudFont = Content.Load<SpriteFont>("Fonts/Hud");
 
             // Load overlay textures
+            introOverlay = Content.Load<Texture2D>("Overlays/Intro");
             winOverlay = Content.Load<Texture2D>("Overlays/you_win");
             loseOverlay = Content.Load<Texture2D>("Overlays/you_lose");
             diedOverlay = Content.Load<Texture2D>("Overlays/you_died");
@@ -196,7 +199,7 @@ namespace Platformer
 
         private void DrawHud()
         {
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             Rectangle titleSafeArea = GraphicsDevice.Viewport.TitleSafeArea;
             Vector2 hudLocation = new Vector2(titleSafeArea.X, titleSafeArea.Y);
             Vector2 center = new Vector2(titleSafeArea.X + titleSafeArea.Width / 2.0f,
@@ -210,7 +213,7 @@ namespace Platformer
                 level.ReachedExit ||
                 (int)level.TimeRemaining.TotalSeconds % 2 == 0)
             {
-                timeColor = Color.Yellow;
+                timeColor = Color.White;
             }
             else
             {
@@ -218,9 +221,9 @@ namespace Platformer
             }
             DrawShadowedString(hudFont, timeString, hudLocation, timeColor);
 
-            // Draw score
+            // Draw health
             float timeHeight = hudFont.MeasureString(timeString).Y;
-            DrawShadowedString(hudFont, "SCORE: " + level.Score.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.Yellow);
+            DrawShadowedString(hudFont, "HEALTH: " + level.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
            
             // Determine the status overlay message to show.
             Texture2D status = null;
@@ -232,6 +235,7 @@ namespace Platformer
                 }
                 else
                 {
+                    
                     status = loseOverlay;
                 }
             }

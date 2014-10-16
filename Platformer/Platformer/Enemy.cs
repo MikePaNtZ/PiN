@@ -64,6 +64,7 @@ namespace Platformer
         private Animation runAnimation;
         private Animation idleAnimation;
         private Animation dieAnimation;
+        public Animation explosionAnimation;
         private AnimationPlayer sprite;
 
         // Sounds
@@ -87,7 +88,7 @@ namespace Platformer
         /// <summary>
         /// The speed at which this enemy moves along the X axis.
         /// </summary>
-        private const float MoveSpeed = 64.0f;
+        private const float MoveSpeed = 40.0f; //changed from 64 to 40f
 
         /// <summary>
         /// Constructs a new Enemy.
@@ -102,7 +103,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Loads a particular enemy sprite sheet and sounds.
+        /// Loads a particular enemy resetAfterHit sheet and sounds.
         /// </summary>
         public void LoadContent(string spriteSet)
         {
@@ -111,13 +112,14 @@ namespace Platformer
             runAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Run"), 0.1f, true);
             idleAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Idle"), 0.15f, true);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Die"), 0.07f, false);
+            explosionAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/explosion"), 0.1f, false); //false means the animation is not going to loop
             sprite.PlayAnimation(idleAnimation);
 
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
 
             // Calculate bounds within texture size.
-            int width = (int)(idleAnimation.FrameWidth * 0.35);
+            int width = (int)(idleAnimation.FrameWidth * 0.9); //gets enemy closer to the outer edge of the shield
             int left = (idleAnimation.FrameWidth - width) / 2;
             int height = (int)(idleAnimation.FrameWidth * 0.7);
             int top = idleAnimation.FrameHeight - height;
@@ -175,8 +177,11 @@ namespace Platformer
             // Stop running when the game is paused or before turning around.
             if (!IsAlive)
             {
-                sprite.PlayAnimation(dieAnimation);
+                sprite.PlayAnimation(dieAnimation);//then play the enemy dying
             }
+            //if player is not alive or if player hasn't reached the exit, or if the time
+            //remaining is 0, or if waiting time is greater than 0
+            //then the idle animation for the enemies is playing
             else if (!Level.Player.IsAlive ||
                       Level.ReachedExit ||
                       Level.TimeRemaining == TimeSpan.Zero ||
@@ -186,6 +191,7 @@ namespace Platformer
             }
             else
             {
+                //if none of the above, then enemies are running
                 sprite.PlayAnimation(runAnimation);
             }
 
@@ -196,9 +202,13 @@ namespace Platformer
 
         public void OnKilled(Player killedBy)
         {
+            /*This explosion animation did not work. I might be missing an update call*/
+            //resetAfterHit.PlayAnimation(explosionAnimation);//first play the explosion
+            sprite.PlayAnimation(dieAnimation);
             IsAlive = false;
             killedSound.Play();
+
         }
-    
+
     }
 }
