@@ -143,6 +143,8 @@ namespace Platformer
             LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
 
+            /*Is there any way to automate the loading of enemies? It works though*/
+            /*If I add an enemy in map editor, I have to manually add that enemy in here too*/
             LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].Y / map.TileHeight), "MonsterA");
             /*loading more enemies*/
@@ -152,13 +154,27 @@ namespace Platformer
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].Y / map.TileHeight), "MonsterB");
             LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].Y / map.TileHeight), "MonsterC");
-            //LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
-            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC2"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC2"].Y / map.TileHeight), "MonsterC");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB2"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB2"].Y / map.TileHeight), "MonsterB");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD2"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD2"].Y / map.TileHeight), "MonsterD");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD3"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD3"].Y / map.TileHeight), "MonsterD");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA2"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA2"].Y / map.TileHeight), "MonsterA");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA3"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA3"].Y / map.TileHeight), "MonsterA");
 
 
             //Loading a gem
             LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
+            LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem2"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem2"].Y / map.TileHeight), true);
+            LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem3"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem3"].Y / map.TileHeight), true);
 
             //exit point
             LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
