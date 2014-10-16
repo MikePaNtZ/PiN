@@ -34,7 +34,6 @@ namespace Platformer
         private Animation shieldPart1Animation;
         
 
-
         // Sounds
         private SoundEffect killedSound;
         private SoundEffect jumpSound;
@@ -46,8 +45,6 @@ namespace Platformer
         private GameObject[] bullets;
         private int MAX_BULLETS = 12;
         private MouseState oldMouseState;
-
-        
 
 
 
@@ -64,7 +61,7 @@ namespace Platformer
         bool isAlive;
 
         // Powerup state
-        private const float MaxPowerUpTime = 6.0f;
+        private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
         private float powerUpTime;
         public bool IsPoweredUp
         {
@@ -94,6 +91,8 @@ namespace Platformer
             set { velocity = value; }
         }
         Vector2 velocity;
+
+        
 
         // Constants for controling horizontal movement
         private const float MoveAcceleration = 13000.0f;
@@ -156,20 +155,18 @@ namespace Platformer
         public Player(Level level, Vector2 position)
         {
             this.level = level;
-
             LoadContent();
-
             Reset(position);
         }
 
         /// <summary>
-        /// Loads the player sprite sheet and sounds.
+        /// Loads the player resetAfterHit sheet and sounds.
         /// </summary>
         public void LoadContent()
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Idle"), 0.1f, true);
-            /*shieldPart1Animation is an image of just the shield alone; I couldn't get the shield to be overlayed onto the sprite
+            /*shieldPart1Animation is an image of just the shield alone; I couldn't get the shield to be overlayed onto the resetAfterHit
               I may have to do this later for the overdrive meter of the player*/
             shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/ShieldPart1"), 0.1f, true);
             shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Shield"), 0.1f, true); //load image for the shield
@@ -213,12 +210,14 @@ namespace Platformer
             Position = position;
             Velocity = Vector2.Zero;
             isAlive = true;
+            level.Health = 100;
             sprite.PlayAnimation(idleAnimation);
             powerUpTime = 0.0f;
+            Level.isHitResetTime = 0.0f; //resetting the time for when a player intersects with an enemy
         }
 
         /// <summary>
-        /// Handles input, performs physics, and animates the player sprite.
+        /// Handles input, performs physics, and animates the player resetAfterHit.
         /// </summary>
         /// <remarks>
         /// We pass in all of the input states so that our game is only polling the hardware
@@ -235,14 +234,13 @@ namespace Platformer
             DisplayOrientation orientation)
         {
             GetInput(keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
-
             ApplyPhysics(gameTime);
 
             if (IsAlive && IsOnGround)
             {
                 if (Math.Abs(Velocity.X) - 0.02f > 0)
                 {
-                    //sprite.PlayAnimation(shieldPart1Animation);
+                    //resetAfterHit.PlayAnimation(shieldPart1Animation);
                     sprite.PlayAnimation(runAnimation);
                 }
 
@@ -254,21 +252,15 @@ namespace Platformer
                     sprite.PlayAnimation(shieldAnimation);
                     oldMouseState = mouseState; //I don't think this really does anything
                 }
-
                 else
                 {
                     sprite.PlayAnimation(idleAnimation);
                 }
-                
             }
 
             // Clear input.
             movement = 0.0f;
             isJumping = false;
-
-
-            
-
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -287,7 +279,7 @@ namespace Platformer
 
             // Updates the state of all bullets
             UpdateBullets();
-        }
+        }//end Update method
 
         private void FireBullet()
         {
@@ -376,6 +368,8 @@ namespace Platformer
                     {
                         if (bulletRect.Intersects(enemy.BoundingRectangle))
                         {
+                            //We're going to want to put some enemy health reduction code here
+                            //Enemy class needs a health member variable too
                             enemy.IsAlive = false;
                         }
                     }
@@ -414,21 +408,6 @@ namespace Platformer
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         /// <summary>
         /// Gets player horizontal movement and jump commands from input.
@@ -474,7 +453,7 @@ namespace Platformer
                 movement = 1.0f;
             }
 
-
+            //the player is blocking by holding down the right mouse button
             isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
 
             // Check if the player wants to jump.
@@ -489,9 +468,26 @@ namespace Platformer
             isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
 
             updateShooting(mouseState);
+            //updateHealth();
             oldMouseState = mouseState;
-
         }
+
+        /*Your health is updated when you hit an enemy without a shield on*/
+        //private void updateHealth()
+        //{
+        //    //Check for collisions with the enemies
+        //    foreach (Enemy enemy in level.enemies)
+        //    {
+        //        //for every enemy in the game, if player collides with him/her, and player is not
+        //        //using shield, player loses some health
+        //        if ((localBounds.Intersects(enemy.BoundingRectangle)) & (isBlocking == false))
+        //        {
+        //            //We're going to want to put some enemy health reduction code here
+        //            //Enemy class needs a health member variable too
+        //            level.Health -= 1;
+        //        }
+        //    }
+        //}
 
         private void updateShooting(MouseState mouseState)
         {
@@ -578,7 +574,6 @@ namespace Platformer
 
             if (Position.Y == previousPosition.Y)
                 velocity.Y = 0;
-
         }
 
         /// <summary>
@@ -631,7 +626,6 @@ namespace Platformer
                 jumpTime = 0.0f;
             }
             wasJumping = isJumping;
-
             return velocityY;
         }
 
@@ -716,10 +710,15 @@ namespace Platformer
             isAlive = false;
 
             if (killedBy != null)
+            {
+                level.Health = 0;
                 killedSound.Play();
+            }
             else
+            {
+                level.Health = 0;
                 fallSound.Play();
-
+            }
             sprite.PlayAnimation(dieAnimation);
         }
 
@@ -728,6 +727,7 @@ namespace Platformer
         /// </summary>
         public void OnReachedExit()
         {
+            level.Health = 100;
             sprite.PlayAnimation(celebrateAnimation);
         }
 
@@ -736,7 +736,7 @@ namespace Platformer
         /// </summary>
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            // Flip the sprite to face the way we are moving.
+            // Flip the resetAfterHit to face the way we are moving.
             if (Velocity.X > 0)
                 flip = SpriteEffects.FlipHorizontally;
             else if (Velocity.X < 0)
@@ -756,7 +756,7 @@ namespace Platformer
                 color = Color.White;
             }
 
-            // Draw that sprite.
+            // Draw that resetAfterHit.
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
 
             // Shooting related drawing.
@@ -802,5 +802,5 @@ namespace Platformer
             powerUpSound.Play();
         }
 
-    }
-}
+    }//end class Player
+}//end namespace Platformer

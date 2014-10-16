@@ -103,7 +103,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Loads a particular enemy sprite sheet and sounds.
+        /// Loads a particular enemy resetAfterHit sheet and sounds.
         /// </summary>
         public void LoadContent(string spriteSet)
         {
@@ -119,7 +119,7 @@ namespace Platformer
             killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
 
             // Calculate bounds within texture size.
-            int width = (int)(idleAnimation.FrameWidth * 0.35);
+            int width = (int)(idleAnimation.FrameWidth * 0.9); //gets enemy closer to the outer edge of the shield
             int left = (idleAnimation.FrameWidth - width) / 2;
             int height = (int)(idleAnimation.FrameWidth * 0.7);
             int top = idleAnimation.FrameHeight - height;
@@ -177,11 +177,11 @@ namespace Platformer
             // Stop running when the game is paused or before turning around.
             if (!IsAlive)
             {
-                
-                
-                
                 sprite.PlayAnimation(dieAnimation);//then play the enemy dying
             }
+            //if player is not alive or if player hasn't reached the exit, or if the time
+            //remaining is 0, or if waiting time is greater than 0
+            //then the idle animation for the enemies is playing
             else if (!Level.Player.IsAlive ||
                       Level.ReachedExit ||
                       Level.TimeRemaining == TimeSpan.Zero ||
@@ -191,6 +191,7 @@ namespace Platformer
             }
             else
             {
+                //if none of the above, then enemies are running
                 sprite.PlayAnimation(runAnimation);
             }
 
@@ -201,12 +202,13 @@ namespace Platformer
 
         public void OnKilled(Player killedBy)
         {
-            sprite.PlayAnimation(explosionAnimation);//first play the explosion
+            /*This explosion animation did not work. I might be missing an update call*/
+            //resetAfterHit.PlayAnimation(explosionAnimation);//first play the explosion
+            sprite.PlayAnimation(dieAnimation);
             IsAlive = false;
-            
             killedSound.Play();
-            
+
         }
-    
+
     }
 }
