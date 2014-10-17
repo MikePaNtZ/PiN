@@ -266,6 +266,7 @@ namespace Platformer
             Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
             Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
             Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
+            Tileset.TilePropertyList greatTextureTileProperties = map.Tilesets["GreatTextures"].GetTileProperties(tileId);
             Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
 
             /*collision properties for platformertiles tileset in Tiled -- Tom's original code*/
@@ -285,6 +286,19 @@ namespace Platformer
 
             /*******************maybe this is how I add the other tileset?**********************************************/
             /********************and it worked!***************************************************/
+
+            if (greatTextureTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(greatTextureTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
 
             /*collision properties for Nightmare_Ice tileset in Tiled*/
             if (nightmareIceTileProperties != null) //check if current tile has properties
