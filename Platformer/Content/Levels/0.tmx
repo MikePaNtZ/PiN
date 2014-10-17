@@ -5140,7 +5140,7 @@
    <tile gid="23"/>
    <tile gid="0"/>
    <tile gid="23"/>
-   <tile gid="22"/>
+   <tile gid="23"/>
    <tile gid="23"/>
    <tile gid="23"/>
    <tile gid="23"/>
@@ -6500,9 +6500,21 @@
  <objectgroup name="events">
   <object name="player" x="4" y="893" width="64" height="64"/>
   <object name="exit" x="6332" y="767" width="64" height="64"/>
-  <object name="enemy" x="1457" y="808" width="46" height="42">
+ </objectgroup>
+ <objectgroup name="enemies">
+  <object name="enemy3" x="1457" y="808" width="46" height="42">
    <properties>
-    <property name="enemyType" value="a"/>
+    <property name="enemyType" value="A"/>
+   </properties>
+  </object>
+  <object name="enemy1" x="582" y="928" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="B"/>
+   </properties>
+  </object>
+  <object name="enemy2" x="738" y="928" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="C"/>
    </properties>
   </object>
  </objectgroup>

@@ -37,10 +37,11 @@ namespace Platformer
 
         // Shooting objects
         private GameObject arm;
-        private GameObject crosshair;
         private GameObject[] bullets;
         private int MAX_BULLETS = 12;
         private MouseState oldMouseState;
+
+        private MouseInput mouseInput;
 
         public Level Level
         {
@@ -53,6 +54,11 @@ namespace Platformer
             get { return isAlive; }
         }
         bool isAlive;
+
+        public SpriteEffects Flip
+        {
+            get { return flip; }
+        }
 
         // Powerup state
         private const float MaxPowerUpTime = 6.0f;
@@ -85,6 +91,16 @@ namespace Platformer
             set { velocity = value; }
         }
         Vector2 velocity;
+
+        // Camera Positon
+        public Vector2 CameraPosition
+        {
+            get { return cameraPosition; }
+            set { cameraPosition = value; }
+        }
+
+        private Vector2 cameraPosition = new Vector2(0,0);
+
 
         // Constants for controling horizontal movement
         private const float MoveAcceleration = 13000.0f;
@@ -179,7 +195,6 @@ namespace Platformer
 
             // load shooting related object
             arm = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
-            crosshair = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
             // load all bullets
             bullets = new GameObject[MAX_BULLETS];
             for (int i = 0; i < MAX_BULLETS; i++)
@@ -212,13 +227,13 @@ namespace Platformer
         public void Update(
             GameTime gameTime, 
             KeyboardState keyboardState, 
-            MouseState mouseState, 
+            MouseInput mouseInput, 
             GamePadState gamePadState, 
             TouchCollection touchState, 
             AccelerometerState accelState,
             DisplayOrientation orientation)
         {
-            GetInput(keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
+            GetInput(keyboardState, mouseInput, gamePadState, touchState, accelState, orientation);
 
             ApplyPhysics(gameTime);
 
@@ -241,8 +256,6 @@ namespace Platformer
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
 
-            // Shooting related updates
-            crosshair.position = new Vector2(mouseState.X, mouseState.Y);
 
             if (flip == SpriteEffects.FlipHorizontally)
                 arm.position = new Vector2(position.X + 5, position.Y - 60);
@@ -385,7 +398,7 @@ namespace Platformer
         /// </summary>
         private void GetInput(
             KeyboardState keyboardState, 
-            MouseState mouseState,
+            MouseInput mouseInput,
             GamePadState gamePadState, 
             TouchCollection touchState,
             AccelerometerState accelState, 
@@ -432,15 +445,16 @@ namespace Platformer
                 touchState.AnyTouch();
 
             // Check if player is firing weapon
-            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
+            isShooting = ((mouseInput.MouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
 
-            updateShooting(mouseState);
+            updateShooting(mouseInput);
 
-            oldMouseState = mouseState;
+            oldMouseState = mouseInput.MouseState;
+            
 
         }
 
-        private void updateShooting(MouseState mouseState)
+        private void updateShooting(MouseInput mouseInput)
         {
             //Arm rotation
 
@@ -451,10 +465,17 @@ namespace Platformer
             //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
             //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
 
-            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
-            arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
+            //System.Diagnostics.Debug.WriteLine("Camera x = " + cameraPosition.X + " Camera y = " + cameraPosition.Y);
+            //System.Diagnostics.Debug.WriteLine("Arm x = " + arm.position.X + " Arm y = " + arm.position.Y);
+            Vector2 armPosition = arm.position - cameraPosition;
+            //System.Diagnostics.Debug.WriteLine("ArmPosition x = " + armPosition.X + " ArmPosition y = " + armPosition.Y);
 
-            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
+            Vector2 aimDirection = cameraPosition + arm.position - new Vector2(mouseInput.Position.X, mouseInput.Position.Y);
+            arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) + ((float)Math.PI/2); //this will return the mouse angle(in radians).
+
+            //System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseInput.MouseState.X + " Mouse y = " + mouseInput.MouseState.Y);
+            //System.Diagnostics.Debug.WriteLine("Mouse State x = " + mouseInput.Position.X + " Mouse y = " + mouseInput.Position.Y);
+
              
             if (flip == SpriteEffects.FlipHorizontally) //Facing right
             {
@@ -728,16 +749,7 @@ namespace Platformer
                     }
                 }
 
-                spriteBatch.Draw(
-                    crosshair.sprite,
-                    crosshair.position,
-                    null,
-                    Color.White,
-                    crosshair.rotation,
-                    crosshair.center,
-                    1.0f,
-                    flip,
-                    0);
+
             }
         }
 

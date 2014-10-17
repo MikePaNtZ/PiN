@@ -55,6 +55,8 @@ namespace Platformer
         //private Vector2 cameraPosition;
         private Camera cam;
 
+        private GameObject crosshair;
+
 
         public int Score
         {
@@ -85,6 +87,10 @@ namespace Platformer
 
         private SoundEffect exitReachedSound;
 
+        private MouseInput mouseInput;
+
+        private Viewport viewPort;
+
         #region Loading
 
         /// <summary>
@@ -102,9 +108,14 @@ namespace Platformer
 
             string levelPath = string.Format("Levels/{0}.tmx", levelIndex);
 
+            crosshair = new GameObject(Content.Load<Texture2D>("Sprites/Player/Crosshair"));
+
             LoadMap(levelPath);
             cam = new Camera(viewport);
             cam.Limits = new Rectangle(0, 0, map.Width*map.TileWidth, map.Height*map.TileHeight);
+
+            viewPort = viewport;
+
 
             // Load background layer textures. For now, all levels must
             // use the same backgrounds and only use the left-most part of them.
@@ -115,6 +126,8 @@ namespace Platformer
 
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
+
+            crosshair.position = Transform.FromCfToVpf(new Vector2((float)0.0, (float)0.0), viewport);
         }
 
         /// <summary>
@@ -129,9 +142,8 @@ namespace Platformer
             //get player start point. Have to convert to tilebased so divide by tile dimensions
             LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
                        (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
+            LoadEnemies();
 
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["enemy"].Y / map.TileHeight), "MonsterA");
 
             //exit point
             LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
@@ -278,6 +290,22 @@ namespace Platformer
         }
         */
         #endregion
+
+
+        /// <summary>
+        /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
+        /// </summary>
+        private void LoadEnemies()
+        {
+
+            foreach(string enemyName in map.ObjectGroups["enemies"].Objects.Keys)
+            {
+                var enemyObject = map.ObjectGroups["enemies"].Objects[enemyName];
+                LoadEnemy((int)Math.Floor((float)enemyObject.X / map.TileWidth),
+                       (int)Math.Floor((float)enemyObject.Y / map.TileHeight), "Monster"+enemyObject.Properties["enemyType"]);
+            }
+        }
+
 
         /// <summary>
         /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
@@ -474,7 +502,9 @@ namespace Platformer
                     //cam.Move(new Vector2(0, -10));
                 }
 
-                Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
+                mouseInput = new MouseInput(viewPort, mouseState);
+                Player.Update(gameTime, keyboardState, mouseInput, gamePadState, touchState, accelState, orientation);
+                Player.CameraPosition = cam.Position;
                 UpdateGems(gameTime);
 
                 //follow player
@@ -509,6 +539,15 @@ namespace Platformer
             }
 
             
+            // Shooting related updates
+
+            //System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseInput.Position.X + " Mouse y = " + mouseInput.Position.Y);
+            //crosshair.position = Transform.FromGfToVpf(mouseInput.Position, viewPort);
+            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseInput.Position.X + " Mouse y = " + mouseInput.Position.Y);
+            crosshair.position.X = mouseInput.Position.X;
+            crosshair.position.Y = (mouseInput.Position.Y+viewPort.Height)/2;
+            System.Diagnostics.Debug.WriteLine("X hair in VPF x = " + crosshair.position.X + " X hair in VPF y = " + crosshair.position.Y);
+
                 
 
             // Clamp the time remaining at zero.
@@ -646,7 +685,17 @@ namespace Platformer
 
             Player.Draw(gameTime, spriteBatch);
             
-            
+            spriteBatch.Draw(
+                    crosshair.sprite,
+                    //Transform.FromVpfToGf(crosshair.position, viewPort),
+                    crosshair.position,
+                    null,
+                    Color.White,
+                    crosshair.rotation,
+                    crosshair.center,
+                    1.0f,
+                    Player.Flip,
+                    0);
 
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
