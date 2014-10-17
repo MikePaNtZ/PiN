@@ -72,6 +72,8 @@
     <Compile Include="Accelerometer.cs" />
     <Compile Include="Animation.cs" />
     <Compile Include="AnimationPlayer.cs" />
+    <Compile Include="Transform.cs" />
+    <Compile Include="MouseInput.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Circle.cs" />
     <Compile Include="Enemy.cs" />
