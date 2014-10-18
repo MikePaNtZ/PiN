@@ -16,6 +16,7 @@ using Microsoft.Xna.Framework.Audio;
 using System.IO;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Input;
+using Squared.Tiled;
 
 namespace Platformer
 {
@@ -26,8 +27,10 @@ namespace Platformer
     /// </summary>
     class Level : IDisposable
     {
+        private AnimationPlayer resetAfterHit;
+        private Map map;
         // Physical structure of the level.
-        private Tile[,] tiles;
+        //private Tile[,] tiles;
         private Layer[] layers;
         // The layer which entities are drawn on top of.
         private const int EntityLayer = 2;
@@ -39,8 +42,25 @@ namespace Platformer
         }
         Player player;
 
+        // Powerup state
+        private const float MaxHitResetTime = 3.0f;
+        public float isHitResetTime;
+        public bool isHit
+        {
+            get { return isHitResetTime > 0.0f; }
+            //set { wasHit = value; }
+        }
+        //bool wasHit;
+
+        private readonly Color[] isHitColors = {
+                               Color.LightPink,
+                               Color.Chartreuse,
+                               Color.Cyan,
+                               Color.Fuchsia,
+                                               };
+
         private List<Gem> gems = new List<Gem>();
-        private List<Enemy> enemies = new List<Enemy>();
+        public List<Enemy> enemies = new List<Enemy>();
 
         // Key locations in the level.        
         private Vector2 start;
@@ -49,13 +69,8 @@ namespace Platformer
 
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
-        private float cameraPosition;
-
-        public int Score
-        {
-            get { return score; }
-        }
-        int score;
+        //private Vector2 cameraPosition;
+        private Camera cam;
 
         public bool ReachedExit
         {
@@ -88,229 +103,111 @@ namespace Platformer
         /// <param name="serviceProvider">
         /// The service provider that will be used to construct a ContentManager.
         /// </param>
-        /// <param name="fileStream">
-        /// A stream containing the tile data.
-        /// </param>
-        public Level(IServiceProvider serviceProvider, Stream fileStream, int levelIndex)
+        public Level(IServiceProvider serviceProvider, int levelIndex, Viewport viewport)
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
+            //cameraPosition = new Vector2(0, this.TileHeight * Height - spriteBatch.GraphicsDevice.Viewport.Height);
+            timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
+            //health = 100; //setting the player's health to 100 when the level starts
 
-            timeRemaining = TimeSpan.FromMinutes(2.0);
+            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for only the first level
 
-            LoadTiles(fileStream);
+            LoadMap(levelPath);
+            cam = new Camera(viewport); //instantiating the camera view
+            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);
 
+
+            /*This next section doesn't look like Tom's level code*/
             // Load background layer textures. For now, all levels must
             // use the same backgrounds and only use the left-most part of them.
-            layers = new Layer[3];
-            layers[0] = new Layer(Content, "Backgrounds/Layer0", 0.2f);
-            layers[1] = new Layer(Content, "Backgrounds/Layer1", 0.5f);
-            layers[2] = new Layer(Content, "Backgrounds/Layer2", 0.8f);
+            //layers = new Layer[3];
+            //layers[0] = new Layer(Content, "Backgrounds/Layer0", 0.2f);
+            //layers[1] = new Layer(Content, "Backgrounds/Layer1", 0.5f);
+            //layers[2] = new Layer(Content, "Backgrounds/Layer2", 0.8f);
 
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
         }
 
         /// <summary>
-        /// Iterates over every tile in the structure file and loads its
-        /// appearance and behavior. This method also validates that the
-        /// file is well-formed with a player start point, exit, etc.
+        /// Uses the Tiled library to load .tmx tile map
         /// </summary>
-        /// <param name="fileStream">
-        /// A stream containing the tile data.
-        /// </param>
-        private void LoadTiles(Stream fileStream)
+        private void LoadMap(String levelPathName)
         {
-            // Load the level and ensure all of the lines are the same length.
-            int width;
-            List<string> lines = new List<string>();
-            using (StreamReader reader = new StreamReader(fileStream))
-            {
-                string line = reader.ReadLine();
-                width = line.Length;
-                while (line != null)
-                {
-                    lines.Add(line);
-                    if (line.Length != width)
-                        throw new Exception(String.Format("The length of line {0} is different from all preceeding lines.", lines.Count));
-                    line = reader.ReadLine();
-                }
-            }
 
-            // Allocate the tile grid.
-            tiles = new Tile[width, lines.Count];
 
-            // Loop over every tile position,
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = 0; x < Width; ++x)
-                {
-                    // to load each tile.
-                    char tileType = lines[y][x];
-                    tiles[x, y] = LoadTile(tileType, x, y);
-                }
-            }
+            map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
 
-            // Verify that the level has a beginning and an end.
-            if (Player == null)
-                throw new NotSupportedException("A level must have a starting point.");
-            if (exit == InvalidPosition)
-                throw new NotSupportedException("A level must have an exit.");
+            //get player start point. Have to convert to tilebased so divide by tile dimensions
+            LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
 
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].Y / map.TileHeight), "MonsterA");
+            /*loading more enemies*/
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");//loaded another enemy
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].Y / map.TileHeight), "MonsterB");
+            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].Y / map.TileHeight), "MonsterC");
+            //LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
+            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");
+
+
+            //Loading a gem
+            LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
+                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
+
+            //exit point
+            LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
+                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight), "Exit");
         }
-
-        /// <summary>
-        /// Loads an individual tile's appearance and behavior.
-        /// </summary>
-        /// <param name="tileType">
-        /// The character loaded from the structure file which
-        /// indicates what should be loaded.
-        /// </param>
-        /// <param name="x">
-        /// The X location of this tile in tile space.
-        /// </param>
-        /// <param name="y">
-        /// The Y location of this tile in tile space.
-        /// </param>
-        /// <returns>The loaded tile.</returns>
-        private Tile LoadTile(char tileType, int x, int y)
-        {
-            switch (tileType)
-            {
-                // Blank space
-                case '.':
-                    return new Tile(null, TileCollision.Passable);
-
-                // Exit
-                case 'X':
-                    return LoadExitTile(x, y);
-
-                // Gem
-                case 'G':
-                    return LoadGemTile(x, y, false);
-
-                // Power-up gem
-                case 'P':
-                    return LoadGemTile(x, y, true);
-
-                // Floating platform
-                case '-':
-                    return LoadTile("Platform", TileCollision.Platform);
-
-                // Various enemies
-                case 'A':
-                    return LoadEnemyTile(x, y, "MonsterA");
-                case 'B':
-                    return LoadEnemyTile(x, y, "MonsterB");
-                case 'C':
-                    return LoadEnemyTile(x, y, "MonsterC");
-                case 'D':
-                    return LoadEnemyTile(x, y, "MonsterD");
-
-                // Platform block
-                case '~':
-                    return LoadVarietyTile("BlockB", 2, TileCollision.Platform);
-
-                // Passable block
-                case ':':
-                    return LoadVarietyTile("BlockB", 2, TileCollision.Passable);
-
-                // Player 1 start point
-                case '1':
-                    return LoadStartTile(x, y);
-
-                // Impassable block
-                case '#':
-                    return LoadVarietyTile("BlockA", 7, TileCollision.Impassable);
-
-                // Unknown tile type character
-                default:
-                    throw new NotSupportedException(String.Format("Unsupported tile type character '{0}' at position {1}, {2}.", tileType, x, y));
-            }
-        }
-
-        /// <summary>
-        /// Creates a new tile. The other tile loading methods typically chain to this
-        /// method after performing their special logic.
-        /// </summary>
-        /// <param name="name">
-        /// Path to a tile texture relative to the Content/Tiles directory.
-        /// </param>
-        /// <param name="collision">
-        /// The tile collision type for the new tile.
-        /// </param>
-        /// <returns>The new tile.</returns>
-        private Tile LoadTile(string name, TileCollision collision)
-        {
-            return new Tile(Content.Load<Texture2D>("Tiles/" + name), collision);
-        }
-
-
-        /// <summary>
-        /// Loads a tile with a random appearance.
-        /// </summary>
-        /// <param name="baseName">
-        /// The content name prefix for this group of tile variations. Tile groups are
-        /// name LikeThis0.png and LikeThis1.png and LikeThis2.png.
-        /// </param>
-        /// <param name="variationCount">
-        /// The number of variations in this group.
-        /// </param>
-        private Tile LoadVarietyTile(string baseName, int variationCount, TileCollision collision)
-        {
-            int index = random.Next(variationCount);
-            return LoadTile(baseName + index, collision);
-        }
-
 
         /// <summary>
         /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
         /// </summary>
-        private Tile LoadStartTile(int x, int y)
+        private void LoadPlayer(int x, int y)
         {
             if (Player != null)
                 throw new NotSupportedException("A level may only have one starting point.");
 
             start = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
+
             player = new Player(this, start);
 
-            return new Tile(null, TileCollision.Passable);
         }
 
         /// <summary>
         /// Remembers the location of the level's exit.
         /// </summary>
-        private Tile LoadExitTile(int x, int y)
+        private void LoadExit(int x, int y, string SpriteSet)
         {
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
 
             exit = GetBounds(x, y).Center;
-
-            return LoadTile("Exit", TileCollision.Passable);
         }
 
         /// <summary>
         /// Instantiates an enemy and puts him in the level.
         /// </summary>
-        private Tile LoadEnemyTile(int x, int y, string spriteSet)
+        private void LoadEnemy(int x, int y, string spriteSet)
         {
             Vector2 position = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
             enemies.Add(new Enemy(this, position, spriteSet));
-
-            return new Tile(null, TileCollision.Passable);
         }
 
         /// <summary>
         /// Instantiates a gem and puts it in the level.
         /// </summary>
-        private Tile LoadGemTile(int x, int y, bool isPowerUp)
+        private void LoadGem(int x, int y, bool isPowerUp)
         {
             Point position = GetBounds(x, y).Center;
             gems.Add(new Gem(this, new Vector2(position.X, position.Y), isPowerUp));
-
-            return new Tile(null, TileCollision.Passable);
         }
+
 
         /// <summary>
         /// Unloads the level content.
@@ -332,6 +229,7 @@ namespace Platformer
         /// </summary>
         public TileCollision GetCollision(int x, int y)
         {
+
             // Prevent escaping past the level ends.
             if (x < 0 || x >= Width)
                 return TileCollision.Impassable;
@@ -339,7 +237,109 @@ namespace Platformer
             if (y < 0 || y >= Height)
                 return TileCollision.Passable;
 
-            return tiles[x, y].Collision;
+            //get the id of tile
+            int tileId = map.Layers["Foreground"].GetTile(x, y);
+            //int tileId2 = map.Layers["Background"].GetTile(x, y); //the background layer of the scene in Tiled map editor
+            //in case the Background layer works
+
+
+            /*****************************************************************************************HOW DO I ADD ANOTHER TILESET***********************************/
+            //get list of properties for tile
+            Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
+            Tileset.TilePropertyList nightmareIceTileProperties = map.Tilesets["Nightmare_Ice"].GetTileProperties(tileId);
+            Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
+            Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
+            Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
+            Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
+
+            /*collision properties for platformertiles tileset in Tiled -- Tom's original code*/
+            if (currentTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(currentTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+
+            /*******************maybe this is how I add the other tileset?**********************************************/
+            /********************and it worked!***************************************************/
+
+            /*collision properties for Nightmare_Ice tileset in Tiled*/
+            if (nightmareIceTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(nightmareIceTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            /*collision properties for Classic_Ruins tileset in Tiled*/
+            if (ruinTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(ruinTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            /*collision properties for multiPurpose tileset in Tiled*/
+            if (multiPurposeTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(multiPurposeTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            /*collision properties for oldPlatformer tileset in Tiled*/
+            if (oldPlatformerTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(oldPlatformerTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+
+            /*collision properties for Backgrounds tileset in Tiled*/
+            if (BackgroundTileProperties != null) //check if current tile has properties
+            {
+                switch (Convert.ToInt32(BackgroundTileProperties["TileCollision"]))//should be a number 0-2
+                {
+                    case 0:
+                        return TileCollision.Passable;
+                    case 1:
+                        return TileCollision.Impassable;
+                    case 2:
+                        return TileCollision.Platform;
+                }
+            }
+            return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace Platformer
         /// </summary>        
         public Rectangle GetBounds(int x, int y)
         {
-            return new Rectangle(x * Tile.Width, y * Tile.Height, Tile.Width, Tile.Height);
+            return new Rectangle(x * map.TileWidth, y * map.TileHeight, map.TileWidth, map.TileHeight);
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace Platformer
         /// </summary>
         public int Width
         {
-            get { return tiles.GetLength(0); }
+            get { return map.Width; }
         }
 
         /// <summary>
@@ -363,9 +363,31 @@ namespace Platformer
         /// </summary>
         public int Height
         {
-            get { return tiles.GetLength(1); }
+            get { return map.Height; }
         }
 
+        /// <summary>
+        /// Width of tiles in this level.
+        /// </summary>
+        public int TileWidth
+        {
+            get { return map.TileWidth; }
+        }
+
+        public int Health
+        {
+            get { return health; }
+            set { this.health = value; }
+        }
+        int health;//simply setting health to 100
+
+        /// <summary>
+        /// Height of the tiles in this level.
+        /// </summary>
+        public int TileHeight
+        {
+            get { return map.TileHeight; }
+        }
         #endregion
 
         #region Update
@@ -375,18 +397,22 @@ namespace Platformer
         /// and handles the time limit with scoring.
         /// </summary>
         public void Update(
-            GameTime gameTime, 
-            KeyboardState keyboardState, 
-            GamePadState gamePadState, 
-            TouchCollection touchState, 
+            GameTime gameTime,
+            KeyboardState keyboardState,
+            MouseState mouseState,
+            GamePadState gamePadState,
+            TouchCollection touchState,
             AccelerometerState accelState,
             DisplayOrientation orientation)
         {
+           
+
             // Pause while the player is dead or time is expired.
             if (!Player.IsAlive || TimeRemaining == TimeSpan.Zero)
             {
                 // Still want to perform physics on the player.
                 Player.ApplyPhysics(gameTime);
+
             }
             else if (ReachedExit)
             {
@@ -394,23 +420,72 @@ namespace Platformer
                 int seconds = (int)Math.Round(gameTime.ElapsedGameTime.TotalSeconds * 100.0f);
                 seconds = Math.Min(seconds, (int)Math.Ceiling(TimeRemaining.TotalSeconds));
                 timeRemaining -= TimeSpan.FromSeconds(seconds);
-                score += seconds * PointsPerSecond;
+
             }
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-                Player.Update(gameTime, keyboardState, gamePadState, touchState, accelState, orientation);
+
+                //leave a time delay after the player is hit by the enemy
+                if (isHit)
+                    isHitResetTime = Math.Max(0.0f, isHitResetTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+                isHitResetting();
+
+
+                #region Debugging for Tiled Map Editor
+                //manually move player for debugging purposes
+                if (keyboardState.IsKeyDown(Keys.K))
+                {
+                    Player.Position = new Vector2(Player.Position.X + 20, Player.Position.Y);
+                    //cam.Move(new Vector2(10, 0));
+                }
+
+                else if (keyboardState.IsKeyDown(Keys.H))
+                {
+                    Player.Position = new Vector2(Player.Position.X - 20, Player.Position.Y);
+                    //cam.Move(new Vector2(-10, 0));
+                }
+                if (keyboardState.IsKeyDown(Keys.J))
+                {
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y + 20);
+                    //cam.Move(new Vector2(0, 10));
+                }
+                else if (keyboardState.IsKeyDown(Keys.U))
+                {
+                    Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 20);
+                    //cam.Move(new Vector2(0, -10));
+                }
+
+                #endregion Debugging for Tiled Map Editor
+
+                Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
                 UpdateGems(gameTime);
 
+                //follow player
+                cam.LookAt(Player.Position);
+
+
                 // Falling off the bottom of the level kills the player.
-                if (Player.BoundingRectangle.Top >= Height * Tile.Height)
+                if (Player.BoundingRectangle.Top >= Height * map.TileHeight)
+                {
                     OnPlayerKilled(null);
+                }
 
                 UpdateEnemies(gameTime);
+
+                //just making sure collision is working
+                //switch (GetCollision((int)Math.Floor((float)Player.Position.X / map.TileWidth),
+                //                     (int)Math.Floor((float)Player.Position.Y / map.TileHeight)))
+                //{
+                //    case TileCollision.Impassable:
+                //        health++;
+                //        break;
+                //}
 
                 // The player has reached the exit if they are standing on the ground and
                 // his bounding rectangle contains the center of the exit tile. They can only
                 // exit when they have collected all of the gems.
+
                 if (Player.IsAlive &&
                     Player.IsOnGround &&
                     Player.BoundingRectangle.Contains(exit))
@@ -418,7 +493,6 @@ namespace Platformer
                     OnExitReached();
                 }
             }
-
             // Clamp the time remaining at zero.
             if (timeRemaining < TimeSpan.Zero)
                 timeRemaining = TimeSpan.Zero;
@@ -452,21 +526,31 @@ namespace Platformer
             {
                 enemy.Update(gameTime);
 
+                /*Someone please figure out how to make a player's health
+
+                /****************************************************************************************************************************************************************************/
                 // Touching an enemy instantly kills the player
-                if (enemy.IsAlive && enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
+                if (enemy.IsAlive & enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
                 {
                     if (Player.IsPoweredUp)
                     {
+                        OnEnemyKilled(enemy, Player); //enemy dies instantly when you are in invincibility mode
+                    }
+                    else if (Player.isBlocking)
+                    {
                         OnEnemyKilled(enemy, Player);
                     }
-                    else
+                    else if (isHit == true)//finally found the health will be affected
                     {
-                        OnPlayerKilled(enemy);
+ 
+                        health -= 1;
+                        //wasHit = true;
+                        //OnPlayerKilled(enemy);
                     }
                 }
             }
         }
-
+        /*************************************************************************************************************************************************************/
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
             enemy.OnKilled(killedBy);
@@ -479,8 +563,6 @@ namespace Platformer
         /// <param name="collectedBy">The player who collected this gem.</param>
         private void OnGemCollected(Gem gem, Player collectedBy)
         {
-            score += gem.PointValue;
-
             gem.OnCollected(collectedBy);
         }
 
@@ -520,60 +602,114 @@ namespace Platformer
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin();
+            /*spriteBatch.Begin();
             for (int i = 0; i <= EntityLayer; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition);
-            spriteBatch.End();
+                layers[i].Draw(spriteBatch, cameraPosition.X);
+            spriteBatch.End();*/
 
-            ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
-            Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition, 0.0f, 0.0f);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
-                              RasterizerState.CullCounterClockwise, null, cameraTransform); ;
 
-            DrawTiles(spriteBatch);
 
-            foreach (Gem gem in gems)
-                gem.Draw(gameTime, spriteBatch);
+            //ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
+            // Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0.0f);
 
+            spriteBatch.Begin(SpriteSortMode.BackToFront,
+                        BlendState.AlphaBlend,
+                        null,
+                        null,
+                        null,
+                        null,
+                        cam.GetViewMatrix(Vector2.One));
+
+
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
+            //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
+
+            //cameraPosition.Y = 544;
+            //DrawTiles(spriteBatch);
+            //cam.Position = new Vector2(0, 544);
+
+
+            //spriteBatch.Begin();
+            /*foreach (Gem gem in gems)
+                gem.Draw(gameTime, spriteBatch);*/
+            map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
+
+            // Calculate a tint color based on power up state.
+            Color color;
+            if (isHit)
+            {
+                float t = ((float)gameTime.TotalGameTime.TotalSeconds + isHitResetTime / MaxHitResetTime) * 20.0f;
+                int colorIndex = (int)t % isHitColors.Length;
+                color = isHitColors[colorIndex];
+            }
+            else
+            {
+                color = Color.White;
+            }
+            // Draw that resetAfterHit.
+
+
+            /****I cannot draw the animation for after the player gets hit by an enemy******/
+            //resetAfterHit.Draw(gameTime, spriteBatch, Player.Position, SpriteEffects.None, color);
             Player.Draw(gameTime, spriteBatch);
+            
+
 
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
 
             spriteBatch.End();
 
-            spriteBatch.Begin();
+            /*spriteBatch.Begin();
             for (int i = EntityLayer + 1; i < layers.Length; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition);
-            spriteBatch.End();
-        }
-    
+                layers[i].Draw(spriteBatch, cameraPosition.X);
+            spriteBatch.End();*/
+        }//end Draw method
 
-        private void ScrollCamera(Viewport viewport)
+        public void isHitResetting()
+        {
+            isHitResetTime = MaxHitResetTime;
+            //wasHit = false;
+        }
+
+
+        /*private void ScrollCamera(Viewport viewport)
         {
 #if ZUNE
 const float ViewMargin = 0.45f;
 #else
-            const float ViewMargin = 0.35f;
+            const float ViewMargin = 0.45f;
 #endif
 
             // Calculate the edges of the screen.
             float marginWidth = viewport.Width * ViewMargin;
-            float marginLeft = cameraPosition + marginWidth;
-            float marginRight = cameraPosition + viewport.Width - marginWidth;
+            float marginLeft = cameraPosition.X + marginWidth;
+            float marginRight = cameraPosition.X + viewport.Width - marginWidth;
+
+            float marginHeight = viewport.Height * ViewMargin;
+            float marginTop = cameraPosition.Y + marginHeight;
+            float marginBottom = cameraPosition.Y + viewport.Height - marginHeight;
 
             // Calculate how far to scroll when the player is near the edges of the screen.
-            float cameraMovement = 0.0f;
+            Vector2 cameraMovement = new Vector2(0.0f, 0.0f);
             if (Player.Position.X < marginLeft)
-                cameraMovement = Player.Position.X - marginLeft;
+                cameraMovement.X = Player.Position.X - marginLeft;
             else if (Player.Position.X > marginRight)
-                cameraMovement = Player.Position.X - marginRight;
+                cameraMovement.X = Player.Position.X - marginRight;
+
+            if (Player.Position.Y < marginTop)
+                cameraMovement.Y = Player.Position.Y - marginTop;
+            else if (Player.Position.Y > marginBottom)
+                cameraMovement.Y = Player.Position.Y - marginBottom;
 
             // Update the camera position, but prevent scrolling off the ends of the level.
-            float maxCameraPosition = Tile.Width * Width - viewport.Width;
-            cameraPosition = MathHelper.Clamp(cameraPosition + cameraMovement, 0.0f, maxCameraPosition);
-        }
+            Vector2 maxCameraPosition = new Vector2(this.TileWidth * Width - viewport.Width, this.TileHeight * Height - viewport.Height);
+            cameraPosition.X = MathHelper.Clamp(cameraPosition.X + cameraMovement.X, 0.0f, maxCameraPosition.X);
+            cameraPosition.Y = MathHelper.Clamp(cameraPosition.Y + cameraMovement.Y, 0.0f, maxCameraPosition.Y);
+        }*/
 
+        #region drawTiles commented code
+        /*
         /// <summary>
         /// Draws each tile in the level.
         /// </summary>
@@ -600,6 +736,8 @@ const float ViewMargin = 0.45f;
                 }
             }
         }
+        */
+        #endregion
 
         #endregion
     }

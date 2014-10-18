@@ -55,7 +55,7 @@ namespace Platformer
         {
             get
             {
-                return new Circle(Position, Tile.Width / 3.0f);
+                return new Circle(Position, level.TileWidth / 3.0f);
             }
         }
 
@@ -129,7 +129,9 @@ namespace Platformer
         /// </summary>
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
+            //spriteBatch.Begin();
             spriteBatch.Draw(texture, Position, null, Color, 0.0f, origin, 1.0f, SpriteEffects.None, 0.0f);
+            //spriteBatch.End();
         }
     }
 }

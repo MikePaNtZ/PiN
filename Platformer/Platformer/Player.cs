@@ -21,6 +21,7 @@ namespace Platformer
     /// </summary>
     class Player
     {
+                            /******************************* CLASS VARIABLES ***********************************/
         // Animations
         private Animation idleAnimation;
         private Animation runAnimation;
@@ -29,11 +30,23 @@ namespace Platformer
         private Animation dieAnimation;
         private SpriteEffects flip = SpriteEffects.None;
         private AnimationPlayer sprite;
+        private Animation shieldAnimation;
+        private Animation shieldPart1Animation;
+        
 
         // Sounds
         private SoundEffect killedSound;
         private SoundEffect jumpSound;
         private SoundEffect fallSound;
+
+        // Shooting objects
+        private GameObject arm;
+        private GameObject crosshair;
+        private GameObject[] bullets;
+        private int MAX_BULLETS = 12;
+        private MouseState oldMouseState;
+
+
 
         public Level Level
         {
@@ -48,7 +61,7 @@ namespace Platformer
         bool isAlive;
 
         // Powerup state
-        private const float MaxPowerUpTime = 6.0f;
+        private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
         private float powerUpTime;
         public bool IsPoweredUp
         {
@@ -68,8 +81,8 @@ namespace Platformer
             get { return position; }
             set { position = value; }
         }
-        Vector2 position;
 
+        Vector2 position;
         private float previousBottom;
 
         public Vector2 Velocity
@@ -78,6 +91,8 @@ namespace Platformer
             set { velocity = value; }
         }
         Vector2 velocity;
+
+        
 
         // Constants for controling horizontal movement
         private const float MoveAcceleration = 13000.0f;
@@ -90,7 +105,7 @@ namespace Platformer
         private const float JumpLaunchVelocity = -3500.0f;
         private const float GravityAcceleration = 3400.0f;
         private const float MaxFallSpeed = 550.0f;
-        private const float JumpControlPower = 0.14f; 
+        private const float JumpControlPower = 0.14f;
 
         // Input configuration
         private const float MoveStickScale = 1.0f;
@@ -115,6 +130,9 @@ namespace Platformer
         private bool isJumping;
         private bool wasJumping;
         private float jumpTime;
+        private bool isShooting;
+        public bool isBlocking; //is player using his force field shield
+
 
         private Rectangle localBounds;
         /// <summary>
@@ -137,19 +155,23 @@ namespace Platformer
         public Player(Level level, Vector2 position)
         {
             this.level = level;
-
             LoadContent();
-
             Reset(position);
         }
 
         /// <summary>
-        /// Loads the player sprite sheet and sounds.
+        /// Loads the player resetAfterHit sheet and sounds.
         /// </summary>
         public void LoadContent()
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Idle"), 0.1f, true);
+            /*shieldPart1Animation is an image of just the shield alone; I couldn't get the shield to be overlayed onto the resetAfterHit
+              I may have to do this later for the overdrive meter of the player*/
+            shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/ShieldPart1"), 0.1f, true);
+            shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Shield"), 0.1f, true); //load image for the shield
+
+            
             runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Run"), 0.1f, true);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
@@ -167,6 +189,16 @@ namespace Platformer
             jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
+
+            // load shooting related object
+            arm = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
+            crosshair = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
+            // load all bullets
+            bullets = new GameObject[MAX_BULLETS];
+            for (int i = 0; i < MAX_BULLETS; i++)
+            {
+                bullets[i] = new GameObject(Level.Content.Load<Texture2D>("Sprites/Player/Bullet"));
+            }
         }
 
         /// <summary>
@@ -178,12 +210,14 @@ namespace Platformer
             Position = position;
             Velocity = Vector2.Zero;
             isAlive = true;
+            level.Health = 100;
             sprite.PlayAnimation(idleAnimation);
             powerUpTime = 0.0f;
+            Level.isHitResetTime = 0.0f; //resetting the time for when a player intersects with an enemy
         }
 
         /// <summary>
-        /// Handles input, performs physics, and animates the player sprite.
+        /// Handles input, performs physics, and animates the player resetAfterHit.
         /// </summary>
         /// <remarks>
         /// We pass in all of the input states so that our game is only polling the hardware
@@ -191,22 +225,32 @@ namespace Platformer
         /// we need to reverse our motion when the orientation is in the LandscapeRight orientation.
         /// </remarks>
         public void Update(
-            GameTime gameTime, 
-            KeyboardState keyboardState, 
-            GamePadState gamePadState, 
-            TouchCollection touchState, 
+            GameTime gameTime,
+            KeyboardState keyboardState,
+            MouseState mouseState,
+            GamePadState gamePadState,
+            TouchCollection touchState,
             AccelerometerState accelState,
             DisplayOrientation orientation)
         {
-            GetInput(keyboardState, gamePadState, touchState, accelState, orientation);
-
+            GetInput(keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
             ApplyPhysics(gameTime);
 
             if (IsAlive && IsOnGround)
             {
                 if (Math.Abs(Velocity.X) - 0.02f > 0)
                 {
+                    //resetAfterHit.PlayAnimation(shieldPart1Animation);
                     sprite.PlayAnimation(runAnimation);
+                }
+
+                else if (isBlocking) //if right-clicking mouse is true
+                {
+                    //movement = 0.0f; //if user clicks on right mouse button, then he cannot move
+                    velocity.X = 0;
+                    isJumping = false;
+                    sprite.PlayAnimation(shieldAnimation);
+                    oldMouseState = mouseState; //I don't think this really does anything
                 }
                 else
                 {
@@ -220,16 +264,160 @@ namespace Platformer
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            // Shooting related updates
+            crosshair.position = new Vector2(mouseState.X, mouseState.Y);//mouseState.X, mouseState.Y);
+            //if (mouseState.X < 0)
+            //    crosshair.position = new Vector2(0, mouseState.Y);
+            //else if (mouseState.Y < 0)
+            //    crosshair.position = new Vector2(mouseState.X, 0);
+
+            if (flip == SpriteEffects.FlipHorizontally)
+                arm.position = new Vector2(position.X + 5, position.Y - 60);
+            else
+                arm.position = new Vector2(position.X - 5, position.Y - 60);
+
+            // Updates the state of all bullets
+            UpdateBullets();
+        }//end Update method
+
+        private void FireBullet()
+        {
+            foreach (GameObject bullet in bullets)
+            {
+                //Find a bullet that isn't alive
+                if (!bullet.alive)
+                {
+                    //And set it to alive.
+                    bullet.alive = true;
+
+                    if (flip == SpriteEffects.FlipHorizontally) //Facing right
+                    {
+                        float armCos = (float)Math.Cos(arm.rotation - MathHelper.PiOver2);
+                        float armSin = (float)Math.Sin(arm.rotation - MathHelper.PiOver2);
+
+                        //Set the initial position of our bullet at the end of our gun arm
+                        //42 is obtained be taking the width of the Arm_Gun texture / 2
+                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
+                        bullet.position = new Vector2(
+                            arm.position.X + 42 * armCos,
+                            arm.position.Y + 42 * armSin);
+
+                        //And give it a velocity of the direction we're aiming.
+                        //Increase/decrease speed by changing 15.0f
+                        bullet.velocity = new Vector2(
+                            (float)Math.Cos(arm.rotation - MathHelper.PiOver2),
+                            (float)Math.Sin(arm.rotation - MathHelper.PiOver2)) * 15.0f;
+                    }
+                    else //Facing left
+                    {
+                        float armCos = (float)Math.Cos(arm.rotation + MathHelper.PiOver2);
+                        float armSin = (float)Math.Sin(arm.rotation + MathHelper.PiOver2);
+
+                        //Set the initial position of our bullet at the end of our gun arm
+                        //42 is obtained be taking the width of the Arm_Gun texture / 2
+                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
+                        bullet.position = new Vector2(
+                            arm.position.X - 42 * armCos,
+                            arm.position.Y - 42 * armSin);
+
+                        //And give it a velocity of the direction we're aiming.
+                        //Increase/decrease speed by changing 15.0f
+                        bullet.velocity = new Vector2(
+                           -armCos,
+                           -armSin) * 15.0f;
+                    }
+                    return;
+                }
+            }
+        }
+
+        private void UpdateBullets()
+        {
+            //Check all of our bullets
+            foreach (GameObject bullet in bullets)
+            {
+                //Only update them if they're alive
+                if (bullet.alive)
+                {
+                    //Move our bullet based on it's velocity
+                    bullet.position += bullet.velocity;
+
+                    //Rectangle the size of the screen so bullets that
+                    //fly off screen are deleted.
+                    Rectangle screenRect = new Rectangle(0, 0, 1280, 720);
+                    if (!screenRect.Contains(new Point(
+                        (int)bullet.position.X,
+                        (int)bullet.position.Y)))
+                    {
+                        bullet.alive = false;
+                        continue;
+                    }
+
+                    //Collision rectangle for each bullet -Will also be
+                    //used for collisions with enemies.
+                    Rectangle bulletRect = new Rectangle(
+                        (int)bullet.position.X - bullet.sprite.Width * 2,
+                        (int)bullet.position.Y - bullet.sprite.Height * 2,
+                        bullet.sprite.Width * 4,
+                        bullet.sprite.Height * 4);
+
+
+                    //Check for collisions with the enemies
+                    foreach (Enemy enemy in level.enemies)
+                    {
+                        if (bulletRect.Intersects(enemy.BoundingRectangle))
+                        {
+                            //We're going to want to put some enemy health reduction code here
+                            //Enemy class needs a health member variable too
+                            enemy.IsAlive = false;
+                        }
+                    }
+
+                    //Everything below here can be deleted if you want
+                    //your bullets to shoot through all tiles.
+
+                    //Look for adjacent tiles to the bullet
+                    Rectangle bounds = new Rectangle(
+                        bulletRect.Center.X - 6,
+                        bulletRect.Center.Y - 6,
+                        bulletRect.Width / 4,
+                        bulletRect.Height / 4);
+                    int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
+                    int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
+                    int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
+                    int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
+
+                    // For each potentially colliding tile
+                    for (int y = topTile; y <= bottomTile; ++y)
+                    {
+                        for (int x = leftTile; x <= rightTile; ++x)
+                        {
+                            TileCollision collision = Level.GetCollision(x, y);
+
+                            //If we collide with an Impassable or Platform tile
+                            //then delete our bullet.
+                            if (collision == TileCollision.Impassable ||
+                                collision == TileCollision.Platform)
+                            {
+                                if (bulletRect.Intersects(bounds))
+                                    bullet.alive = false;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
         /// Gets player horizontal movement and jump commands from input.
         /// </summary>
         private void GetInput(
-            KeyboardState keyboardState, 
-            GamePadState gamePadState, 
+            KeyboardState keyboardState,
+            MouseState mouseState,
+            GamePadState gamePadState,
             TouchCollection touchState,
-            AccelerometerState accelState, 
+            AccelerometerState accelState,
             DisplayOrientation orientation)
         {
             // Get analog horizontal movement.
@@ -250,6 +438,7 @@ namespace Platformer
                     movement = -movement;
             }
 
+
             // If any digital horizontal movement input is found, override the analog movement.
             if (gamePadState.IsButtonDown(Buttons.DPadLeft) ||
                 keyboardState.IsKeyDown(Keys.Left) ||
@@ -264,6 +453,9 @@ namespace Platformer
                 movement = 1.0f;
             }
 
+            //the player is blocking by holding down the right mouse button
+            isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
+
             // Check if the player wants to jump.
             isJumping =
                 gamePadState.IsButtonDown(JumpButton) ||
@@ -271,6 +463,77 @@ namespace Platformer
                 keyboardState.IsKeyDown(Keys.Up) ||
                 keyboardState.IsKeyDown(Keys.W) ||
                 touchState.AnyTouch();
+
+            // Check if player is firing weapon
+            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
+
+            updateShooting(mouseState);
+            //updateHealth();
+            oldMouseState = mouseState;
+        }
+
+        /*Your health is updated when you hit an enemy without a shield on*/
+        //private void updateHealth()
+        //{
+        //    //Check for collisions with the enemies
+        //    foreach (Enemy enemy in level.enemies)
+        //    {
+        //        //for every enemy in the game, if player collides with him/her, and player is not
+        //        //using shield, player loses some health
+        //        if ((localBounds.Intersects(enemy.BoundingRectangle)) & (isBlocking == false))
+        //        {
+        //            //We're going to want to put some enemy health reduction code here
+        //            //Enemy class needs a health member variable too
+        //            level.Health -= 1;
+        //        }
+        //    }
+        //}
+
+        private void updateShooting(MouseState mouseState)
+        {
+            //Arm rotation
+
+            // NOT YET WORKING. NEED TO GET THE RIGHT VECTOR TRANSFORM.
+            //Vector2 normalizedMouseDirection = new Vector2(mouseState.X, -mouseState.Y);
+            //normalizedMouseDirection.Normalize();
+
+            //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
+
+
+            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
+
+            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
+
+            if (flip == SpriteEffects.FlipHorizontally) //Facing right
+            {
+                //If we try to aim behind our head then flip the
+                //character around so he doesn't break his arm!
+                if (arm.rotation < 0)
+                    flip = SpriteEffects.None;
+
+                //If we aren't rotating our arm then set it to the
+                //default position. Aiming in front of us.
+                if (arm.rotation == 0)
+                    arm.rotation = MathHelper.PiOver2;
+            }
+            else //Facing left
+            {
+                //Once again, if we try to aim behind us then
+                //flip our character.
+                if (arm.rotation > 0)
+                    flip = SpriteEffects.FlipHorizontally;
+
+                //If we're not rotating our arm, default it to
+                //aim the same direction we're facing.
+                if (arm.rotation == 0)
+                    arm.rotation = -MathHelper.PiOver2;
+            }
+
+            if (isShooting)
+                FireBullet();
+
         }
 
         /// <summary>
@@ -363,7 +626,6 @@ namespace Platformer
                 jumpTime = 0.0f;
             }
             wasJumping = isJumping;
-
             return velocityY;
         }
 
@@ -377,10 +639,10 @@ namespace Platformer
         {
             // Get the player's bounding rectangle and find neighboring tiles.
             Rectangle bounds = BoundingRectangle;
-            int leftTile = (int)Math.Floor((float)bounds.Left / Tile.Width);
-            int rightTile = (int)Math.Ceiling(((float)bounds.Right / Tile.Width)) - 1;
-            int topTile = (int)Math.Floor((float)bounds.Top / Tile.Height);
-            int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / Tile.Height)) - 1;
+            int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
+            int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
+            int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
+            int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
 
             // Reset flag to search for ground collision.
             isOnGround = false;
@@ -448,10 +710,15 @@ namespace Platformer
             isAlive = false;
 
             if (killedBy != null)
+            {
+                level.Health = 0;
                 killedSound.Play();
+            }
             else
+            {
+                level.Health = 0;
                 fallSound.Play();
-
+            }
             sprite.PlayAnimation(dieAnimation);
         }
 
@@ -460,6 +727,7 @@ namespace Platformer
         /// </summary>
         public void OnReachedExit()
         {
+            level.Health = 100;
             sprite.PlayAnimation(celebrateAnimation);
         }
 
@@ -468,7 +736,7 @@ namespace Platformer
         /// </summary>
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            // Flip the sprite to face the way we are moving.
+            // Flip the resetAfterHit to face the way we are moving.
             if (Velocity.X > 0)
                 flip = SpriteEffects.FlipHorizontally;
             else if (Velocity.X < 0)
@@ -481,14 +749,51 @@ namespace Platformer
                 float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
                 int colorIndex = (int)t % poweredUpColors.Length;
                 color = poweredUpColors[colorIndex];
+                
             }
             else
             {
                 color = Color.White;
             }
 
-            // Draw that sprite.
+            // Draw that resetAfterHit.
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
+
+            // Shooting related drawing.
+            if (IsAlive)
+            {
+                spriteBatch.Draw(
+                    arm.sprite,
+                    arm.position,
+                    null,
+                    Color.White,
+                    arm.rotation,
+                    arm.center,
+                    1.0f,
+                    flip,
+                    0);
+
+                //Draw the bullets
+                foreach (GameObject bullet in bullets)
+                {
+                    if (bullet.alive)
+                    {
+                        spriteBatch.Draw(bullet.sprite,
+                            bullet.position, Color.White);
+                    }
+                }
+
+                spriteBatch.Draw(
+                    crosshair.sprite,
+                    crosshair.position,
+                    null,
+                    Color.White,
+                    crosshair.rotation,
+                    crosshair.center,
+                    1.0f,
+                    flip,
+                    0);
+            }
         }
 
         public void PowerUp()
@@ -496,6 +801,6 @@ namespace Platformer
             powerUpTime = MaxPowerUpTime;
             powerUpSound.Play();
         }
-    
-    }
-}
+
+    }//end class Player
+}//end namespace Platformer

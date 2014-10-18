@@ -58,10 +58,13 @@ namespace Platformer
             if (Animation == animation)
                 return;
 
-            // Start the new animation.
-            this.animation = animation;
-            this.frameIndex = 0;
-            this.time = 0.0f;
+            else
+            {
+                // Start the new animation.
+                this.animation = animation;
+                this.frameIndex = 0;
+                this.time = 0.0f;
+            }
         }
 
         /// <summary>
