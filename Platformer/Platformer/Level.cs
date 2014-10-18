@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -107,11 +108,10 @@ namespace Platformer
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-            //cameraPosition = new Vector2(0, this.TileHeight * Height - spriteBatch.GraphicsDevice.Viewport.Height);
             timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
             //health = 100; //setting the player's health to 100 when the level starts
 
-            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for only the first level
+            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for only the current level
 
             LoadMap(levelPath);
             cam = new Camera(viewport); //instantiating the camera view
@@ -139,41 +139,31 @@ namespace Platformer
 
             map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
 
-            //get player start point. Have to convert to tilebased so divide by tile dimensions
-            LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
+            LoadPlayer();
 
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].Y / map.TileHeight), "MonsterA");
-            /*loading more enemies*/
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");//loaded another enemy
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].Y / map.TileHeight), "MonsterB");
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].Y / map.TileHeight), "MonsterC");
-            //LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
-            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");
+            LoadEnemies();
 
 
             //Loading a gem
-            LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
+            //LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
+            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
 
             //exit point
-            LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
-                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight), "Exit");
+            LoadExit();
         }
 
         /// <summary>
         /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
         /// </summary>
-        private void LoadPlayer(int x, int y)
+        private void LoadPlayer()
         {
             if (Player != null)
                 throw new NotSupportedException("A level may only have one starting point.");
 
-            start = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
+            int x = map.ObjectGroups["events"].Objects["player"].X;
+            int y = map.ObjectGroups["events"].Objects["player"].Y;
+
+            start = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x,y));
 
             player = new Player(this, start);
 
@@ -182,30 +172,51 @@ namespace Platformer
         /// <summary>
         /// Remembers the location of the level's exit.
         /// </summary>
-        private void LoadExit(int x, int y, string SpriteSet)
+        private void LoadExit()
         {
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
 
-            exit = GetBounds(x, y).Center;
+            int x = map.ObjectGroups["events"].Objects["exit"].X;
+            int y = map.ObjectGroups["events"].Objects["exit"].Y;
+
+            exit = GetTileAtPoint(x, y).Center;
         }
 
         /// <summary>
         /// Instantiates an enemy and puts him in the level.
         /// </summary>
-        private void LoadEnemy(int x, int y, string spriteSet)
+        private void LoadEnemies()
         {
-            Vector2 position = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
-            enemies.Add(new Enemy(this, position, spriteSet));
+            int x = map.ObjectGroups["enemies"].Objects["enemy"].X;
+            int y = map.ObjectGroups["enemies"].Objects["enemy"].Y;
+            string enemyType = map.ObjectGroups["enemies"].Objects["enemy"].Properties["enemyType"];
+
+            SpawnEnemy(x, y, enemyType);
+
+            for (int i = 1; i < map.ObjectGroups["enemies"].Objects.Values.Count((item) => item.Name.Equals("enemy")); i++)
+            {
+                x = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].X;
+                y = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].Y;
+                enemyType = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].Properties["enemyType"];
+
+                SpawnEnemy(x, y, enemyType);
+            }
+        }
+
+        private void SpawnEnemy(int x, int y, string enemyType)
+        {
+            Vector2 position = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x, y));
+            enemies.Add(new Enemy(this, position, enemyType));
         }
 
         /// <summary>
         /// Instantiates a gem and puts it in the level.
         /// </summary>
-        private void LoadGem(int x, int y, bool isPowerUp)
+        private void SpawnConsumable(int x, int y, string type)
         {
-            Point position = GetBounds(x, y).Center;
-            gems.Add(new Gem(this, new Vector2(position.X, position.Y), isPowerUp));
+            Point position = GetTileAtPoint(x, y).Center;
+            gems.Add(new Gem(this, new Vector2(position.X, position.Y), true));
         }
 
 
@@ -246,11 +257,11 @@ namespace Platformer
             /*****************************************************************************************HOW DO I ADD ANOTHER TILESET***********************************/
             //get list of properties for tile
             Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
-            Tileset.TilePropertyList nightmareIceTileProperties = map.Tilesets["Nightmare_Ice"].GetTileProperties(tileId);
-            Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
-            Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
-            Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
-            Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
+            //Tileset.TilePropertyList nightmareIceTileProperties = map.Tilesets["Nightmare_Ice"].GetTileProperties(tileId);
+            //Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
+            //Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
+            //Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
+            //Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
 
             /*collision properties for platformertiles tileset in Tiled -- Tom's original code*/
             if (currentTileProperties != null) //check if current tile has properties
@@ -266,79 +277,80 @@ namespace Platformer
                 }
             }
 
+            
+            ///*******************maybe this is how I add the other tileset?**********************************************/
+            ///********************and it worked!***************************************************/
+            
+            ///*collision properties for Nightmare_Ice tileset in Tiled*/
+            //if (nightmareIceTileProperties != null) //check if current tile has properties
+            //{
+            //    switch (Convert.ToInt32(nightmareIceTileProperties["TileCollision"]))//should be a number 0-2
+            //    {
+            //        case 0:
+            //            return TileCollision.Passable;
+            //        case 1:
+            //            return TileCollision.Impassable;
+            //        case 2:
+            //            return TileCollision.Platform;
+            //    }
+            //}
 
-            /*******************maybe this is how I add the other tileset?**********************************************/
-            /********************and it worked!***************************************************/
+            ///*collision properties for Classic_Ruins tileset in Tiled*/
+            //if (ruinTileProperties != null) //check if current tile has properties
+            //{
+            //    switch (Convert.ToInt32(ruinTileProperties["TileCollision"]))//should be a number 0-2
+            //    {
+            //        case 0:
+            //            return TileCollision.Passable;
+            //        case 1:
+            //            return TileCollision.Impassable;
+            //        case 2:
+            //            return TileCollision.Platform;
+            //    }
+            //}
 
-            /*collision properties for Nightmare_Ice tileset in Tiled*/
-            if (nightmareIceTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(nightmareIceTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
+            ///*collision properties for multiPurpose tileset in Tiled*/
+            //if (multiPurposeTileProperties != null) //check if current tile has properties
+            //{
+            //    switch (Convert.ToInt32(multiPurposeTileProperties["TileCollision"]))//should be a number 0-2
+            //    {
+            //        case 0:
+            //            return TileCollision.Passable;
+            //        case 1:
+            //            return TileCollision.Impassable;
+            //        case 2:
+            //            return TileCollision.Platform;
+            //    }
+            //}
 
-            /*collision properties for Classic_Ruins tileset in Tiled*/
-            if (ruinTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(ruinTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
+            ///*collision properties for oldPlatformer tileset in Tiled*/
+            //if (oldPlatformerTileProperties != null) //check if current tile has properties
+            //{
+            //    switch (Convert.ToInt32(oldPlatformerTileProperties["TileCollision"]))//should be a number 0-2
+            //    {
+            //        case 0:
+            //            return TileCollision.Passable;
+            //        case 1:
+            //            return TileCollision.Impassable;
+            //        case 2:
+            //            return TileCollision.Platform;
+            //    }
+            //}
 
-            /*collision properties for multiPurpose tileset in Tiled*/
-            if (multiPurposeTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(multiPurposeTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            /*collision properties for oldPlatformer tileset in Tiled*/
-            if (oldPlatformerTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(oldPlatformerTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            /*collision properties for Backgrounds tileset in Tiled*/
-            if (BackgroundTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(BackgroundTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
+            ///*collision properties for Backgrounds tileset in Tiled*/
+            //if (BackgroundTileProperties != null) //check if current tile has properties
+            //{
+            //    switch (Convert.ToInt32(BackgroundTileProperties["TileCollision"]))//should be a number 0-2
+            //    {
+            //        case 0:
+            //            return TileCollision.Passable;
+            //        case 1:
+            //            return TileCollision.Impassable;
+            //        case 2:
+            //            return TileCollision.Platform;
+            //    }
+            //}
+            
             return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
         }
 
@@ -348,6 +360,14 @@ namespace Platformer
         public Rectangle GetBounds(int x, int y)
         {
             return new Rectangle(x * map.TileWidth, y * map.TileHeight, map.TileWidth, map.TileHeight);
+        }
+
+        /// <summary>
+        /// Gets the bounding rectangle of the tile the point is in.
+        /// </summary>        
+        public Rectangle GetTileAtPoint(int x, int y)
+        {
+            return GetBounds((int)Math.Floor((float)x / map.TileWidth), (int)Math.Floor((float)y / map.TileHeight));
         }
 
         /// <summary>
@@ -473,14 +493,7 @@ namespace Platformer
 
                 UpdateEnemies(gameTime);
 
-                //just making sure collision is working
-                //switch (GetCollision((int)Math.Floor((float)Player.Position.X / map.TileWidth),
-                //                     (int)Math.Floor((float)Player.Position.Y / map.TileHeight)))
-                //{
-                //    case TileCollision.Impassable:
-                //        health++;
-                //        break;
-                //}
+                
 
                 // The player has reached the exit if they are standing on the ground and
                 // his bounding rectangle contains the center of the exit tile. They can only
@@ -608,10 +621,6 @@ namespace Platformer
             spriteBatch.End();*/
 
 
-
-            //ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
-            // Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0.0f);
-
             spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
                         null,
@@ -624,14 +633,9 @@ namespace Platformer
             //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
             //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
 
-            //cameraPosition.Y = 544;
-            //DrawTiles(spriteBatch);
-            //cam.Position = new Vector2(0, 544);
-
-
-            //spriteBatch.Begin();
             /*foreach (Gem gem in gems)
                 gem.Draw(gameTime, spriteBatch);*/
+
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
             // Calculate a tint color based on power up state.
@@ -673,71 +677,9 @@ namespace Platformer
         }
 
 
-        /*private void ScrollCamera(Viewport viewport)
-        {
-#if ZUNE
-const float ViewMargin = 0.45f;
-#else
-            const float ViewMargin = 0.45f;
-#endif
+        
 
-            // Calculate the edges of the screen.
-            float marginWidth = viewport.Width * ViewMargin;
-            float marginLeft = cameraPosition.X + marginWidth;
-            float marginRight = cameraPosition.X + viewport.Width - marginWidth;
-
-            float marginHeight = viewport.Height * ViewMargin;
-            float marginTop = cameraPosition.Y + marginHeight;
-            float marginBottom = cameraPosition.Y + viewport.Height - marginHeight;
-
-            // Calculate how far to scroll when the player is near the edges of the screen.
-            Vector2 cameraMovement = new Vector2(0.0f, 0.0f);
-            if (Player.Position.X < marginLeft)
-                cameraMovement.X = Player.Position.X - marginLeft;
-            else if (Player.Position.X > marginRight)
-                cameraMovement.X = Player.Position.X - marginRight;
-
-            if (Player.Position.Y < marginTop)
-                cameraMovement.Y = Player.Position.Y - marginTop;
-            else if (Player.Position.Y > marginBottom)
-                cameraMovement.Y = Player.Position.Y - marginBottom;
-
-            // Update the camera position, but prevent scrolling off the ends of the level.
-            Vector2 maxCameraPosition = new Vector2(this.TileWidth * Width - viewport.Width, this.TileHeight * Height - viewport.Height);
-            cameraPosition.X = MathHelper.Clamp(cameraPosition.X + cameraMovement.X, 0.0f, maxCameraPosition.X);
-            cameraPosition.Y = MathHelper.Clamp(cameraPosition.Y + cameraMovement.Y, 0.0f, maxCameraPosition.Y);
-        }*/
-
-        #region drawTiles commented code
-        /*
-        /// <summary>
-        /// Draws each tile in the level.
-        /// </summary>
-        private void DrawTiles(SpriteBatch spriteBatch)
-        {
-            // Calculate the visible range of tiles.
-            int left = (int)Math.Floor(cameraPosition / Tile.Width);
-            int right = left + spriteBatch.GraphicsDevice.Viewport.Width / Tile.Width;
-            right = Math.Min(right, Width - 1);
-
-            // For each tile position
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = left; x <= right; ++x)
-                {
-                    // If there is a visible tile in that position
-                    Texture2D texture = tiles[x, y].Texture;
-                    if (texture != null)
-                    {
-                        // Draw it in screen space.
-                        Vector2 position = new Vector2(x, y) * Tile.Size;
-                        spriteBatch.Draw(texture, position, Color.White);
-                    }
-                }
-            }
-        }
-        */
-        #endregion
+       
 
         #endregion
     }

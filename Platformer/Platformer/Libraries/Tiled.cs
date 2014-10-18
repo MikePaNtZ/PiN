@@ -527,7 +527,7 @@ namespace Squared.Tiled {
                                             result.Objects.Add(objects.Name, objects);
                                         }
                                         else {
-                                            int count = result.Objects.Keys.Count((item) => item.Equals(objects.Name));
+                                            int count = result.Objects.Values.Count((item) => item.Name.Equals(objects.Name));
                                             result.Objects.Add(string.Format("{0}{1}", objects.Name, count), objects);
                                         }
                                     }
