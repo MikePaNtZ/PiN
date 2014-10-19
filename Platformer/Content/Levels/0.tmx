@@ -6540,5 +6540,70 @@
    </properties>
    <ellipse/>
   </object>
+  <object name="enemy" x="2045" y="743" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+  </object>
+  <object name="enemy" x="1865" y="864" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+  </object>
+  <object name="enemy" x="2341" y="548" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="2580" y="644" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="3063" y="738" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="3557" y="649" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="3898" y="614" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4468" y="843" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4928" y="744" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4683" y="877" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="5263" y="743" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="6061" y="685" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="5611" y="868" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
