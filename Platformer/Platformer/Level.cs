@@ -174,7 +174,6 @@ namespace Platformer
         private void SpawnEnemy(int x, int y, string enemyType)
         {
             Vector2 position = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x, y));
-            //enemies.Add(new Enemy(this, position, enemyType));
             enemies.Add(EnemyFactory.NewEnemy(this, position, enemyType));
         }
 

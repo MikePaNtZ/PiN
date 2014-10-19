@@ -65,7 +65,7 @@ namespace Platformer
 
         public int Health
         {
-            get { return Health; }
+            get { return health; }
         }
         int health;
 
