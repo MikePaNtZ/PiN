@@ -28,10 +28,10 @@ namespace Platformer
     /// </summary>
     class Level : IDisposable
     {
-        private AnimationPlayer resetAfterHit;
-        
         // Physical structure of the level.
         private Map map;
+        //private List<Layer> layers;
+        private Layer[] layers;
 
         // Entities in the level.
         public Player Player
@@ -40,24 +40,7 @@ namespace Platformer
         }
         Player player;
 
-        // Powerup state
-        private const float MaxHitResetTime = 3.0f;
-        public float isHitResetTime;
-        public bool isHit
-        {
-            get { return isHitResetTime > 0.0f; }
-            //set { wasHit = value; }
-        }
-        //bool wasHit;
-
-        private readonly Color[] isHitColors = {
-                               Color.LightPink,
-                               Color.Chartreuse,
-                               Color.Cyan,
-                               Color.Fuchsia,
-                                               };
-
-        private List<Gem> gems = new List<Gem>();
+        private List<Consumable> consumables = new List<Consumable>();
         public List<Enemy> enemies = new List<Enemy>();
 
         // Key locations in the level.        
@@ -105,7 +88,6 @@ namespace Platformer
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
             timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
-            //health = 100; //setting the player's health to 100 when the level starts
 
             string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for the current level
 
@@ -117,6 +99,17 @@ namespace Platformer
             /*This next section doesn't look like Tom's level code*/
             // Load background layer textures. For now, all levels must
             // use the same backgrounds and only use the left-most part of them.
+
+            /*layers = new List<Layer>
+            {
+            new Layer(cam) { Parallax = new Vector2(0.2f, 1.0f) },
+            new Layer(cam) { Parallax = new Vector2(0.4f, 1.0f) },
+            new Layer(cam) { Parallax = new Vector2(0.6f, 1.0f) },
+            };
+            layers[0].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer0_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
+            layers[1].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer1_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
+            layers[2].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer2_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
+             * */
             //layers = new Layer[3];
             //layers[0] = new Layer(Content, "Backgrounds/Layer0", 0.2f);
             //layers[1] = new Layer(Content, "Backgrounds/Layer1", 0.5f);
@@ -137,12 +130,6 @@ namespace Platformer
 
             LoadEnemies();
 
-
-            //Loading a gem
-            //LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
-            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
-
-            //exit point
             LoadExit();
         }
 
@@ -212,10 +199,10 @@ namespace Platformer
         /// <summary>
         /// Instantiates a consumable and puts it in the level.
         /// </summary>
-        private void SpawnConsumable(int x, int y, string type)
+        private void SpawnConsumable(int x, int y, ConsumableType type)
         {
             Point position = GetTileAtPoint(x, y).Center;
-            gems.Add(new Gem(this, new Vector2(position.X, position.Y), true));
+            consumables.Add(new Consumable(this, new Vector2(position.X, position.Y), type));
         }
 
 
@@ -338,13 +325,6 @@ namespace Platformer
             get { return map.TileWidth; }
         }
 
-        public int Health
-        {
-            get { return health; }
-            set { this.health = value; }
-        }
-        int health;//simply setting health to 100
-
         /// <summary>
         /// Height of the tiles in this level.
         /// </summary>
@@ -390,12 +370,6 @@ namespace Platformer
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
 
-                //leave a time delay after the player is hit by the enemy
-                if (isHit)
-                    isHitResetTime = Math.Max(0.0f, isHitResetTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
-                isHitResetting();
-
-
                 #region Debugging for Tiled Map Editor
                 //manually move player for debugging purposes
                 if (keyboardState.IsKeyDown(Keys.K))
@@ -423,10 +397,11 @@ namespace Platformer
                 #endregion Debugging for Tiled Map Editor
 
                 Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
-                UpdateGems(gameTime);
+                UpdateConsumables(gameTime);
 
                 //follow player
                 cam.LookAt(Player.Position);
+
 
 
                 // Falling off the bottom of the level kills the player.
@@ -456,20 +431,20 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Animates each gem and checks to allows the player to collect them.
+        /// Animates each consumable and checks to allows the player to collect them.
         /// </summary>
-        private void UpdateGems(GameTime gameTime)
+        private void UpdateConsumables(GameTime gameTime)
         {
-            for (int i = 0; i < gems.Count; ++i)
+            for (int i = 0; i < consumables.Count; ++i)
             {
-                Gem gem = gems[i];
+                Consumable consumable = consumables[i];
 
-                gem.Update(gameTime);
+                consumable.Update(gameTime);
 
-                if (gem.BoundingCircle.Intersects(Player.BoundingRectangle))
+                if (consumable.BoundingCircle.Intersects(Player.BoundingRectangle))
                 {
-                    gems.RemoveAt(i--);
-                    OnGemCollected(gem, Player);
+                    consumables.RemoveAt(i--);
+                    OnConsumableCollected(consumable, Player);
                 }
             }
         }
@@ -482,11 +457,8 @@ namespace Platformer
             foreach (Enemy enemy in enemies)
             {
                 enemy.Update(gameTime);
+                // Touching an enemy decreases health of player
 
-                /*Someone please figure out how to make a player's health
-
-                /****************************************************************************************************************************************************************************/
-                // Touching an enemy instantly kills the player
                 if (enemy.IsAlive & enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
                 {
                     if (Player.IsPoweredUp)
@@ -497,30 +469,46 @@ namespace Platformer
                     {
                         OnEnemyKilled(enemy, Player);
                     }
-                    else if (isHit == true)//finally found the health will be affected
+                    else if (!Player.IsHit)
                     {
- 
-                        health -= 1;
-                        //wasHit = true;
-                        //OnPlayerKilled(enemy);
+                        OnPlayerHit(enemy);
                     }
                 }
             }
         }
-        /*************************************************************************************************************************************************************/
+
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
             enemy.OnKilled(killedBy);
+
+            int rand = random.Next(100);
+
+            if (rand >= 90)
+                SpawnConsumable((int)enemy.Position.X, (int)enemy.Position.Y, ConsumableType.PowerUp);
+            else if (rand <= 30)
+                SpawnConsumable((int)enemy.Position.X, (int)enemy.Position.Y, ConsumableType.Health);
         }
 
         /// <summary>
-        /// Called when a gem is collected.
+        /// Called when a consumable is collected.
         /// </summary>
-        /// <param name="gem">The gem that was collected.</param>
+        /// <param name="consumable">The consumable that was collected.</param>
         /// <param name="collectedBy">The player who collected this gem.</param>
-        private void OnGemCollected(Gem gem, Player collectedBy)
+        private void OnConsumableCollected(Consumable consumable, Player collectedBy)
         {
-            gem.OnCollected(collectedBy);
+            consumable.OnCollected(collectedBy);
+        }
+
+        /// <summary>
+        /// Called when the player is hit by an enemy.
+        /// </summary>
+        /// <param name="hitBy">
+        /// The enemy who hit the player. This is null if the player was not hit by an
+        /// enemy, such as when a player hits or is hit by a hazard.
+        /// </param>
+        private void OnPlayerHit(Enemy hitBy)
+        {
+            Player.OnHit(hitBy);
         }
 
         /// <summary>
@@ -559,11 +547,13 @@ namespace Platformer
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            /*spriteBatch.Begin();
-            for (int i = 0; i <= EntityLayer; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition.X);
-            spriteBatch.End();*/
+            //spriteBatch.Begin();
+            //for (int i = 0; i <= 2; ++i)
+            //    layers[i].Draw(spriteBatch, cam.Position.X);
+            //spriteBatch.End();
 
+            //foreach (Layer layer in layers)
+            //    layer.Draw(spriteBatch);
 
             spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
@@ -577,28 +567,12 @@ namespace Platformer
             //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
             //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
 
-            /*foreach (Gem gem in gems)
-                gem.Draw(gameTime, spriteBatch);*/
+            foreach (Consumable consumable in consumables)
+                consumable.Draw(gameTime, spriteBatch);
 
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
-            // Calculate a tint color based on power up state.
-            Color color;
-            if (isHit)
-            {
-                float t = ((float)gameTime.TotalGameTime.TotalSeconds + isHitResetTime / MaxHitResetTime) * 20.0f;
-                int colorIndex = (int)t % isHitColors.Length;
-                color = isHitColors[colorIndex];
-            }
-            else
-            {
-                color = Color.White;
-            }
-            // Draw that resetAfterHit.
-
-
-            /****I cannot draw the animation for after the player gets hit by an enemy******/
-            //resetAfterHit.Draw(gameTime, spriteBatch, Player.Position, SpriteEffects.None, color);
+            
             Player.Draw(gameTime, spriteBatch);
             
 
@@ -614,11 +588,6 @@ namespace Platformer
             spriteBatch.End();*/
         }//end Draw method
 
-        public void isHitResetting()
-        {
-            isHitResetTime = MaxHitResetTime;
-            //wasHit = false;
-        }
 
 
         

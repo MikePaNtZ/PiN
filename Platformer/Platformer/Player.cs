@@ -28,6 +28,7 @@ namespace Platformer
         private Animation jumpAnimation;
         private Animation celebrateAnimation;
         private Animation dieAnimation;
+        private Animation flinchAnimation;
         private SpriteEffects flip = SpriteEffects.None;
         private AnimationPlayer sprite;
         private Animation shieldAnimation;
@@ -38,6 +39,7 @@ namespace Platformer
         private SoundEffect killedSound;
         private SoundEffect jumpSound;
         private SoundEffect fallSound;
+        private SoundEffect hurtSound;
 
         // Shooting objects
         private GameObject arm;
@@ -59,6 +61,22 @@ namespace Platformer
             get { return isAlive; }
         }
         bool isAlive;
+
+        public int Health
+        {
+            get { return Health; }
+        }
+        int health;
+
+        public bool IsHit
+        {
+            get { return isHit; }
+        }
+        bool isHit;
+
+        private const float MaxIFrames = 1.5F;
+        private float IFrames;
+        
 
         // Powerup state
         private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
@@ -176,6 +194,7 @@ namespace Platformer
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Die"), 0.1f, false);
+            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
 
             // Calculate bounds within texture size.            
             int width = (int)(idleAnimation.FrameWidth * 0.4);
@@ -188,6 +207,7 @@ namespace Platformer
             killedSound = Level.Content.Load<SoundEffect>("Sounds/PlayerKilled");
             jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // load shooting related object
@@ -210,10 +230,11 @@ namespace Platformer
             Position = position;
             Velocity = Vector2.Zero;
             isAlive = true;
-            level.Health = 100;
+            isHit = false;
+            health = 100;
+            IFrames = 0.0F;
             sprite.PlayAnimation(idleAnimation);
             powerUpTime = 0.0f;
-            Level.isHitResetTime = 0.0f; //resetting the time for when a player intersects with an enemy
         }
 
         /// <summary>
@@ -250,12 +271,19 @@ namespace Platformer
                     velocity.X = 0;
                     isJumping = false;
                     sprite.PlayAnimation(shieldAnimation);
-                    oldMouseState = mouseState; //I don't think this really does anything
                 }
                 else
                 {
                     sprite.PlayAnimation(idleAnimation);
                 }
+
+                
+            }
+
+            if (IsAlive && isHit)
+            {
+                UpdateInvincibilityFrames(gameTime);
+                spriteFlickerAnimation();
             }
 
             // Clear input.
@@ -281,133 +309,6 @@ namespace Platformer
             UpdateBullets();
         }//end Update method
 
-        private void FireBullet()
-        {
-            foreach (GameObject bullet in bullets)
-            {
-                //Find a bullet that isn't alive
-                if (!bullet.alive)
-                {
-                    //And set it to alive.
-                    bullet.alive = true;
-
-                    if (flip == SpriteEffects.FlipHorizontally) //Facing right
-                    {
-                        float armCos = (float)Math.Cos(arm.rotation - MathHelper.PiOver2);
-                        float armSin = (float)Math.Sin(arm.rotation - MathHelper.PiOver2);
-
-                        //Set the initial position of our bullet at the end of our gun arm
-                        //42 is obtained be taking the width of the Arm_Gun texture / 2
-                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
-                        bullet.position = new Vector2(
-                            arm.position.X + 42 * armCos,
-                            arm.position.Y + 42 * armSin);
-
-                        //And give it a velocity of the direction we're aiming.
-                        //Increase/decrease speed by changing 15.0f
-                        bullet.velocity = new Vector2(
-                            (float)Math.Cos(arm.rotation - MathHelper.PiOver2),
-                            (float)Math.Sin(arm.rotation - MathHelper.PiOver2)) * 15.0f;
-                    }
-                    else //Facing left
-                    {
-                        float armCos = (float)Math.Cos(arm.rotation + MathHelper.PiOver2);
-                        float armSin = (float)Math.Sin(arm.rotation + MathHelper.PiOver2);
-
-                        //Set the initial position of our bullet at the end of our gun arm
-                        //42 is obtained be taking the width of the Arm_Gun texture / 2
-                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
-                        bullet.position = new Vector2(
-                            arm.position.X - 42 * armCos,
-                            arm.position.Y - 42 * armSin);
-
-                        //And give it a velocity of the direction we're aiming.
-                        //Increase/decrease speed by changing 15.0f
-                        bullet.velocity = new Vector2(
-                           -armCos,
-                           -armSin) * 15.0f;
-                    }
-                    return;
-                }
-            }
-        }
-
-        private void UpdateBullets()
-        {
-            //Check all of our bullets
-            foreach (GameObject bullet in bullets)
-            {
-                //Only update them if they're alive
-                if (bullet.alive)
-                {
-                    //Move our bullet based on it's velocity
-                    bullet.position += bullet.velocity;
-
-                    //Rectangle the size of the screen so bullets that
-                    //fly off screen are deleted.
-                    Rectangle screenRect = new Rectangle(0, 0, 1280, 720);
-                    if (!screenRect.Contains(new Point(
-                        (int)bullet.position.X,
-                        (int)bullet.position.Y)))
-                    {
-                        bullet.alive = false;
-                        continue;
-                    }
-
-                    //Collision rectangle for each bullet -Will also be
-                    //used for collisions with enemies.
-                    Rectangle bulletRect = new Rectangle(
-                        (int)bullet.position.X - bullet.sprite.Width * 2,
-                        (int)bullet.position.Y - bullet.sprite.Height * 2,
-                        bullet.sprite.Width * 4,
-                        bullet.sprite.Height * 4);
-
-
-                    //Check for collisions with the enemies
-                    foreach (Enemy enemy in level.enemies)
-                    {
-                        if (bulletRect.Intersects(enemy.BoundingRectangle))
-                        {
-                            //We're going to want to put some enemy health reduction code here
-                            //Enemy class needs a health member variable too
-                            enemy.IsAlive = false;
-                        }
-                    }
-
-                    //Everything below here can be deleted if you want
-                    //your bullets to shoot through all tiles.
-
-                    //Look for adjacent tiles to the bullet
-                    Rectangle bounds = new Rectangle(
-                        bulletRect.Center.X - 6,
-                        bulletRect.Center.Y - 6,
-                        bulletRect.Width / 4,
-                        bulletRect.Height / 4);
-                    int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
-                    int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
-                    int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
-                    int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
-
-                    // For each potentially colliding tile
-                    for (int y = topTile; y <= bottomTile; ++y)
-                    {
-                        for (int x = leftTile; x <= rightTile; ++x)
-                        {
-                            TileCollision collision = Level.GetCollision(x, y);
-
-                            //If we collide with an Impassable or Platform tile
-                            //then delete our bullet.
-                            if (collision == TileCollision.Impassable ||
-                                collision == TileCollision.Platform)
-                            {
-                                if (bulletRect.Intersects(bounds))
-                                    bullet.alive = false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Gets player horizontal movement and jump commands from input.
@@ -468,73 +369,10 @@ namespace Platformer
             isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
 
             updateShooting(mouseState);
-            //updateHealth();
             oldMouseState = mouseState;
         }
 
-        /*Your health is updated when you hit an enemy without a shield on*/
-        //private void updateHealth()
-        //{
-        //    //Check for collisions with the enemies
-        //    foreach (Enemy enemy in level.enemies)
-        //    {
-        //        //for every enemy in the game, if player collides with him/her, and player is not
-        //        //using shield, player loses some health
-        //        if ((localBounds.Intersects(enemy.BoundingRectangle)) & (isBlocking == false))
-        //        {
-        //            //We're going to want to put some enemy health reduction code here
-        //            //Enemy class needs a health member variable too
-        //            level.Health -= 1;
-        //        }
-        //    }
-        //}
 
-        private void updateShooting(MouseState mouseState)
-        {
-            //Arm rotation
-
-            // NOT YET WORKING. NEED TO GET THE RIGHT VECTOR TRANSFORM.
-            //Vector2 normalizedMouseDirection = new Vector2(mouseState.X, -mouseState.Y);
-            //normalizedMouseDirection.Normalize();
-
-            //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
-            //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
-
-
-            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
-            arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
-
-            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
-
-            if (flip == SpriteEffects.FlipHorizontally) //Facing right
-            {
-                //If we try to aim behind our head then flip the
-                //character around so he doesn't break his arm!
-                if (arm.rotation < 0)
-                    flip = SpriteEffects.None;
-
-                //If we aren't rotating our arm then set it to the
-                //default position. Aiming in front of us.
-                if (arm.rotation == 0)
-                    arm.rotation = MathHelper.PiOver2;
-            }
-            else //Facing left
-            {
-                //Once again, if we try to aim behind us then
-                //flip our character.
-                if (arm.rotation > 0)
-                    flip = SpriteEffects.FlipHorizontally;
-
-                //If we're not rotating our arm, default it to
-                //aim the same direction we're facing.
-                if (arm.rotation == 0)
-                    arm.rotation = -MathHelper.PiOver2;
-            }
-
-            if (isShooting)
-                FireBullet();
-
-        }
 
         /// <summary>
         /// Updates the player's velocity and position based on input, gravity, etc.
@@ -701,6 +539,247 @@ namespace Platformer
             previousBottom = bounds.Bottom;
         }
 
+        private void FireBullet()
+        {
+            foreach (GameObject bullet in bullets)
+            {
+                //Find a bullet that isn't alive
+                if (!bullet.alive)
+                {
+                    //And set it to alive.
+                    bullet.alive = true;
+
+                    if (flip == SpriteEffects.FlipHorizontally) //Facing right
+                    {
+                        float armCos = (float)Math.Cos(arm.rotation - MathHelper.PiOver2);
+                        float armSin = (float)Math.Sin(arm.rotation - MathHelper.PiOver2);
+
+                        //Set the initial position of our bullet at the end of our gun arm
+                        //42 is obtained be taking the width of the Arm_Gun texture / 2
+                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
+                        bullet.position = new Vector2(
+                            arm.position.X + 42 * armCos,
+                            arm.position.Y + 42 * armSin);
+
+                        //And give it a velocity of the direction we're aiming.
+                        //Increase/decrease speed by changing 15.0f
+                        bullet.velocity = new Vector2(
+                            (float)Math.Cos(arm.rotation - MathHelper.PiOver2),
+                            (float)Math.Sin(arm.rotation - MathHelper.PiOver2)) * 15.0f;
+                    }
+                    else //Facing left
+                    {
+                        float armCos = (float)Math.Cos(arm.rotation + MathHelper.PiOver2);
+                        float armSin = (float)Math.Sin(arm.rotation + MathHelper.PiOver2);
+
+                        //Set the initial position of our bullet at the end of our gun arm
+                        //42 is obtained be taking the width of the Arm_Gun texture / 2
+                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
+                        bullet.position = new Vector2(
+                            arm.position.X - 42 * armCos,
+                            arm.position.Y - 42 * armSin);
+
+                        //And give it a velocity of the direction we're aiming.
+                        //Increase/decrease speed by changing 15.0f
+                        bullet.velocity = new Vector2(
+                           -armCos,
+                           -armSin) * 15.0f;
+                    }
+                    return;
+                }
+            }
+        }
+
+        private void UpdateBullets()
+        {
+            //Check all of our bullets
+            foreach (GameObject bullet in bullets)
+            {
+                //Only update them if they're alive
+                if (bullet.alive)
+                {
+                    //Move our bullet based on it's velocity
+                    bullet.position += bullet.velocity;
+
+                    //Rectangle the size of the screen so bullets that
+                    //fly off screen are deleted.
+                    Rectangle screenRect = new Rectangle(0, 0, 1280, 720);
+                    if (!screenRect.Contains(new Point(
+                        (int)bullet.position.X,
+                        (int)bullet.position.Y)))
+                    {
+                        bullet.alive = false;
+                        continue;
+                    }
+
+                    //Collision rectangle for each bullet -Will also be
+                    //used for collisions with enemies.
+                    Rectangle bulletRect = new Rectangle(
+                        (int)bullet.position.X - bullet.sprite.Width * 2,
+                        (int)bullet.position.Y - bullet.sprite.Height * 2,
+                        bullet.sprite.Width * 4,
+                        bullet.sprite.Height * 4);
+
+
+                    //Check for collisions with the enemies
+                    foreach (Enemy enemy in level.enemies)
+                    {
+                        if (bulletRect.Intersects(enemy.BoundingRectangle))
+                        {
+                            //We're going to want to put some enemy health reduction code here
+                            //Enemy class needs a health member variable too
+                            enemy.IsAlive = false;
+                        }
+                    }
+
+                    //Everything below here can be deleted if you want
+                    //your bullets to shoot through all tiles.
+
+                    //Look for adjacent tiles to the bullet
+                    Rectangle bounds = new Rectangle(
+                        bulletRect.Center.X - 6,
+                        bulletRect.Center.Y - 6,
+                        bulletRect.Width / 4,
+                        bulletRect.Height / 4);
+                    int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
+                    int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
+                    int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
+                    int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
+
+                    // For each potentially colliding tile
+                    for (int y = topTile; y <= bottomTile; ++y)
+                    {
+                        for (int x = leftTile; x <= rightTile; ++x)
+                        {
+                            TileCollision collision = Level.GetCollision(x, y);
+
+                            //If we collide with an Impassable or Platform tile
+                            //then delete our bullet.
+                            if (collision == TileCollision.Impassable ||
+                                collision == TileCollision.Platform)
+                            {
+                                if (bulletRect.Intersects(bounds))
+                                    bullet.alive = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        
+
+        private void updateShooting(MouseState mouseState)
+        {
+            //Arm rotation
+
+            // NOT YET WORKING. NEED TO GET THE RIGHT VECTOR TRANSFORM.
+            //Vector2 normalizedMouseDirection = new Vector2(mouseState.X, -mouseState.Y);
+            //normalizedMouseDirection.Normalize();
+
+            //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
+
+
+            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
+
+            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
+
+            if (flip == SpriteEffects.FlipHorizontally) //Facing right
+            {
+                //If we try to aim behind our head then flip the
+                //character around so he doesn't break his arm!
+                if (arm.rotation < 0)
+                    flip = SpriteEffects.None;
+
+                //If we aren't rotating our arm then set it to the
+                //default position. Aiming in front of us.
+                if (arm.rotation == 0)
+                    arm.rotation = MathHelper.PiOver2;
+            }
+            else //Facing left
+            {
+                //Once again, if we try to aim behind us then
+                //flip our character.
+                if (arm.rotation > 0)
+                    flip = SpriteEffects.FlipHorizontally;
+
+                //If we're not rotating our arm, default it to
+                //aim the same direction we're facing.
+                if (arm.rotation == 0)
+                    arm.rotation = -MathHelper.PiOver2;
+            }
+
+            if (isShooting)
+                FireBullet();
+
+        }
+
+        
+
+        /// <summary>
+        /// Called when the player has been hit.
+        /// </summary>
+        /// <param name="hitBy">
+        /// The enemy who hit the player. This parameter is null if the player was
+        /// not hit by an enemy (a hazard).
+        /// </param>
+        public void OnHit(Enemy hitBy)
+        {
+            isHit = true;
+            if (hitBy != null)
+            {
+                UpdateHealth(-25);
+                hurtSound.Play();
+            }
+            else
+            {
+                UpdateHealth(-5);
+                hurtSound.Play();
+            }
+            sprite.PlayAnimation(flinchAnimation);
+
+            if (health <= 0)
+                OnKilled(hitBy);
+            else
+                StartInvincibilityFrames();
+        }
+
+        /*Your health is updated */
+        public void UpdateHealth(int changeInHealth)
+        {
+            health += changeInHealth;
+            if (health > 100)
+                health = 100;
+        }
+
+        /// <summary>
+        /// After being hit let the player get some breathing room
+        /// </summary>
+        private void StartInvincibilityFrames()
+        {
+            IFrames = MaxIFrames;
+        }
+
+        /// <summary>
+        /// update Invincibility Frames
+        /// </summary>
+        private void UpdateInvincibilityFrames(GameTime gameTime)
+        {
+            IFrames -= gameTime.ElapsedGameTime.Milliseconds / 1000.0F;
+            if (IFrames <= 0.0F)
+                isHit = false;
+        }
+
+        /// <summary>
+        /// When player has been hit his animation will flicker, showing that he is invincible for a short time
+        /// </summary>
+        private void spriteFlickerAnimation()
+        {
+            //make him flicker...somehow
+        }
+
         /// <summary>
         /// Called when the player has been killed.
         /// </summary>
@@ -714,12 +793,12 @@ namespace Platformer
 
             if (killedBy != null)
             {
-                level.Health = 0;
+                health = 0;
                 killedSound.Play();
             }
             else
             {
-                level.Health = 0;
+                health = 0;
                 fallSound.Play();
             }
             sprite.PlayAnimation(dieAnimation);
@@ -730,7 +809,6 @@ namespace Platformer
         /// </summary>
         public void OnReachedExit()
         {
-            level.Health = 100;
             sprite.PlayAnimation(celebrateAnimation);
         }
 

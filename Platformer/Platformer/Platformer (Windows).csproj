@@ -77,7 +77,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Circle.cs" />
     <Compile Include="Enemy.cs" />
-    <Compile Include="Gem.cs" />
+    <Compile Include="Consumable.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="PlatformerGame.cs" />
