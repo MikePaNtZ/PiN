@@ -98,33 +98,34 @@ namespace Platformer
         /// </summary>
         private const float MaxWaitTime = 0.5f;
 
-        private float health;
 
         /// <summary>
         /// The speed at which this enemy moves along the X axis.
         /// </summary>
         private const float MoveSpeed = 40.0f; //changed from 64 to 40f
 
+        // Attributes intended to be overwritten in derived class.
+        protected float health;
+        protected string enemyType;
+
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
-        public Enemy(Level level, Vector2 position, string spriteSet)
-        {
+        public Enemy(Level level, Vector2 position)
+       { 
             this.level = level;
             this.position = position;
-            this.health = 5.0f;
             this.IsAlive = true;
 
-            LoadContent(spriteSet);
         }
 
         /// <summary>
         /// Loads a particular enemy resetAfterHit sheet and sounds.
         /// </summary>
-        public void LoadContent(string spriteSet)
+        public void LoadContent()
         {
             // Load animations.
-            spriteSet = "Sprites/" + spriteSet + "/";
+            string spriteSet = "Sprites/" + enemyType + "/";
             runAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Run"), 0.1f, true);
             idleAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Idle"), 0.15f, true);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Die"), 0.07f, false);
