@@ -573,7 +573,10 @@ namespace Platformer
                 velocity.X = 0;
 
             if (Position.Y == previousPosition.Y)
+            {
                 velocity.Y = 0;
+                jumpTime = 0.0f;
+            }
         }
 
         /// <summary>
@@ -665,7 +668,7 @@ namespace Platformer
                             float absDepthY = Math.Abs(depth.Y);
 
                             // Resolve the collision along the shallow axis.
-                            if (absDepthY < absDepthX || collision == TileCollision.Platform)
+                            if (absDepthY < absDepthX || collision == TileCollision.Platform || velocity.Y > 500 && velocity.X == 0)
                             {
                                 // If we crossed the top of a tile, we are on the ground.
                                 if (previousBottom <= tileBounds.Top)
