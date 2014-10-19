@@ -29,12 +29,9 @@ namespace Platformer
     class Level : IDisposable
     {
         private AnimationPlayer resetAfterHit;
-        private Map map;
+        
         // Physical structure of the level.
-        //private Tile[,] tiles;
-        private Layer[] layers;
-        // The layer which entities are drawn on top of.
-        private const int EntityLayer = 2;
+        private Map map;
 
         // Entities in the level.
         public Player Player
@@ -70,7 +67,6 @@ namespace Platformer
 
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
-        //private Vector2 cameraPosition;
         private Camera cam;
 
         public bool ReachedExit
@@ -111,11 +107,11 @@ namespace Platformer
             timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
             //health = 100; //setting the player's health to 100 when the level starts
 
-            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for only the current level
+            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for the current level
 
             LoadMap(levelPath);
             cam = new Camera(viewport); //instantiating the camera view
-            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);
+            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
 
             /*This next section doesn't look like Tom's level code*/
@@ -135,8 +131,6 @@ namespace Platformer
         /// </summary>
         private void LoadMap(String levelPathName)
         {
-
-
             map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
 
             LoadPlayer();
@@ -184,16 +178,18 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Instantiates an enemy and puts him in the level.
+        /// gets all the enemies from the level.
         /// </summary>
         private void LoadEnemies()
         {
+            //first is named enemy without a number after it
             int x = map.ObjectGroups["enemies"].Objects["enemy"].X;
             int y = map.ObjectGroups["enemies"].Objects["enemy"].Y;
             string enemyType = map.ObjectGroups["enemies"].Objects["enemy"].Properties["enemyType"];
 
             SpawnEnemy(x, y, enemyType);
 
+            //the rest are called enemy1, enemy2, etc.
             for (int i = 1; i < map.ObjectGroups["enemies"].Objects.Values.Count((item) => item.Name.Equals("enemy")); i++)
             {
                 x = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].X;
@@ -204,6 +200,9 @@ namespace Platformer
             }
         }
 
+        /// <summary>
+        /// Instantiates an enemy and puts him in the level.
+        /// </summary>
         private void SpawnEnemy(int x, int y, string enemyType)
         {
             Vector2 position = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x, y));
@@ -211,7 +210,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Instantiates a gem and puts it in the level.
+        /// Instantiates a consumable and puts it in the level.
         /// </summary>
         private void SpawnConsumable(int x, int y, string type)
         {
@@ -250,20 +249,13 @@ namespace Platformer
 
             //get the id of tile
             int tileId = map.Layers["Foreground"].GetTile(x, y);
-            //int tileId2 = map.Layers["Background"].GetTile(x, y); //the background layer of the scene in Tiled map editor
-            //in case the Background layer works
 
+            //get the tileset name of the current tile
+            string tilesetName = GetTilesetName(tileId);
 
-            /*****************************************************************************************HOW DO I ADD ANOTHER TILESET***********************************/
             //get list of properties for tile
-            Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
-            //Tileset.TilePropertyList nightmareIceTileProperties = map.Tilesets["Nightmare_Ice"].GetTileProperties(tileId);
-            //Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
-            //Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
-            //Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
-            //Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
+            Tileset.TilePropertyList currentTileProperties = map.Tilesets[tilesetName].GetTileProperties(tileId);
 
-            /*collision properties for platformertiles tileset in Tiled -- Tom's original code*/
             if (currentTileProperties != null) //check if current tile has properties
             {
                 switch (Convert.ToInt32(currentTileProperties["TileCollision"]))//should be a number 0-2
@@ -277,85 +269,36 @@ namespace Platformer
                 }
             }
 
-            
-            ///*******************maybe this is how I add the other tileset?**********************************************/
-            ///********************and it worked!***************************************************/
-            
-            ///*collision properties for Nightmare_Ice tileset in Tiled*/
-            //if (nightmareIceTileProperties != null) //check if current tile has properties
-            //{
-            //    switch (Convert.ToInt32(nightmareIceTileProperties["TileCollision"]))//should be a number 0-2
-            //    {
-            //        case 0:
-            //            return TileCollision.Passable;
-            //        case 1:
-            //            return TileCollision.Impassable;
-            //        case 2:
-            //            return TileCollision.Platform;
-            //    }
-            //}
-
-            ///*collision properties for Classic_Ruins tileset in Tiled*/
-            //if (ruinTileProperties != null) //check if current tile has properties
-            //{
-            //    switch (Convert.ToInt32(ruinTileProperties["TileCollision"]))//should be a number 0-2
-            //    {
-            //        case 0:
-            //            return TileCollision.Passable;
-            //        case 1:
-            //            return TileCollision.Impassable;
-            //        case 2:
-            //            return TileCollision.Platform;
-            //    }
-            //}
-
-            ///*collision properties for multiPurpose tileset in Tiled*/
-            //if (multiPurposeTileProperties != null) //check if current tile has properties
-            //{
-            //    switch (Convert.ToInt32(multiPurposeTileProperties["TileCollision"]))//should be a number 0-2
-            //    {
-            //        case 0:
-            //            return TileCollision.Passable;
-            //        case 1:
-            //            return TileCollision.Impassable;
-            //        case 2:
-            //            return TileCollision.Platform;
-            //    }
-            //}
-
-            ///*collision properties for oldPlatformer tileset in Tiled*/
-            //if (oldPlatformerTileProperties != null) //check if current tile has properties
-            //{
-            //    switch (Convert.ToInt32(oldPlatformerTileProperties["TileCollision"]))//should be a number 0-2
-            //    {
-            //        case 0:
-            //            return TileCollision.Passable;
-            //        case 1:
-            //            return TileCollision.Impassable;
-            //        case 2:
-            //            return TileCollision.Platform;
-            //    }
-            //}
-
-            ///*collision properties for Backgrounds tileset in Tiled*/
-            //if (BackgroundTileProperties != null) //check if current tile has properties
-            //{
-            //    switch (Convert.ToInt32(BackgroundTileProperties["TileCollision"]))//should be a number 0-2
-            //    {
-            //        case 0:
-            //            return TileCollision.Passable;
-            //        case 1:
-            //            return TileCollision.Impassable;
-            //        case 2:
-            //            return TileCollision.Platform;
-            //    }
-            //}
-            
             return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
         }
 
         /// <summary>
+        /// Gets the tileset name of the current tile. This is done by looping through all the tilesets, if there are more than one,
+        /// and comparing the tile id with the first id of every tileset.
+        /// </summary>
+        public string GetTilesetName(int tileId)
+        {
+            //loops through all the tilesets
+            for (int i = 0; i < map.Tilesets.Keys.Count; i++)
+            {
+                if (i != map.Tilesets.Keys.Count - 1)//if this isn't the last tileset
+                {
+                    //checks if current tile id is greater than first tile id of current tileset and less than first id of next tileset
+                    //then it returns the tileset namekind of clucky but it works
+                    if (map.Tilesets[map.Tilesets.Keys.ElementAt(i)].FirstTileID <= tileId && tileId < map.Tilesets[map.Tilesets.Keys.ElementAt(i + 1)].FirstTileID)
+                        return map.Tilesets.Keys.ElementAt(i);
+                }
+                else
+                    return map.Tilesets.Keys.ElementAt(i); //if this is the last tileset then return it
+
+            }
+            return map.Tilesets.Keys.ElementAt(0); //hopefully there is at least one tileset
+
+        }
+
+        /// <summary>
         /// Gets the bounding rectangle of a tile in world space.
+        /// the x and y parameters are tile based not pixel based
         /// </summary>        
         public Rectangle GetBounds(int x, int y)
         {
@@ -364,6 +307,7 @@ namespace Platformer
 
         /// <summary>
         /// Gets the bounding rectangle of the tile the point is in.
+        /// the x and y parameters are pixel based not tile based
         /// </summary>        
         public Rectangle GetTileAtPoint(int x, int y)
         {

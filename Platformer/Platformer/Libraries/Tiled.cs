@@ -527,6 +527,10 @@ namespace Squared.Tiled {
                                             result.Objects.Add(objects.Name, objects);
                                         }
                                         else {
+                                            //################################## PiN changes ###########################################
+                                            //possible bug. doesn't add the count on to the end of the name correctly. I think my change works
+                                            //int count = result.Objects.Keys.Count((item) => item.Equals(objects.Name));
+
                                             int count = result.Objects.Values.Count((item) => item.Name.Equals(objects.Name));
                                             result.Objects.Add(string.Format("{0}{1}", objects.Name, count), objects);
                                         }
@@ -710,8 +714,6 @@ namespace Squared.Tiled {
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.ProhibitDtd = false;
                 
-
-                //at the end of the level, pressing the spacebar causes the game to crash
                 using (var stream = System.IO.File.OpenText(filename))
                 using (var reader = XmlReader.Create(stream, settings))
                     while (reader.Read())
@@ -802,6 +804,8 @@ namespace Squared.Tiled {
             foreach (var tileset in result.Tilesets.Values)
             {
                 tileset.Texture = content.Load<Texture2D>(
+                    //################################## PiN changes ###########################################
+                    //added the first part of the string Levels\\ to fix pathing errors in our game
                     Path.Combine("Levels\\",Path.GetDirectoryName(tileset.Image), Path.GetFileNameWithoutExtension(tileset.Image))
                 );
             }
@@ -816,6 +820,8 @@ namespace Squared.Tiled {
                         (
                             Path.Combine
                             (
+                            //################################## PiN changes ###########################################
+                            //added the first part of the string Levels\\ to fix pathing errors in our game
                                 "Levels\\",
                                 Path.GetDirectoryName(item.Image),
                                 Path.GetFileNameWithoutExtension(item.Image)
