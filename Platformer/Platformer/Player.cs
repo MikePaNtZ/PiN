@@ -34,6 +34,7 @@ namespace Platformer
         private Animation shieldAnimation;
         private Animation shieldPart1Animation;
         
+        private Camera _cam;
 
         // Sounds
         private SoundEffect killedSound;
@@ -256,6 +257,7 @@ namespace Platformer
         {
             GetInput(keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
             ApplyPhysics(gameTime);
+            _cam = cam;
 
             if (IsAlive && IsOnGround)
             {
@@ -294,7 +296,7 @@ namespace Platformer
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             // Shooting related updates
-            MouseInput mouseInput = new MouseInput(cam, mouseState);
+            MouseInput mouseInput = new MouseInput(_cam, mouseState);
             crosshair.position = mouseInput.Position;
 
             if (flip == SpriteEffects.FlipHorizontally)
@@ -350,6 +352,8 @@ namespace Platformer
                 movement = 1.0f;
             }
 
+            // Check if player is firing weapon
+            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
             //the player is blocking by holding down the right mouse button
             isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
 
@@ -361,8 +365,6 @@ namespace Platformer
                 keyboardState.IsKeyDown(Keys.W) ||
                 touchState.AnyTouch();
 
-            // Check if player is firing weapon
-            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
 
             updateShooting(mouseState);
             oldMouseState = mouseState;
@@ -599,7 +601,7 @@ namespace Platformer
 
                     //Rectangle the size of the screen so bullets that
                     //fly off screen are deleted.
-                    Rectangle screenRect = new Rectangle(0, 0, 1280, 720);
+                    Rectangle screenRect = new Rectangle(0,0,(int)_cam.Position.X+_cam.ViewPort.Width, (int)_cam.Position.Y+_cam.ViewPort.Height*2);
                     if (!screenRect.Contains(new Point(
                         (int)bullet.position.X,
                         (int)bullet.position.Y)))
@@ -781,7 +783,7 @@ namespace Platformer
                 health = 0;
                 killedSound.Play();
             }
-            else
+            else//
             {
                 health = 0;
                 fallSound.Play();
