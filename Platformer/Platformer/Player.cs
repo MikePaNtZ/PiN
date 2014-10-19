@@ -224,7 +224,6 @@ namespace Platformer
         /// <summary>
         /// Resets the player to life.
         /// </summary>
-        /// <param name="position">The position to come to life at.</param>
         public void Reset(Vector2 position)
         {
             Position = position;
@@ -249,6 +248,7 @@ namespace Platformer
             GameTime gameTime,
             KeyboardState keyboardState,
             MouseState mouseState,
+            Camera cam,
             GamePadState gamePadState,
             TouchCollection touchState,
             AccelerometerState accelState,
@@ -294,11 +294,8 @@ namespace Platformer
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             // Shooting related updates
-            crosshair.position = new Vector2(mouseState.X, mouseState.Y);//mouseState.X, mouseState.Y);
-            //if (mouseState.X < 0)
-            //    crosshair.position = new Vector2(0, mouseState.Y);
-            //else if (mouseState.Y < 0)
-            //    crosshair.position = new Vector2(mouseState.X, 0);
+            MouseInput mouseInput = new MouseInput(cam, mouseState);
+            crosshair.position = mouseInput.Position;
 
             if (flip == SpriteEffects.FlipHorizontally)
                 arm.position = new Vector2(position.X + 5, position.Y - 60);
@@ -332,7 +329,6 @@ namespace Platformer
             if (Math.Abs(accelState.Acceleration.Y) > 0.10f)
             {
                 // set our movement speed
-                movement = MathHelper.Clamp(-accelState.Acceleration.Y * AccelerometerScale, -1f, 1f);
 
                 // if we're in the LandscapeLeft orientation, we must reverse our movement
                 if (orientation == DisplayOrientation.LandscapeRight)
@@ -684,7 +680,6 @@ namespace Platformer
             Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
             arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
 
-            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
 
             if (flip == SpriteEffects.FlipHorizontally) //Facing right
             {
@@ -843,6 +838,19 @@ namespace Platformer
             // Shooting related drawing.
             if (IsAlive)
             {
+
+                //System.Diagnostics.Debug.WriteLine("Crosshair x = " + crosshair.position.X + " Crosshair y = " + crosshair.position.Y);
+                spriteBatch.Draw(
+                    crosshair.sprite,
+                    crosshair.position,
+                    null,
+                    Color.White,
+                    crosshair.rotation,
+                    crosshair.center,
+                    1.0f,
+                    flip,
+                    0);
+
                 spriteBatch.Draw(
                     arm.sprite,
                     arm.position,
@@ -864,16 +872,6 @@ namespace Platformer
                     }
                 }
 
-                spriteBatch.Draw(
-                    crosshair.sprite,
-                    crosshair.position,
-                    null,
-                    Color.White,
-                    crosshair.rotation,
-                    crosshair.center,
-                    1.0f,
-                    flip,
-                    0);
             }
         }
 
