@@ -622,11 +622,12 @@ namespace Platformer
                     //Check for collisions with the enemies
                     foreach (Enemy enemy in level.enemies)
                     {
-                        if (bulletRect.Intersects(enemy.BoundingRectangle))
+                        if (bulletRect.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
                         {
                             //We're going to want to put some enemy health reduction code here
                             //Enemy class needs a health member variable too
                             enemy.IsAlive = false;
+                            bullet.alive = false;
                         }
                     }
 
