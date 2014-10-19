@@ -28,6 +28,7 @@ namespace Platformer
         private Animation jumpAnimation;
         private Animation celebrateAnimation;
         private Animation dieAnimation;
+        private Animation flinchAnimation;
         private SpriteEffects flip = SpriteEffects.None;
         private AnimationPlayer sprite;
         private Animation shieldAnimation;
@@ -38,6 +39,7 @@ namespace Platformer
         private SoundEffect killedSound;
         private SoundEffect jumpSound;
         private SoundEffect fallSound;
+        private SoundEffect hurtSound;
 
         // Shooting objects
         private GameObject arm;
@@ -59,6 +61,22 @@ namespace Platformer
             get { return isAlive; }
         }
         bool isAlive;
+
+        public int Health
+        {
+            get { return Health; }
+        }
+        int health;
+
+        public bool IsHit
+        {
+            get { return isHit; }
+        }
+        bool isHit;
+
+        private const float MaxIFrames = 1.5F;
+        private float IFrames;
+        
 
         // Powerup state
         private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
@@ -176,6 +194,7 @@ namespace Platformer
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Die"), 0.1f, false);
+            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
 
             // Calculate bounds within texture size.            
             int width = (int)(idleAnimation.FrameWidth * 0.4);
@@ -188,6 +207,7 @@ namespace Platformer
             killedSound = Level.Content.Load<SoundEffect>("Sounds/PlayerKilled");
             jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // load shooting related object
@@ -210,10 +230,11 @@ namespace Platformer
             Position = position;
             Velocity = Vector2.Zero;
             isAlive = true;
-            level.Health = 100;
+            isHit = false;
+            health = 100;
+            IFrames = 0.0F;
             sprite.PlayAnimation(idleAnimation);
             powerUpTime = 0.0f;
-            Level.isHitResetTime = 0.0f; //resetting the time for when a player intersects with an enemy
         }
 
         /// <summary>
@@ -250,12 +271,19 @@ namespace Platformer
                     velocity.X = 0;
                     isJumping = false;
                     sprite.PlayAnimation(shieldAnimation);
-                    oldMouseState = mouseState; //I don't think this really does anything
                 }
                 else
                 {
                     sprite.PlayAnimation(idleAnimation);
                 }
+
+                
+            }
+
+            if (IsAlive && isHit)
+            {
+                UpdateInvincibilityFrames(gameTime);
+                spriteFlickerAnimation();
             }
 
             // Clear input.
@@ -280,6 +308,236 @@ namespace Platformer
             // Updates the state of all bullets
             UpdateBullets();
         }//end Update method
+
+
+        /// <summary>
+        /// Gets player horizontal movement and jump commands from input.
+        /// </summary>
+        private void GetInput(
+            KeyboardState keyboardState,
+            MouseState mouseState,
+            GamePadState gamePadState,
+            TouchCollection touchState,
+            AccelerometerState accelState,
+            DisplayOrientation orientation)
+        {
+            // Get analog horizontal movement.
+            movement = gamePadState.ThumbSticks.Left.X * MoveStickScale;
+
+            // Ignore small movements to prevent running in place.
+            if (Math.Abs(movement) < 0.5f)
+                movement = 0.0f;
+
+            // Move the player with accelerometer
+            if (Math.Abs(accelState.Acceleration.Y) > 0.10f)
+            {
+                // set our movement speed
+                movement = MathHelper.Clamp(-accelState.Acceleration.Y * AccelerometerScale, -1f, 1f);
+
+                // if we're in the LandscapeLeft orientation, we must reverse our movement
+                if (orientation == DisplayOrientation.LandscapeRight)
+                    movement = -movement;
+            }
+
+
+            // If any digital horizontal movement input is found, override the analog movement.
+            if (gamePadState.IsButtonDown(Buttons.DPadLeft) ||
+                keyboardState.IsKeyDown(Keys.Left) ||
+                keyboardState.IsKeyDown(Keys.A))
+            {
+                movement = -1.0f;
+            }
+            else if (gamePadState.IsButtonDown(Buttons.DPadRight) ||
+                     keyboardState.IsKeyDown(Keys.Right) ||
+                     keyboardState.IsKeyDown(Keys.D))
+            {
+                movement = 1.0f;
+            }
+
+            //the player is blocking by holding down the right mouse button
+            isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
+
+            // Check if the player wants to jump.
+            isJumping =
+                gamePadState.IsButtonDown(JumpButton) ||
+                keyboardState.IsKeyDown(Keys.Space) ||
+                keyboardState.IsKeyDown(Keys.Up) ||
+                keyboardState.IsKeyDown(Keys.W) ||
+                touchState.AnyTouch();
+
+            // Check if player is firing weapon
+            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
+
+            updateShooting(mouseState);
+            oldMouseState = mouseState;
+        }
+
+
+
+        /// <summary>
+        /// Updates the player's velocity and position based on input, gravity, etc.
+        /// </summary>
+        public void ApplyPhysics(GameTime gameTime)
+        {
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            Vector2 previousPosition = Position;
+
+            // Base velocity is a combination of horizontal movement control and
+            // acceleration downward due to gravity.
+            velocity.X += movement * MoveAcceleration * elapsed;
+            velocity.Y = MathHelper.Clamp(velocity.Y + GravityAcceleration * elapsed, -MaxFallSpeed, MaxFallSpeed);
+
+            velocity.Y = DoJump(velocity.Y, gameTime);
+
+            // Apply pseudo-drag horizontally.
+            if (IsOnGround)
+                velocity.X *= GroundDragFactor;
+            else
+                velocity.X *= AirDragFactor;
+
+            // Prevent the player from running faster than his top speed.            
+            velocity.X = MathHelper.Clamp(velocity.X, -MaxMoveSpeed, MaxMoveSpeed);
+
+            // Apply velocity.
+            Position += velocity * elapsed;
+            Position = new Vector2((float)Math.Round(Position.X), (float)Math.Round(Position.Y));
+
+            // If the player is now colliding with the level, separate them.
+            HandleCollisions();
+
+            // If the collision stopped us from moving, reset the velocity to zero.
+            if (Position.X == previousPosition.X)
+                velocity.X = 0;
+
+            if (Position.Y == previousPosition.Y)
+            {
+                velocity.Y = 0;
+                jumpTime = 0.0f;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the Y velocity accounting for jumping and
+        /// animates accordingly.
+        /// </summary>
+        /// <remarks>
+        /// During the accent of a jump, the Y velocity is completely
+        /// overridden by a power curve. During the decent, gravity takes
+        /// over. The jump velocity is controlled by the jumpTime field
+        /// which measures time into the accent of the current jump.
+        /// </remarks>
+        /// <param name="velocityY">
+        /// The player's current velocity along the Y axis.
+        /// </param>
+        /// <returns>
+        /// A new Y velocity if beginning or continuing a jump.
+        /// Otherwise, the existing Y velocity.
+        /// </returns>
+        private float DoJump(float velocityY, GameTime gameTime)
+        {
+            // If the player wants to jump
+            if (isJumping)
+            {
+                // Begin or continue a jump
+                if ((!wasJumping && IsOnGround) || jumpTime > 0.0f)
+                {
+                    if (jumpTime == 0.0f)
+                        jumpSound.Play();
+
+                    jumpTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    sprite.PlayAnimation(jumpAnimation);
+                }
+
+                // If we are in the ascent of the jump
+                if (0.0f < jumpTime && jumpTime <= MaxJumpTime)
+                {
+                    // Fully override the vertical velocity with a power curve that gives players more control over the top of the jump
+                    velocityY = JumpLaunchVelocity * (1.0f - (float)Math.Pow(jumpTime / MaxJumpTime, JumpControlPower));
+                }
+                else
+                {
+                    // Reached the apex of the jump
+                    jumpTime = 0.0f;
+                }
+            }
+            else
+            {
+                // Continues not jumping or cancels a jump in progress
+                jumpTime = 0.0f;
+            }
+            wasJumping = isJumping;
+            return velocityY;
+        }
+
+        /// <summary>
+        /// Detects and resolves all collisions between the player and his neighboring
+        /// tiles. When a collision is detected, the player is pushed away along one
+        /// axis to prevent overlapping. There is some special logic for the Y axis to
+        /// handle platforms which behave differently depending on direction of movement.
+        /// </summary>
+        private void HandleCollisions()
+        {
+            // Get the player's bounding rectangle and find neighboring tiles.
+            Rectangle bounds = BoundingRectangle;
+            int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
+            int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
+            int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
+            int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
+
+            // Reset flag to search for ground collision.
+            isOnGround = false;
+
+            // For each potentially colliding tile,
+            for (int y = topTile; y <= bottomTile; ++y)
+            {
+                for (int x = leftTile; x <= rightTile; ++x)
+                {
+                    // If this tile is collidable,
+                    TileCollision collision = Level.GetCollision(x, y);
+                    if (collision != TileCollision.Passable)
+                    {
+                        // Determine collision depth (with direction) and magnitude.
+                        Rectangle tileBounds = Level.GetBounds(x, y);
+                        Vector2 depth = RectangleExtensions.GetIntersectionDepth(bounds, tileBounds);
+                        if (depth != Vector2.Zero)
+                        {
+                            float absDepthX = Math.Abs(depth.X);
+                            float absDepthY = Math.Abs(depth.Y);
+
+                            // Resolve the collision along the shallow axis.
+                            if (absDepthY < absDepthX || collision == TileCollision.Platform || velocity.Y > 500 && velocity.X == 0)
+                            {
+                                // If we crossed the top of a tile, we are on the ground.
+                                if (previousBottom <= tileBounds.Top)
+                                    isOnGround = true;
+
+                                // Ignore platforms, unless we are on the ground.
+                                if (collision == TileCollision.Impassable || IsOnGround)
+                                {
+                                    // Resolve the collision along the Y axis.
+                                    Position = new Vector2(Position.X, Position.Y + depth.Y);
+
+                                    // Perform further collisions with the new bounds.
+                                    bounds = BoundingRectangle;
+                                }
+                            }
+                            else if (collision == TileCollision.Impassable) // Ignore platforms.
+                            {
+                                // Resolve the collision along the X axis.
+                                Position = new Vector2(Position.X + depth.X, Position.Y);
+
+                                // Perform further collisions with the new bounds.
+                                bounds = BoundingRectangle;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Save the new bounds bottom.
+            previousBottom = bounds.Bottom;
+        }
 
         private void FireBullet()
         {
@@ -409,85 +667,7 @@ namespace Platformer
             }
         }
 
-        /// <summary>
-        /// Gets player horizontal movement and jump commands from input.
-        /// </summary>
-        private void GetInput(
-            KeyboardState keyboardState,
-            MouseState mouseState,
-            GamePadState gamePadState,
-            TouchCollection touchState,
-            AccelerometerState accelState,
-            DisplayOrientation orientation)
-        {
-            // Get analog horizontal movement.
-            movement = gamePadState.ThumbSticks.Left.X * MoveStickScale;
-
-            // Ignore small movements to prevent running in place.
-            if (Math.Abs(movement) < 0.5f)
-                movement = 0.0f;
-
-            // Move the player with accelerometer
-            if (Math.Abs(accelState.Acceleration.Y) > 0.10f)
-            {
-                // set our movement speed
-                movement = MathHelper.Clamp(-accelState.Acceleration.Y * AccelerometerScale, -1f, 1f);
-
-                // if we're in the LandscapeLeft orientation, we must reverse our movement
-                if (orientation == DisplayOrientation.LandscapeRight)
-                    movement = -movement;
-            }
-
-
-            // If any digital horizontal movement input is found, override the analog movement.
-            if (gamePadState.IsButtonDown(Buttons.DPadLeft) ||
-                keyboardState.IsKeyDown(Keys.Left) ||
-                keyboardState.IsKeyDown(Keys.A))
-            {
-                movement = -1.0f;
-            }
-            else if (gamePadState.IsButtonDown(Buttons.DPadRight) ||
-                     keyboardState.IsKeyDown(Keys.Right) ||
-                     keyboardState.IsKeyDown(Keys.D))
-            {
-                movement = 1.0f;
-            }
-
-            //the player is blocking by holding down the right mouse button
-            isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
-
-            // Check if the player wants to jump.
-            isJumping =
-                gamePadState.IsButtonDown(JumpButton) ||
-                keyboardState.IsKeyDown(Keys.Space) ||
-                keyboardState.IsKeyDown(Keys.Up) ||
-                keyboardState.IsKeyDown(Keys.W) ||
-                touchState.AnyTouch();
-
-            // Check if player is firing weapon
-            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
-
-            updateShooting(mouseState);
-            //updateHealth();
-            oldMouseState = mouseState;
-        }
-
-        /*Your health is updated when you hit an enemy without a shield on*/
-        //private void updateHealth()
-        //{
-        //    //Check for collisions with the enemies
-        //    foreach (Enemy enemy in level.enemies)
-        //    {
-        //        //for every enemy in the game, if player collides with him/her, and player is not
-        //        //using shield, player loses some health
-        //        if ((localBounds.Intersects(enemy.BoundingRectangle)) & (isBlocking == false))
-        //        {
-        //            //We're going to want to put some enemy health reduction code here
-        //            //Enemy class needs a health member variable too
-        //            level.Health -= 1;
-        //        }
-        //    }
-        //}
+        
 
         private void updateShooting(MouseState mouseState)
         {
@@ -536,166 +716,68 @@ namespace Platformer
 
         }
 
-        /// <summary>
-        /// Updates the player's velocity and position based on input, gravity, etc.
-        /// </summary>
-        public void ApplyPhysics(GameTime gameTime)
-        {
-            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            Vector2 previousPosition = Position;
-
-            // Base velocity is a combination of horizontal movement control and
-            // acceleration downward due to gravity.
-            velocity.X += movement * MoveAcceleration * elapsed;
-            velocity.Y = MathHelper.Clamp(velocity.Y + GravityAcceleration * elapsed, -MaxFallSpeed, MaxFallSpeed);
-
-            velocity.Y = DoJump(velocity.Y, gameTime);
-
-            // Apply pseudo-drag horizontally.
-            if (IsOnGround)
-                velocity.X *= GroundDragFactor;
-            else
-                velocity.X *= AirDragFactor;
-
-            // Prevent the player from running faster than his top speed.            
-            velocity.X = MathHelper.Clamp(velocity.X, -MaxMoveSpeed, MaxMoveSpeed);
-
-            // Apply velocity.
-            Position += velocity * elapsed;
-            Position = new Vector2((float)Math.Round(Position.X), (float)Math.Round(Position.Y));
-
-            // If the player is now colliding with the level, separate them.
-            HandleCollisions();
-
-            // If the collision stopped us from moving, reset the velocity to zero.
-            if (Position.X == previousPosition.X)
-                velocity.X = 0;
-
-            if (Position.Y == previousPosition.Y)
-                velocity.Y = 0;
-        }
+        
 
         /// <summary>
-        /// Calculates the Y velocity accounting for jumping and
-        /// animates accordingly.
+        /// Called when the player has been hit.
         /// </summary>
-        /// <remarks>
-        /// During the accent of a jump, the Y velocity is completely
-        /// overridden by a power curve. During the decent, gravity takes
-        /// over. The jump velocity is controlled by the jumpTime field
-        /// which measures time into the accent of the current jump.
-        /// </remarks>
-        /// <param name="velocityY">
-        /// The player's current velocity along the Y axis.
+        /// <param name="hitBy">
+        /// The enemy who hit the player. This parameter is null if the player was
+        /// not hit by an enemy (a hazard).
         /// </param>
-        /// <returns>
-        /// A new Y velocity if beginning or continuing a jump.
-        /// Otherwise, the existing Y velocity.
-        /// </returns>
-        private float DoJump(float velocityY, GameTime gameTime)
+        public void OnHit(Enemy hitBy)
         {
-            // If the player wants to jump
-            if (isJumping)
+            isHit = true;
+            if (hitBy != null)
             {
-                // Begin or continue a jump
-                if ((!wasJumping && IsOnGround) || jumpTime > 0.0f)
-                {
-                    if (jumpTime == 0.0f)
-                        jumpSound.Play();
-
-                    jumpTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                    sprite.PlayAnimation(jumpAnimation);
-                }
-
-                // If we are in the ascent of the jump
-                if (0.0f < jumpTime && jumpTime <= MaxJumpTime)
-                {
-                    // Fully override the vertical velocity with a power curve that gives players more control over the top of the jump
-                    velocityY = JumpLaunchVelocity * (1.0f - (float)Math.Pow(jumpTime / MaxJumpTime, JumpControlPower));
-                }
-                else
-                {
-                    // Reached the apex of the jump
-                    jumpTime = 0.0f;
-                }
+                UpdateHealth(-25);
+                hurtSound.Play();
             }
             else
             {
-                // Continues not jumping or cancels a jump in progress
-                jumpTime = 0.0f;
+                UpdateHealth(-5);
+                hurtSound.Play();
             }
-            wasJumping = isJumping;
-            return velocityY;
+            sprite.PlayAnimation(flinchAnimation);
+
+            if (health <= 0)
+                OnKilled(hitBy);
+            else
+                StartInvincibilityFrames();
+        }
+
+        /*Your health is updated */
+        public void UpdateHealth(int changeInHealth)
+        {
+            health += changeInHealth;
+            if (health > 100)
+                health = 100;
         }
 
         /// <summary>
-        /// Detects and resolves all collisions between the player and his neighboring
-        /// tiles. When a collision is detected, the player is pushed away along one
-        /// axis to prevent overlapping. There is some special logic for the Y axis to
-        /// handle platforms which behave differently depending on direction of movement.
+        /// After being hit let the player get some breathing room
         /// </summary>
-        private void HandleCollisions()
+        private void StartInvincibilityFrames()
         {
-            // Get the player's bounding rectangle and find neighboring tiles.
-            Rectangle bounds = BoundingRectangle;
-            int leftTile = (int)Math.Floor((float)bounds.Left / level.TileWidth);
-            int rightTile = (int)Math.Ceiling(((float)bounds.Right / level.TileWidth)) - 1;
-            int topTile = (int)Math.Floor((float)bounds.Top / level.TileHeight);
-            int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / level.TileHeight)) - 1;
+            IFrames = MaxIFrames;
+        }
 
-            // Reset flag to search for ground collision.
-            isOnGround = false;
+        /// <summary>
+        /// update Invincibility Frames
+        /// </summary>
+        private void UpdateInvincibilityFrames(GameTime gameTime)
+        {
+            IFrames -= gameTime.ElapsedGameTime.Milliseconds / 1000.0F;
+            if (IFrames <= 0.0F)
+                isHit = false;
+        }
 
-            // For each potentially colliding tile,
-            for (int y = topTile; y <= bottomTile; ++y)
-            {
-                for (int x = leftTile; x <= rightTile; ++x)
-                {
-                    // If this tile is collidable,
-                    TileCollision collision = Level.GetCollision(x, y);
-                    if (collision != TileCollision.Passable)
-                    {
-                        // Determine collision depth (with direction) and magnitude.
-                        Rectangle tileBounds = Level.GetBounds(x, y);
-                        Vector2 depth = RectangleExtensions.GetIntersectionDepth(bounds, tileBounds);
-                        if (depth != Vector2.Zero)
-                        {
-                            float absDepthX = Math.Abs(depth.X);
-                            float absDepthY = Math.Abs(depth.Y);
-
-                            // Resolve the collision along the shallow axis.
-                            if (absDepthY < absDepthX || collision == TileCollision.Platform)
-                            {
-                                // If we crossed the top of a tile, we are on the ground.
-                                if (previousBottom <= tileBounds.Top)
-                                    isOnGround = true;
-
-                                // Ignore platforms, unless we are on the ground.
-                                if (collision == TileCollision.Impassable || IsOnGround)
-                                {
-                                    // Resolve the collision along the Y axis.
-                                    Position = new Vector2(Position.X, Position.Y + depth.Y);
-
-                                    // Perform further collisions with the new bounds.
-                                    bounds = BoundingRectangle;
-                                }
-                            }
-                            else if (collision == TileCollision.Impassable) // Ignore platforms.
-                            {
-                                // Resolve the collision along the X axis.
-                                Position = new Vector2(Position.X + depth.X, Position.Y);
-
-                                // Perform further collisions with the new bounds.
-                                bounds = BoundingRectangle;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Save the new bounds bottom.
-            previousBottom = bounds.Bottom;
+        /// <summary>
+        /// When player has been hit his animation will flicker, showing that he is invincible for a short time
+        /// </summary>
+        private void spriteFlickerAnimation()
+        {
+            //make him flicker...somehow
         }
 
         /// <summary>
@@ -711,12 +793,12 @@ namespace Platformer
 
             if (killedBy != null)
             {
-                level.Health = 0;
+                health = 0;
                 killedSound.Play();
             }
             else
             {
-                level.Health = 0;
+                health = 0;
                 fallSound.Play();
             }
             sprite.PlayAnimation(dieAnimation);
@@ -727,7 +809,6 @@ namespace Platformer
         /// </summary>
         public void OnReachedExit()
         {
-            level.Health = 100;
             sprite.PlayAnimation(celebrateAnimation);
         }
 

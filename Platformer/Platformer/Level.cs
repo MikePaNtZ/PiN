@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,13 +28,10 @@ namespace Platformer
     /// </summary>
     class Level : IDisposable
     {
-        private AnimationPlayer resetAfterHit;
-        private Map map;
         // Physical structure of the level.
-        //private Tile[,] tiles;
+        private Map map;
+        //private List<Layer> layers;
         private Layer[] layers;
-        // The layer which entities are drawn on top of.
-        private const int EntityLayer = 2;
 
         // Entities in the level.
         public Player Player
@@ -42,24 +40,7 @@ namespace Platformer
         }
         Player player;
 
-        // Powerup state
-        private const float MaxHitResetTime = 3.0f;
-        public float isHitResetTime;
-        public bool isHit
-        {
-            get { return isHitResetTime > 0.0f; }
-            //set { wasHit = value; }
-        }
-        //bool wasHit;
-
-        private readonly Color[] isHitColors = {
-                               Color.LightPink,
-                               Color.Chartreuse,
-                               Color.Cyan,
-                               Color.Fuchsia,
-                                               };
-
-        private List<Gem> gems = new List<Gem>();
+        private List<Consumable> consumables = new List<Consumable>();
         public List<Enemy> enemies = new List<Enemy>();
 
         // Key locations in the level.        
@@ -69,7 +50,6 @@ namespace Platformer
 
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
-        //private Vector2 cameraPosition;
         private Camera cam;
 
         public bool ReachedExit
@@ -107,20 +87,29 @@ namespace Platformer
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-            //cameraPosition = new Vector2(0, this.TileHeight * Height - spriteBatch.GraphicsDevice.Viewport.Height);
             timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
-            //health = 100; //setting the player's health to 100 when the level starts
 
-            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for only the first level
+            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for the current level
 
             LoadMap(levelPath);
             cam = new Camera(viewport); //instantiating the camera view
-            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);
+            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
 
             /*This next section doesn't look like Tom's level code*/
             // Load background layer textures. For now, all levels must
             // use the same backgrounds and only use the left-most part of them.
+
+            /*layers = new List<Layer>
+            {
+            new Layer(cam) { Parallax = new Vector2(0.2f, 1.0f) },
+            new Layer(cam) { Parallax = new Vector2(0.4f, 1.0f) },
+            new Layer(cam) { Parallax = new Vector2(0.6f, 1.0f) },
+            };
+            layers[0].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer0_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
+            layers[1].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer1_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
+            layers[2].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer2_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
+             * */
             //layers = new Layer[3];
             //layers[0] = new Layer(Content, "Backgrounds/Layer0", 0.2f);
             //layers[1] = new Layer(Content, "Backgrounds/Layer1", 0.5f);
@@ -135,45 +124,27 @@ namespace Platformer
         /// </summary>
         private void LoadMap(String levelPathName)
         {
-
-
             map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
 
-            //get player start point. Have to convert to tilebased so divide by tile dimensions
-            LoadPlayer((int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["player"].Y / map.TileHeight));
+            LoadPlayer();
 
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterA"].Y / map.TileHeight), "MonsterA");
-            /*loading more enemies*/
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");//loaded another enemy
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterB"].Y / map.TileHeight), "MonsterB");
-            LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterC"].Y / map.TileHeight), "MonsterC");
-            //LoadEnemy((int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].X / map.TileWidth),
-            //           (int)Math.Floor((float)map.ObjectGroups["events"].Objects["MonsterD"].Y / map.TileHeight), "MonsterD");
+            LoadEnemies();
 
-
-            //Loading a gem
-            LoadGem((int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].X / map.TileWidth),
-                       (int)Math.Floor((float)map.ObjectGroups["events"].Objects["Gem"].Y / map.TileHeight), true);
-
-            //exit point
-            LoadExit((int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].X / map.TileWidth),
-                     (int)Math.Floor((float)map.ObjectGroups["events"].Objects["exit"].Y / map.TileHeight), "Exit");
+            LoadExit();
         }
 
         /// <summary>
         /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
         /// </summary>
-        private void LoadPlayer(int x, int y)
+        private void LoadPlayer()
         {
             if (Player != null)
                 throw new NotSupportedException("A level may only have one starting point.");
 
-            start = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
+            int x = map.ObjectGroups["events"].Objects["player"].X;
+            int y = map.ObjectGroups["events"].Objects["player"].Y;
+
+            start = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x,y));
 
             player = new Player(this, start);
 
@@ -182,30 +153,56 @@ namespace Platformer
         /// <summary>
         /// Remembers the location of the level's exit.
         /// </summary>
-        private void LoadExit(int x, int y, string SpriteSet)
+        private void LoadExit()
         {
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
 
-            exit = GetBounds(x, y).Center;
+            int x = map.ObjectGroups["events"].Objects["exit"].X;
+            int y = map.ObjectGroups["events"].Objects["exit"].Y;
+
+            exit = GetTileAtPoint(x, y).Center;
+        }
+
+        /// <summary>
+        /// gets all the enemies from the level.
+        /// </summary>
+        private void LoadEnemies()
+        {
+            //first is named enemy without a number after it
+            int x = map.ObjectGroups["enemies"].Objects["enemy"].X;
+            int y = map.ObjectGroups["enemies"].Objects["enemy"].Y;
+            string enemyType = map.ObjectGroups["enemies"].Objects["enemy"].Properties["enemyType"];
+
+            SpawnEnemy(x, y, enemyType);
+
+            //the rest are called enemy1, enemy2, etc.
+            for (int i = 1; i < map.ObjectGroups["enemies"].Objects.Values.Count((item) => item.Name.Equals("enemy")); i++)
+            {
+                x = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].X;
+                y = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].Y;
+                enemyType = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].Properties["enemyType"];
+
+                SpawnEnemy(x, y, enemyType);
+            }
         }
 
         /// <summary>
         /// Instantiates an enemy and puts him in the level.
         /// </summary>
-        private void LoadEnemy(int x, int y, string spriteSet)
+        private void SpawnEnemy(int x, int y, string enemyType)
         {
-            Vector2 position = RectangleExtensions.GetBottomCenter(GetBounds(x, y));
-            enemies.Add(new Enemy(this, position, spriteSet));
+            Vector2 position = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x, y));
+            enemies.Add(new Enemy(this, position, enemyType));
         }
 
         /// <summary>
-        /// Instantiates a gem and puts it in the level.
+        /// Instantiates a consumable and puts it in the level.
         /// </summary>
-        private void LoadGem(int x, int y, bool isPowerUp)
+        private void SpawnConsumable(int x, int y, ConsumableType type)
         {
-            Point position = GetBounds(x, y).Center;
-            gems.Add(new Gem(this, new Vector2(position.X, position.Y), isPowerUp));
+            Point position = GetTileAtPoint(x, y).Center;
+            consumables.Add(new Consumable(this, new Vector2(position.X, position.Y), type));
         }
 
 
@@ -239,20 +236,13 @@ namespace Platformer
 
             //get the id of tile
             int tileId = map.Layers["Foreground"].GetTile(x, y);
-            //int tileId2 = map.Layers["Background"].GetTile(x, y); //the background layer of the scene in Tiled map editor
-            //in case the Background layer works
 
+            //get the tileset name of the current tile
+            string tilesetName = GetTilesetName(tileId);
 
-            /*****************************************************************************************HOW DO I ADD ANOTHER TILESET***********************************/
             //get list of properties for tile
-            Tileset.TilePropertyList currentTileProperties = map.Tilesets["platformertiles"].GetTileProperties(tileId);
-            Tileset.TilePropertyList nightmareIceTileProperties = map.Tilesets["Nightmare_Ice"].GetTileProperties(tileId);
-            Tileset.TilePropertyList ruinTileProperties = map.Tilesets["Classical_Ruin"].GetTileProperties(tileId);
-            Tileset.TilePropertyList multiPurposeTileProperties = map.Tilesets["MultiPurpose"].GetTileProperties(tileId);
-            Tileset.TilePropertyList oldPlatformerTileProperties = map.Tilesets["oldPlatformer"].GetTileProperties(tileId);
-            Tileset.TilePropertyList BackgroundTileProperties = map.Tilesets["Backgrounds"].GetTileProperties(tileId);
+            Tileset.TilePropertyList currentTileProperties = map.Tilesets[tilesetName].GetTileProperties(tileId);
 
-            /*collision properties for platformertiles tileset in Tiled -- Tom's original code*/
             if (currentTileProperties != null) //check if current tile has properties
             {
                 switch (Convert.ToInt32(currentTileProperties["TileCollision"]))//should be a number 0-2
@@ -266,88 +256,49 @@ namespace Platformer
                 }
             }
 
-
-            /*******************maybe this is how I add the other tileset?**********************************************/
-            /********************and it worked!***************************************************/
-
-            /*collision properties for Nightmare_Ice tileset in Tiled*/
-            if (nightmareIceTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(nightmareIceTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            /*collision properties for Classic_Ruins tileset in Tiled*/
-            if (ruinTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(ruinTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            /*collision properties for multiPurpose tileset in Tiled*/
-            if (multiPurposeTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(multiPurposeTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            /*collision properties for oldPlatformer tileset in Tiled*/
-            if (oldPlatformerTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(oldPlatformerTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            /*collision properties for Backgrounds tileset in Tiled*/
-            if (BackgroundTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(BackgroundTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
             return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
         }
 
         /// <summary>
+        /// Gets the tileset name of the current tile. This is done by looping through all the tilesets, if there are more than one,
+        /// and comparing the tile id with the first id of every tileset.
+        /// </summary>
+        public string GetTilesetName(int tileId)
+        {
+            //loops through all the tilesets
+            for (int i = 0; i < map.Tilesets.Keys.Count; i++)
+            {
+                if (i != map.Tilesets.Keys.Count - 1)//if this isn't the last tileset
+                {
+                    //checks if current tile id is greater than first tile id of current tileset and less than first id of next tileset
+                    //then it returns the tileset namekind of clucky but it works
+                    if (map.Tilesets[map.Tilesets.Keys.ElementAt(i)].FirstTileID <= tileId && tileId < map.Tilesets[map.Tilesets.Keys.ElementAt(i + 1)].FirstTileID)
+                        return map.Tilesets.Keys.ElementAt(i);
+                }
+                else
+                    return map.Tilesets.Keys.ElementAt(i); //if this is the last tileset then return it
+
+            }
+            return map.Tilesets.Keys.ElementAt(0); //hopefully there is at least one tileset
+
+        }
+
+        /// <summary>
         /// Gets the bounding rectangle of a tile in world space.
+        /// the x and y parameters are tile based not pixel based
         /// </summary>        
         public Rectangle GetBounds(int x, int y)
         {
             return new Rectangle(x * map.TileWidth, y * map.TileHeight, map.TileWidth, map.TileHeight);
+        }
+
+        /// <summary>
+        /// Gets the bounding rectangle of the tile the point is in.
+        /// the x and y parameters are pixel based not tile based
+        /// </summary>        
+        public Rectangle GetTileAtPoint(int x, int y)
+        {
+            return GetBounds((int)Math.Floor((float)x / map.TileWidth), (int)Math.Floor((float)y / map.TileHeight));
         }
 
         /// <summary>
@@ -373,13 +324,6 @@ namespace Platformer
         {
             get { return map.TileWidth; }
         }
-
-        public int Health
-        {
-            get { return health; }
-            set { this.health = value; }
-        }
-        int health;//simply setting health to 100
 
         /// <summary>
         /// Height of the tiles in this level.
@@ -426,12 +370,6 @@ namespace Platformer
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
 
-                //leave a time delay after the player is hit by the enemy
-                if (isHit)
-                    isHitResetTime = Math.Max(0.0f, isHitResetTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
-                isHitResetting();
-
-
                 #region Debugging for Tiled Map Editor
                 //manually move player for debugging purposes
                 if (keyboardState.IsKeyDown(Keys.K))
@@ -459,10 +397,11 @@ namespace Platformer
                 #endregion Debugging for Tiled Map Editor
 
                 Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
-                UpdateGems(gameTime);
+                UpdateConsumables(gameTime);
 
                 //follow player
                 cam.LookAt(Player.Position);
+
 
 
                 // Falling off the bottom of the level kills the player.
@@ -473,14 +412,7 @@ namespace Platformer
 
                 UpdateEnemies(gameTime);
 
-                //just making sure collision is working
-                //switch (GetCollision((int)Math.Floor((float)Player.Position.X / map.TileWidth),
-                //                     (int)Math.Floor((float)Player.Position.Y / map.TileHeight)))
-                //{
-                //    case TileCollision.Impassable:
-                //        health++;
-                //        break;
-                //}
+                
 
                 // The player has reached the exit if they are standing on the ground and
                 // his bounding rectangle contains the center of the exit tile. They can only
@@ -499,20 +431,20 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Animates each gem and checks to allows the player to collect them.
+        /// Animates each consumable and checks to allows the player to collect them.
         /// </summary>
-        private void UpdateGems(GameTime gameTime)
+        private void UpdateConsumables(GameTime gameTime)
         {
-            for (int i = 0; i < gems.Count; ++i)
+            for (int i = 0; i < consumables.Count; ++i)
             {
-                Gem gem = gems[i];
+                Consumable consumable = consumables[i];
 
-                gem.Update(gameTime);
+                consumable.Update(gameTime);
 
-                if (gem.BoundingCircle.Intersects(Player.BoundingRectangle))
+                if (consumable.BoundingCircle.Intersects(Player.BoundingRectangle))
                 {
-                    gems.RemoveAt(i--);
-                    OnGemCollected(gem, Player);
+                    consumables.RemoveAt(i--);
+                    OnConsumableCollected(consumable, Player);
                 }
             }
         }
@@ -525,11 +457,8 @@ namespace Platformer
             foreach (Enemy enemy in enemies)
             {
                 enemy.Update(gameTime);
+                // Touching an enemy decreases health of player
 
-                /*Someone please figure out how to make a player's health
-
-                /****************************************************************************************************************************************************************************/
-                // Touching an enemy instantly kills the player
                 if (enemy.IsAlive & enemy.BoundingRectangle.Intersects(Player.BoundingRectangle))
                 {
                     if (Player.IsPoweredUp)
@@ -540,30 +469,46 @@ namespace Platformer
                     {
                         OnEnemyKilled(enemy, Player);
                     }
-                    else if (isHit == true)//finally found the health will be affected
+                    else if (!Player.IsHit)
                     {
- 
-                        health -= 1;
-                        //wasHit = true;
-                        //OnPlayerKilled(enemy);
+                        OnPlayerHit(enemy);
                     }
                 }
             }
         }
-        /*************************************************************************************************************************************************************/
+
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
             enemy.OnKilled(killedBy);
+
+            int rand = random.Next(100);
+
+            if (rand >= 90)
+                SpawnConsumable((int)enemy.Position.X, (int)enemy.Position.Y, ConsumableType.PowerUp);
+            else if (rand <= 30)
+                SpawnConsumable((int)enemy.Position.X, (int)enemy.Position.Y, ConsumableType.Health);
         }
 
         /// <summary>
-        /// Called when a gem is collected.
+        /// Called when a consumable is collected.
         /// </summary>
-        /// <param name="gem">The gem that was collected.</param>
+        /// <param name="consumable">The consumable that was collected.</param>
         /// <param name="collectedBy">The player who collected this gem.</param>
-        private void OnGemCollected(Gem gem, Player collectedBy)
+        private void OnConsumableCollected(Consumable consumable, Player collectedBy)
         {
-            gem.OnCollected(collectedBy);
+            consumable.OnCollected(collectedBy);
+        }
+
+        /// <summary>
+        /// Called when the player is hit by an enemy.
+        /// </summary>
+        /// <param name="hitBy">
+        /// The enemy who hit the player. This is null if the player was not hit by an
+        /// enemy, such as when a player hits or is hit by a hazard.
+        /// </param>
+        private void OnPlayerHit(Enemy hitBy)
+        {
+            Player.OnHit(hitBy);
         }
 
         /// <summary>
@@ -602,15 +547,13 @@ namespace Platformer
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            /*spriteBatch.Begin();
-            for (int i = 0; i <= EntityLayer; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition.X);
-            spriteBatch.End();*/
+            //spriteBatch.Begin();
+            //for (int i = 0; i <= 2; ++i)
+            //    layers[i].Draw(spriteBatch, cam.Position.X);
+            //spriteBatch.End();
 
-
-
-            //ScrollCamera(spriteBatch.GraphicsDevice.Viewport);
-            // Matrix cameraTransform = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0.0f);
+            //foreach (Layer layer in layers)
+            //    layer.Draw(spriteBatch);
 
             spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
@@ -624,33 +567,12 @@ namespace Platformer
             //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
             //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
 
-            //cameraPosition.Y = 544;
-            //DrawTiles(spriteBatch);
-            //cam.Position = new Vector2(0, 544);
+            foreach (Consumable consumable in consumables)
+                consumable.Draw(gameTime, spriteBatch);
 
-
-            //spriteBatch.Begin();
-            /*foreach (Gem gem in gems)
-                gem.Draw(gameTime, spriteBatch);*/
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
-            // Calculate a tint color based on power up state.
-            Color color;
-            if (isHit)
-            {
-                float t = ((float)gameTime.TotalGameTime.TotalSeconds + isHitResetTime / MaxHitResetTime) * 20.0f;
-                int colorIndex = (int)t % isHitColors.Length;
-                color = isHitColors[colorIndex];
-            }
-            else
-            {
-                color = Color.White;
-            }
-            // Draw that resetAfterHit.
-
-
-            /****I cannot draw the animation for after the player gets hit by an enemy******/
-            //resetAfterHit.Draw(gameTime, spriteBatch, Player.Position, SpriteEffects.None, color);
+            
             Player.Draw(gameTime, spriteBatch);
             
 
@@ -666,78 +588,11 @@ namespace Platformer
             spriteBatch.End();*/
         }//end Draw method
 
-        public void isHitResetting()
-        {
-            isHitResetTime = MaxHitResetTime;
-            //wasHit = false;
-        }
 
 
-        /*private void ScrollCamera(Viewport viewport)
-        {
-#if ZUNE
-const float ViewMargin = 0.45f;
-#else
-            const float ViewMargin = 0.45f;
-#endif
+        
 
-            // Calculate the edges of the screen.
-            float marginWidth = viewport.Width * ViewMargin;
-            float marginLeft = cameraPosition.X + marginWidth;
-            float marginRight = cameraPosition.X + viewport.Width - marginWidth;
-
-            float marginHeight = viewport.Height * ViewMargin;
-            float marginTop = cameraPosition.Y + marginHeight;
-            float marginBottom = cameraPosition.Y + viewport.Height - marginHeight;
-
-            // Calculate how far to scroll when the player is near the edges of the screen.
-            Vector2 cameraMovement = new Vector2(0.0f, 0.0f);
-            if (Player.Position.X < marginLeft)
-                cameraMovement.X = Player.Position.X - marginLeft;
-            else if (Player.Position.X > marginRight)
-                cameraMovement.X = Player.Position.X - marginRight;
-
-            if (Player.Position.Y < marginTop)
-                cameraMovement.Y = Player.Position.Y - marginTop;
-            else if (Player.Position.Y > marginBottom)
-                cameraMovement.Y = Player.Position.Y - marginBottom;
-
-            // Update the camera position, but prevent scrolling off the ends of the level.
-            Vector2 maxCameraPosition = new Vector2(this.TileWidth * Width - viewport.Width, this.TileHeight * Height - viewport.Height);
-            cameraPosition.X = MathHelper.Clamp(cameraPosition.X + cameraMovement.X, 0.0f, maxCameraPosition.X);
-            cameraPosition.Y = MathHelper.Clamp(cameraPosition.Y + cameraMovement.Y, 0.0f, maxCameraPosition.Y);
-        }*/
-
-        #region drawTiles commented code
-        /*
-        /// <summary>
-        /// Draws each tile in the level.
-        /// </summary>
-        private void DrawTiles(SpriteBatch spriteBatch)
-        {
-            // Calculate the visible range of tiles.
-            int left = (int)Math.Floor(cameraPosition / Tile.Width);
-            int right = left + spriteBatch.GraphicsDevice.Viewport.Width / Tile.Width;
-            right = Math.Min(right, Width - 1);
-
-            // For each tile position
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = left; x <= right; ++x)
-                {
-                    // If there is a visible tile in that position
-                    Texture2D texture = tiles[x, y].Texture;
-                    if (texture != null)
-                    {
-                        // Draw it in screen space.
-                        Vector2 position = new Vector2(x, y) * Tile.Size;
-                        spriteBatch.Draw(texture, position, Color.White);
-                    }
-                }
-            }
-        }
-        */
-        #endregion
+       
 
         #endregion
     }

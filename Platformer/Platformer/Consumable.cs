@@ -15,19 +15,34 @@ using Microsoft.Xna.Framework.Audio;
 namespace Platformer
 {
     /// <summary>
+    /// defines consumable type
+    /// </summary>
+    enum ConsumableType
+    {
+        /// <summary>
+        /// Increases player health
+        /// </summary>
+        Health = 0,
+
+        /// <summary>
+        /// Powers up player
+        /// </summary>
+        PowerUp = 1,
+    }
+
+    /// <summary>
     /// A valuable item the player can collect.
     /// </summary>
-    class Gem
+    class Consumable
     {
         private Texture2D texture;
         private Vector2 origin;
         private SoundEffect collectedSound;
 
-        public readonly int PointValue;
-        public bool IsPowerUp { get; private set; }
+        public readonly ConsumableType consumableType;
         public readonly Color Color;
 
-        // The gem is animated from a base position along the Y axis.
+        // The Consumable is animated from a base position along the Y axis.
         private Vector2 basePosition;
         private float bounce;
 
@@ -38,7 +53,7 @@ namespace Platformer
         Level level;
 
         /// <summary>
-        /// Gets the current position of this gem in world space.
+        /// Gets the current position of this consumable in world space.
         /// </summary>
         public Vector2 Position
         {
@@ -49,7 +64,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Gets a circle which bounds this gem in world space.
+        /// Gets a circle which bounds this consumable in world space.
         /// </summary>
         public Circle BoundingCircle
         {
@@ -60,34 +75,43 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Constructs a new gem.
+        /// Constructs a new consumable.
         /// </summary>
-        public Gem(Level level, Vector2 position, bool isPowerUp)
+        public Consumable(Level level, Vector2 position, ConsumableType type)
         {
             this.level = level;
             this.basePosition = position;
+            consumableType = type;
 
-            IsPowerUp = isPowerUp;
-            if (IsPowerUp)
+            switch (consumableType)
             {
-                PointValue = 100;
-                Color = Color.Red;
-            }
-            else
-            {
-                PointValue = 30;
-                Color = Color.Yellow;
+                case ConsumableType.Health:
+                    Color = Color.White;
+                    break;
+                case ConsumableType.PowerUp:
+                    Color = Color.Red;
+                    break;
             }
     
             LoadContent();
         }
 
         /// <summary>
-        /// Loads the gem texture and collected sound.
+        /// Loads the consumable texture and collected sound.
         /// </summary>
         public void LoadContent()
         {
-            texture = Level.Content.Load<Texture2D>("Sprites/Gem");
+
+            switch (consumableType)
+            {
+                case ConsumableType.Health:
+                    texture = Level.Content.Load<Texture2D>("Sprites/Gem");
+                    break;
+                case ConsumableType.PowerUp:
+                    texture = Level.Content.Load<Texture2D>("Sprites/Gem");
+                    break;
+            }
+            //texture = Level.Content.Load<Texture2D>("Sprites/Gem");
             origin = new Vector2(texture.Width / 2.0f, texture.Height / 2.0f);
             collectedSound = Level.Content.Load<SoundEffect>("Sounds/GemCollected");
         }
@@ -103,13 +127,13 @@ namespace Platformer
             const float BounceSync = -0.75f;
 
             // Bounce along a sine curve over time.
-            // Include the X coordinate so that neighboring gems bounce in a nice wave pattern.            
+            // Include the X coordinate so that neighboring consumable bounce in a nice wave pattern.            
             double t = gameTime.TotalGameTime.TotalSeconds * BounceRate + Position.X * BounceSync;
             bounce = (float)Math.Sin(t) * BounceHeight * texture.Height;
         }
 
         /// <summary>
-        /// Called when this gem has been collected by a player and removed from the level.
+        /// Called when this item has been collected by a player and removed from the level.
         /// </summary>
         /// <param name="collectedBy">
         /// The player who collected this gem. Although currently not used, this parameter would be
@@ -118,9 +142,15 @@ namespace Platformer
         public void OnCollected(Player collectedBy)
         {
             collectedSound.Play();
-
-            if (IsPowerUp)
-                collectedBy.PowerUp();
+            switch (consumableType)
+            {
+                case ConsumableType.Health:
+                    collectedBy.UpdateHealth(15);
+                    break;
+                case ConsumableType.PowerUp:
+                    collectedBy.PowerUp();
+                    break;
+            }
     
         }
 
