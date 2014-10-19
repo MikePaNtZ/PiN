@@ -667,19 +667,9 @@ namespace Platformer
 
         private void updateShooting(MouseState mouseState)
         {
-            //Arm rotation
 
-            // NOT YET WORKING. NEED TO GET THE RIGHT VECTOR TRANSFORM.
-            //Vector2 normalizedMouseDirection = new Vector2(mouseState.X, -mouseState.Y);
-            //normalizedMouseDirection.Normalize();
-
-            //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
-            //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
-
-
-            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            Vector2 aimDirection = arm.position - crosshair.position;
             arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
-
 
             if (flip == SpriteEffects.FlipHorizontally) //Facing right
             {
