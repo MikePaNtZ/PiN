@@ -56,7 +56,7 @@ namespace Platformer
         // levels in our content are 0-based and that all numbers under this constant
         // have a level file present. This allows us to not need to check for the file
         // or handle exceptions, both of which can add unnecessary time to level loading.
-        private const int numberOfLevels = 2;
+        private const int numberOfLevels = 1;
 
         public PlatformerGame()
         {
@@ -98,8 +98,8 @@ namespace Platformer
             //So we have to catch the exception and throw it away
             try
             {
-                MediaPlayer.IsRepeating = true;
-                MediaPlayer.Play(Content.Load<Song>("Sounds/Music"));
+                //MediaPlayer.IsRepeating = true;
+                //MediaPlayer.Play(Content.Load<Song>("Sounds/Music"));
             }
             catch { }
 
@@ -222,8 +222,11 @@ namespace Platformer
             DrawShadowedString(hudFont, timeString, hudLocation, timeColor);
 
             // Draw health
-            float timeHeight = hudFont.MeasureString(timeString).Y;
-            DrawShadowedString(hudFont, "HEALTH: " + level.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+            if (level.Player!=null)
+            {
+                float timeHeight = hudFont.MeasureString(timeString).Y;
+                DrawShadowedString(hudFont, "HEALTH: " + level.Player.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+            }
            
             // Determine the status overlay message to show.
             Texture2D status = null;

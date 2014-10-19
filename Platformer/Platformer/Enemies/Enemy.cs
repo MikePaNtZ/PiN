@@ -57,6 +57,18 @@ namespace Platformer
                 return new Rectangle(left, top, localBounds.Width, localBounds.Height);
             }
         }
+        public float Health
+        {
+            get
+            {
+                return health;
+            }
+            set
+            {
+                health = value;
+            }
+        }
+
 
         public bool IsAlive { get; set; }
 
@@ -69,6 +81,7 @@ namespace Platformer
 
         // Sounds
         private SoundEffect killedSound;
+        private SoundEffect enemyHurtSound;
 
         /// <summary>
         /// The direction this enemy is facing and moving along the X axis.
@@ -85,30 +98,34 @@ namespace Platformer
         /// </summary>
         private const float MaxWaitTime = 0.5f;
 
+
         /// <summary>
         /// The speed at which this enemy moves along the X axis.
         /// </summary>
         private const float MoveSpeed = 40.0f; //changed from 64 to 40f
 
+        // Attributes intended to be overwritten in derived class.
+        protected float health;
+        protected string enemyType;
+
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
-        public Enemy(Level level, Vector2 position, string spriteSet)
-        {
+        public Enemy(Level level, Vector2 position)
+       { 
             this.level = level;
             this.position = position;
             this.IsAlive = true;
 
-            LoadContent(spriteSet);
         }
 
         /// <summary>
         /// Loads a particular enemy resetAfterHit sheet and sounds.
         /// </summary>
-        public void LoadContent(string spriteSet)
+        public void LoadContent()
         {
             // Load animations.
-            spriteSet = "Sprites/" + spriteSet + "/";
+            string spriteSet = "Sprites/" + enemyType + "/";
             runAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Run"), 0.1f, true);
             idleAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Idle"), 0.15f, true);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Die"), 0.07f, false);
@@ -117,6 +134,8 @@ namespace Platformer
 
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
+            // Temporary hurt sound. We probably want to use something different in the future.
+            enemyHurtSound = killedSound;
 
             // Calculate bounds within texture size.
             int width = (int)(idleAnimation.FrameWidth * 0.9); //gets enemy closer to the outer edge of the shield
@@ -125,6 +144,20 @@ namespace Platformer
             int top = idleAnimation.FrameHeight - height;
             localBounds = new Rectangle(left, top, width, height);
         }
+        
+
+        /// <summary>
+        /// Called when the enemy has been hit.
+        /// </summary>
+        public void OnHit()
+        {
+
+            health -= 1.0f;
+            enemyHurtSound.Play();
+            if (health <= 0)
+                OnKilled();
+        }
+        
 
 
         /// <summary>
@@ -200,7 +233,7 @@ namespace Platformer
             sprite.Draw(gameTime, spriteBatch, Position, flip);
         }
 
-        public void OnKilled(Player killedBy)
+        public void OnKilled()
         {
             /*This explosion animation did not work. I might be missing an update call*/
             //resetAfterHit.PlayAnimation(explosionAnimation);//first play the explosion
