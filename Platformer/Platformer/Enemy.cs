@@ -81,6 +81,7 @@ namespace Platformer
 
         // Sounds
         private SoundEffect killedSound;
+        private SoundEffect enemyHurtSound;
 
         /// <summary>
         /// The direction this enemy is facing and moving along the X axis.
@@ -132,6 +133,8 @@ namespace Platformer
 
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
+            // Temporary hurt sound. We probably want to use something different in the future.
+            enemyHurtSound = killedSound;
 
             // Calculate bounds within texture size.
             int width = (int)(idleAnimation.FrameWidth * 0.9); //gets enemy closer to the outer edge of the shield
@@ -140,13 +143,16 @@ namespace Platformer
             int top = idleAnimation.FrameHeight - height;
             localBounds = new Rectangle(left, top, width, height);
         }
+        
 
         /// <summary>
         /// Called when the enemy has been hit.
         /// </summary>
         public void OnHit()
         {
+
             health -= 1.0f;
+            enemyHurtSound.Play();
             if (health <= 0)
                 OnKilled();
         }
