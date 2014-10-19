@@ -626,7 +626,7 @@ namespace Platformer
                         {
                             //We're going to want to put some enemy health reduction code here
                             //Enemy class needs a health member variable too
-                            enemy.IsAlive = false;
+                            enemy.OnHit();
                             bullet.alive = false;
                         }
                     }

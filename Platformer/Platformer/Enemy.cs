@@ -57,6 +57,18 @@ namespace Platformer
                 return new Rectangle(left, top, localBounds.Width, localBounds.Height);
             }
         }
+        public float Health
+        {
+            get
+            {
+                return health;
+            }
+            set
+            {
+                health = value;
+            }
+        }
+
 
         public bool IsAlive { get; set; }
 
@@ -85,6 +97,8 @@ namespace Platformer
         /// </summary>
         private const float MaxWaitTime = 0.5f;
 
+        private float health;
+
         /// <summary>
         /// The speed at which this enemy moves along the X axis.
         /// </summary>
@@ -97,6 +111,7 @@ namespace Platformer
         {
             this.level = level;
             this.position = position;
+            this.health = 5.0f;
             this.IsAlive = true;
 
             LoadContent(spriteSet);
@@ -125,6 +140,17 @@ namespace Platformer
             int top = idleAnimation.FrameHeight - height;
             localBounds = new Rectangle(left, top, width, height);
         }
+
+        /// <summary>
+        /// Called when the enemy has been hit.
+        /// </summary>
+        public void OnHit()
+        {
+            health -= 1.0f;
+            if (health <= 0)
+                OnKilled();
+        }
+        
 
 
         /// <summary>
@@ -200,7 +226,7 @@ namespace Platformer
             sprite.Draw(gameTime, spriteBatch, Position, flip);
         }
 
-        public void OnKilled(Player killedBy)
+        public void OnKilled()
         {
             /*This explosion animation did not work. I might be missing an update call*/
             //resetAfterHit.PlayAnimation(explosionAnimation);//first play the explosion

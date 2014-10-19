@@ -456,7 +456,7 @@ namespace Platformer
 
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
-            enemy.OnKilled(killedBy);
+            enemy.OnKilled();
 
             int rand = random.Next(100);
 
