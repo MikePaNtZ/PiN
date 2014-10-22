@@ -105,8 +105,13 @@ namespace Platformer
         private const float MoveSpeed = 40.0f; //changed from 64 to 40f
 
         // Attributes intended to be overwritten in derived class.
+        protected EnemyState state;
         protected float health;
         protected string enemyType;
+
+        protected const float MaxTrackDistance = 500.0F; //player is within this distance than you can track
+        protected const float MaxAttackDistance = 200.0F; //player is within this distance than you can attack
+        protected const float KamikazeThresholdPercent = 20.0F; //health is less than this percent of health than kamikaze
 
         /// <summary>
         /// Constructs a new Enemy.
@@ -116,7 +121,7 @@ namespace Platformer
             this.level = level;
             this.position = position;
             this.IsAlive = true;
-
+            this.state = EnemyState.Search;
         }
 
         /// <summary>
@@ -161,15 +166,87 @@ namespace Platformer
 
 
         /// <summary>
-        /// Paces back and forth along a platform, waiting at either end.
+        /// Updates the ai and position of enemy
         /// </summary>
         public void Update(GameTime gameTime)
         {
-            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             if (!IsAlive)
                 return;
 
+            Vector2 lineOfSight = getLineOfSight(); //line of sight to player
+
+            UpdateState(gameTime, lineOfSight); //changes the state if need be
+
+            //These different methods define the enemy's actions for this frame
+            switch (state)
+            {
+                case EnemyState.Search:
+                    Search(gameTime);
+                    break;
+                case EnemyState.Track:
+                    Track(gameTime, lineOfSight);
+                    break;
+                case EnemyState.Attack:
+                    Attack(gameTime, lineOfSight);
+                    break;
+                case EnemyState.Kamikaze:
+                    Kamikaze(gameTime, lineOfSight);
+                    break;
+            }
+            
+        }
+
+        /// <summary>
+        /// changes the state of the enemy depending on the distance to the player and health
+        /// </summary>
+        protected void UpdateState(GameTime gameTime, Vector2 lineOfSight)
+        {
+            switch (state)
+            {
+                case EnemyState.Search:
+                    //if health is lower than threshold then kamikaze
+                    if (health <= health / KamikazeThresholdPercent)
+                        state = EnemyState.Kamikaze;
+                    else if (lineOfSight.X * (int)direction > 0) //make sure enemy is facing the right direction
+                    {
+                        if (Math.Abs(lineOfSight.X) <= MaxAttackDistance)// player is in attacking distance then attack
+                            state = EnemyState.Attack;
+                        else if (Math.Abs(lineOfSight.X) <= MaxTrackDistance)//or at least in tracking distance then track
+                            state = EnemyState.Track;
+                    }
+                    break;
+
+                case EnemyState.Track:
+                    //if health is lower than threshold than kamikaze
+                    if (health <= health / KamikazeThresholdPercent)
+                        state = EnemyState.Kamikaze;
+                    else if (Math.Abs(lineOfSight.X) <= MaxAttackDistance)// player is in attacking distance then attack
+                        state = EnemyState.Attack;
+
+                    Track(gameTime, lineOfSight);
+                    break;
+
+                case EnemyState.Attack:
+                    // if health is lower than threshold than kamikaze
+                    if (health <= health / KamikazeThresholdPercent)
+                        state = EnemyState.Kamikaze;
+                    else if (Math.Abs(lineOfSight.X) > MaxAttackDistance)// player moved outside of attacking range then track
+                        state = EnemyState.Track;
+                    break;
+
+                case EnemyState.Kamikaze:
+                    //nothing to change to
+                    break;
+
+            }
+        }
+
+        /// <summary>
+        /// Searches by pacing back and forth along a platform, waiting at either end.
+        /// </summary>
+        protected void Search(GameTime gameTime)
+        {
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             // Calculate tile position based on the side we are walking towards.
             float posX = Position.X + localBounds.Width / 2 * (int)direction;
             int tileX = (int)Math.Floor(posX / level.TileWidth) - (int)direction;
@@ -203,6 +280,38 @@ namespace Platformer
         }
 
         /// <summary>
+        /// Moves toward player, is still too far away to attack
+        /// </summary>
+        protected void Track(GameTime gameTime, Vector2 lineOfSight)
+        {
+
+        }
+
+        /// <summary>
+        /// Attacking player, by shooting
+        /// </summary>
+        protected void Attack(GameTime gameTime, Vector2 lineOfSight)
+        {
+
+        }
+
+        /// <summary>
+        /// Charges at player
+        /// </summary>
+        protected void Kamikaze(GameTime gameTime, Vector2 lineOfSight)
+        {
+
+        }
+
+        /// <summary>
+        /// returns line of sight to player
+        /// </summary>
+        private Vector2 getLineOfSight()
+        {
+            return level.Player.Position - position;
+        }
+
+        /// <summary>
         /// Draws the animated enemy.
         /// </summary>
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -210,6 +319,7 @@ namespace Platformer
             // Stop running when the game is paused or before turning around.
             if (!IsAlive)
             {
+                //sprite.PlayAnimation(explosionAnimation); //doesn't work for some reason
                 sprite.PlayAnimation(dieAnimation);//then play the enemy dying
             }
             //if player is not alive or if player hasn't reached the exit, or if the time
@@ -235,9 +345,6 @@ namespace Platformer
 
         public void OnKilled()
         {
-            /*This explosion animation did not work. I might be missing an update call*/
-            //resetAfterHit.PlayAnimation(explosionAnimation);//first play the explosion
-            sprite.PlayAnimation(dieAnimation);
             IsAlive = false;
             killedSound.Play();
 
