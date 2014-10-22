@@ -11,36 +11,10 @@ namespace Platformer
 {
     public class MouseInput
     {
-        public MouseInput(Viewport viewport, MouseState mouseState)
+        public MouseInput(Camera cam, MouseState mouseState)
         {
-            _viewport = viewport;
+            _cam = cam;
             _mouseState = mouseState;
-            Origin = new Vector2(viewport.Width / 2.0f, viewport.Height / 2.0f);
-        }
-        public Rectangle? Limits
-        {
-            get { return _limits; }
-            set
-            {
-                if (value != null)
-                {
-                    // Assign limit but make sure it's always bigger than the viewport
-                    _limits = new Rectangle
-                    {
-                        X = value.Value.X,
-                        Y = value.Value.Y,
-                        Width = System.Math.Max(_viewport.Width, value.Value.Width),
-                        Height = System.Math.Max(_viewport.Height, value.Value.Height)
-                    };
-
-                    // Validate camera position with new limit
-                    Position = Position;
-                }
-                else
-                {
-                    _limits = null;
-                }
-            }
         }
 
 
@@ -50,25 +24,28 @@ namespace Platformer
             set { }
         }
 
+        public Vector2 ScreenPosition
+        {
+            get {
+                _screenPosition.X = MathHelper.Clamp((float)_mouseState.X, 0.0f, (float) _cam.ViewPort.Width);
+                _screenPosition.Y = MathHelper.Clamp((float)_mouseState.Y, 0.0f, (float) _cam.ViewPort.Height);
+                return _screenPosition;
+            }
+            set {}
+        }
         public Vector2 Position
         {
             get {
                 Vector2 returnVect = new Vector2();
-                returnVect.X = _mouseState.X;
-                returnVect.Y = _mouseState.Y;
+                returnVect.X = ScreenPosition.X + _cam.Position.X;
+                returnVect.Y = ScreenPosition.Y + _cam.Position.Y;
                 return returnVect;
             }
             set {}
         }
 
-
-        
-
-        public Vector2 Origin { get; set; }
-
-        private readonly Viewport _viewport;
+        private readonly Camera _cam;
         private MouseState _mouseState;
-        private Vector2 _position;
-        private Rectangle? _limits;
+        private Vector2 _screenPosition;
     }
 }

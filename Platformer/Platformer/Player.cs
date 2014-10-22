@@ -34,6 +34,7 @@ namespace Platformer
         private Animation shieldAnimation;
         private Animation shieldPart1Animation;
         
+        private Camera _cam;
 
         // Sounds
         private SoundEffect killedSound;
@@ -64,7 +65,7 @@ namespace Platformer
 
         public int Health
         {
-            get { return Health; }
+            get { return health; }
         }
         int health;
 
@@ -224,7 +225,6 @@ namespace Platformer
         /// <summary>
         /// Resets the player to life.
         /// </summary>
-        /// <param name="position">The position to come to life at.</param>
         public void Reset(Vector2 position)
         {
             Position = position;
@@ -249,6 +249,7 @@ namespace Platformer
             GameTime gameTime,
             KeyboardState keyboardState,
             MouseState mouseState,
+            Camera cam,
             GamePadState gamePadState,
             TouchCollection touchState,
             AccelerometerState accelState,
@@ -256,6 +257,7 @@ namespace Platformer
         {
             GetInput(keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
             ApplyPhysics(gameTime);
+            _cam = cam;
 
             if (IsAlive && IsOnGround)
             {
@@ -294,11 +296,8 @@ namespace Platformer
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             // Shooting related updates
-            crosshair.position = new Vector2(mouseState.X, mouseState.Y);//mouseState.X, mouseState.Y);
-            //if (mouseState.X < 0)
-            //    crosshair.position = new Vector2(0, mouseState.Y);
-            //else if (mouseState.Y < 0)
-            //    crosshair.position = new Vector2(mouseState.X, 0);
+            MouseInput mouseInput = new MouseInput(_cam, mouseState);
+            crosshair.position = mouseInput.Position;
 
             if (flip == SpriteEffects.FlipHorizontally)
                 arm.position = new Vector2(position.X + 5, position.Y - 60);
@@ -332,7 +331,6 @@ namespace Platformer
             if (Math.Abs(accelState.Acceleration.Y) > 0.10f)
             {
                 // set our movement speed
-                movement = MathHelper.Clamp(-accelState.Acceleration.Y * AccelerometerScale, -1f, 1f);
 
                 // if we're in the LandscapeLeft orientation, we must reverse our movement
                 if (orientation == DisplayOrientation.LandscapeRight)
@@ -354,6 +352,8 @@ namespace Platformer
                 movement = 1.0f;
             }
 
+            // Check if player is firing weapon
+            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
             //the player is blocking by holding down the right mouse button
             isBlocking = (mouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
 
@@ -365,8 +365,6 @@ namespace Platformer
                 keyboardState.IsKeyDown(Keys.W) ||
                 touchState.AnyTouch();
 
-            // Check if player is firing weapon
-            isShooting = ((mouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
 
             updateShooting(mouseState);
             oldMouseState = mouseState;
@@ -603,7 +601,7 @@ namespace Platformer
 
                     //Rectangle the size of the screen so bullets that
                     //fly off screen are deleted.
-                    Rectangle screenRect = new Rectangle(0, 0, 1280, 720);
+                    Rectangle screenRect = new Rectangle(0,0,(int)_cam.Position.X+_cam.ViewPort.Width, (int)_cam.Position.Y+_cam.ViewPort.Height*2);
                     if (!screenRect.Contains(new Point(
                         (int)bullet.position.X,
                         (int)bullet.position.Y)))
@@ -624,11 +622,12 @@ namespace Platformer
                     //Check for collisions with the enemies
                     foreach (Enemy enemy in level.enemies)
                     {
-                        if (bulletRect.Intersects(enemy.BoundingRectangle))
+                        if (bulletRect.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
                         {
                             //We're going to want to put some enemy health reduction code here
                             //Enemy class needs a health member variable too
-                            enemy.IsAlive = false;
+                            enemy.OnHit();
+                            bullet.alive = false;
                         }
                     }
 
@@ -671,20 +670,9 @@ namespace Platformer
 
         private void updateShooting(MouseState mouseState)
         {
-            //Arm rotation
 
-            // NOT YET WORKING. NEED TO GET THE RIGHT VECTOR TRANSFORM.
-            //Vector2 normalizedMouseDirection = new Vector2(mouseState.X, -mouseState.Y);
-            //normalizedMouseDirection.Normalize();
-
-            //Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
-            //arm.rotation = (float)Math.Atan2(normalizedMouseDirection.X, normalizedMouseDirection.Y);
-
-
-            Vector2 aimDirection = arm.position - new Vector2(mouseState.X, mouseState.Y);
+            Vector2 aimDirection = arm.position - crosshair.position;
             arm.rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
-
-            System.Diagnostics.Debug.WriteLine("Mouse x = " + mouseState.X + " Mouse y = " + mouseState.Y);
 
             if (flip == SpriteEffects.FlipHorizontally) //Facing right
             {
@@ -796,7 +784,7 @@ namespace Platformer
                 health = 0;
                 killedSound.Play();
             }
-            else
+            else//
             {
                 health = 0;
                 fallSound.Play();
@@ -843,6 +831,19 @@ namespace Platformer
             // Shooting related drawing.
             if (IsAlive)
             {
+
+                //System.Diagnostics.Debug.WriteLine("Crosshair x = " + crosshair.position.X + " Crosshair y = " + crosshair.position.Y);
+                spriteBatch.Draw(
+                    crosshair.sprite,
+                    crosshair.position,
+                    null,
+                    Color.White,
+                    crosshair.rotation,
+                    crosshair.center,
+                    1.0f,
+                    flip,
+                    0);
+
                 spriteBatch.Draw(
                     arm.sprite,
                     arm.position,
@@ -864,16 +865,6 @@ namespace Platformer
                     }
                 }
 
-                spriteBatch.Draw(
-                    crosshair.sprite,
-                    crosshair.position,
-                    null,
-                    Color.White,
-                    crosshair.rotation,
-                    crosshair.center,
-                    1.0f,
-                    flip,
-                    0);
             }
         }
 

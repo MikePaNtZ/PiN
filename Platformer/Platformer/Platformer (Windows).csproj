@@ -72,11 +72,16 @@
     <Compile Include="Accelerometer.cs" />
     <Compile Include="Animation.cs" />
     <Compile Include="AnimationPlayer.cs" />
+    <Compile Include="Enemies\MonsterD.cs" />
+    <Compile Include="Enemies\MonsterC.cs" />
+    <Compile Include="Enemies\MonsterB.cs" />
+    <Compile Include="Enemies\MonsterA.cs" />
+    <Compile Include="EnemyFactory.cs" />
     <Compile Include="Transform.cs" />
     <Compile Include="MouseInput.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Circle.cs" />
-    <Compile Include="Enemy.cs" />
+    <Compile Include="Enemies\Enemy.cs" />
     <Compile Include="Consumable.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Level.cs" />

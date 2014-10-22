@@ -93,24 +93,6 @@
    </properties>
   </tile>
  </tileset>
- <tileset firstgid="25" name="oldPlatformer" tilewidth="32" tileheight="32">
-  <image source="../Tiles/oldPlatformer.png" trans="ff00ff" width="128" height="160"/>
- </tileset>
- <tileset firstgid="45" name="Classical_Ruin" tilewidth="32" tileheight="32">
-  <image source="../Tiles/Classical_Ruin.png" trans="ff00ff" width="640" height="256"/>
- </tileset>
- <tileset firstgid="205" name="GreatTextures" tilewidth="32" tileheight="32">
-  <image source="../Tiles/GreatTextures.png" trans="ff00ff" width="256" height="256"/>
- </tileset>
- <tileset firstgid="269" name="Backgrounds" tilewidth="32" tileheight="32">
-  <image source="../Tiles/Backgrounds.png" trans="ff00ff" width="1433" height="770"/>
- </tileset>
- <tileset firstgid="1325" name="multiPurpose" tilewidth="32" tileheight="32">
-  <image source="../Tiles/multiPurpose.png" trans="ff00ff" width="512" height="3520"/>
- </tileset>
- <tileset firstgid="3085" name="Nightmare_Ice" tilewidth="32" tileheight="32">
-  <image source="../Tiles/Nightmare_Ice.png" trans="ff00ff" width="181" height="62"/>
- </tileset>
  <layer name="Foreground" width="200" height="32">
   <data>
    <tile gid="0"/>
@@ -5924,10 +5906,10 @@
    <tile gid="23"/>
    <tile gid="1"/>
    <tile gid="8"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
    <tile gid="11"/>
    <tile gid="0"/>
    <tile gid="22"/>
@@ -6123,11 +6105,11 @@
    <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="8"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
    <tile gid="6"/>
    <tile gid="2"/>
    <tile gid="2"/>
@@ -6139,10 +6121,6 @@
    <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="8"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
    <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>
@@ -6313,35 +6291,39 @@
    <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
+   <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>

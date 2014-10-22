@@ -222,8 +222,11 @@ namespace Platformer
             DrawShadowedString(hudFont, timeString, hudLocation, timeColor);
 
             // Draw health
-            float timeHeight = hudFont.MeasureString(timeString).Y;
-            //DrawShadowedString(hudFont, "HEALTH: " + level.Player.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+            if (level.Player!=null)
+            {
+                float timeHeight = hudFont.MeasureString(timeString).Y;
+                DrawShadowedString(hudFont, "HEALTH: " + level.Player.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+            }
            
             // Determine the status overlay message to show.
             Texture2D status = null;

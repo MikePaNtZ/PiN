@@ -96,25 +96,6 @@ namespace Platformer
             cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
 
-            /*This next section doesn't look like Tom's level code*/
-            // Load background layer textures. For now, all levels must
-            // use the same backgrounds and only use the left-most part of them.
-
-            /*layers = new List<Layer>
-            {
-            new Layer(cam) { Parallax = new Vector2(0.2f, 1.0f) },
-            new Layer(cam) { Parallax = new Vector2(0.4f, 1.0f) },
-            new Layer(cam) { Parallax = new Vector2(0.6f, 1.0f) },
-            };
-            layers[0].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer0_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
-            layers[1].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer1_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
-            layers[2].Sprites.Add(new Sprite { Texture = Content.Load<Texture2D>("Backgrounds/Layer2_0"), Position = new Vector2(cam.Position.X, cam.Position.Y) });
-             * */
-            //layers = new Layer[3];
-            //layers[0] = new Layer(Content, "Backgrounds/Layer0", 0.2f);
-            //layers[1] = new Layer(Content, "Backgrounds/Layer1", 0.5f);
-            //layers[2] = new Layer(Content, "Backgrounds/Layer2", 0.8f);
-
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
         }
@@ -193,7 +174,7 @@ namespace Platformer
         private void SpawnEnemy(int x, int y, string enemyType)
         {
             Vector2 position = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x, y));
-            enemies.Add(new Enemy(this, position, enemyType));
+            enemies.Add(EnemyFactory.NewEnemy(this, position, enemyType));
         }
 
         /// <summary>
@@ -375,28 +356,24 @@ namespace Platformer
                 if (keyboardState.IsKeyDown(Keys.K))
                 {
                     Player.Position = new Vector2(Player.Position.X + 20, Player.Position.Y);
-                    //cam.Move(new Vector2(10, 0));
                 }
 
                 else if (keyboardState.IsKeyDown(Keys.H))
                 {
                     Player.Position = new Vector2(Player.Position.X - 20, Player.Position.Y);
-                    //cam.Move(new Vector2(-10, 0));
                 }
                 if (keyboardState.IsKeyDown(Keys.J))
                 {
                     Player.Position = new Vector2(Player.Position.X, Player.Position.Y + 20);
-                    //cam.Move(new Vector2(0, 10));
                 }
                 else if (keyboardState.IsKeyDown(Keys.U))
                 {
                     Player.Position = new Vector2(Player.Position.X, Player.Position.Y - 20);
-                    //cam.Move(new Vector2(0, -10));
                 }
 
                 #endregion Debugging for Tiled Map Editor
 
-                Player.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, accelState, orientation);
+                Player.Update(gameTime, keyboardState, mouseState, cam, gamePadState, touchState, accelState, orientation);
                 UpdateConsumables(gameTime);
 
                 //follow player
@@ -479,7 +456,7 @@ namespace Platformer
 
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
-            enemy.OnKilled(killedBy);
+            enemy.OnKilled();
 
             int rand = random.Next(100);
 
@@ -547,13 +524,6 @@ namespace Platformer
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            //spriteBatch.Begin();
-            //for (int i = 0; i <= 2; ++i)
-            //    layers[i].Draw(spriteBatch, cam.Position.X);
-            //spriteBatch.End();
-
-            //foreach (Layer layer in layers)
-            //    layer.Draw(spriteBatch);
 
             spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
@@ -563,29 +533,18 @@ namespace Platformer
                         null,
                         cam.GetViewMatrix(Vector2.One));
 
-
-            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
-            //RasterizerState.CullCounterClockwise, null, cam.GetViewMatrix(Vector2.One)); 
-
             foreach (Consumable consumable in consumables)
                 consumable.Draw(gameTime, spriteBatch);
 
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
-
             
             Player.Draw(gameTime, spriteBatch);
-            
-
 
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
 
             spriteBatch.End();
 
-            /*spriteBatch.Begin();
-            for (int i = EntityLayer + 1; i < layers.Length; ++i)
-                layers[i].Draw(spriteBatch, cameraPosition.X);
-            spriteBatch.End();*/
         }//end Draw method
 
 

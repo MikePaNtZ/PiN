@@ -66,6 +66,15 @@ namespace Platformer
         public float Zoom { get; set; }
         public float Rotation { get; set; }
 
+        public Viewport ViewPort { 
+            get
+            {
+                return _viewport;
+            }
+            set
+            {
+            }
+        }
         
 
         public Matrix GetViewMatrix(Vector2 parallax)
@@ -78,6 +87,19 @@ namespace Platformer
                 Matrix.CreateRotationZ(Rotation) *
                 Matrix.CreateScale(Zoom, Zoom, 1) *
                 Matrix.CreateTranslation(new Vector3(Origin, 0.0f));
+        }
+
+
+        // Get a camera relative position from a world position
+        public Vector2 GetScreenPosition(Vector2 worldPosition)
+        {
+            return worldPosition - Position;
+        }
+
+        // Get a world position from a camera relative position
+        public Vector2 GetWorldPosition(Vector2 screenPosition)
+        {
+            return screenPosition + Position;
         }
 
         public void LookAt(Vector2 position)
