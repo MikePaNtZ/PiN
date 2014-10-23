@@ -83,15 +83,15 @@ namespace Platformer
         /// <param name="serviceProvider">
         /// The service provider that will be used to construct a ContentManager.
         /// </param>
-        public Level(IServiceProvider serviceProvider, int levelIndex, Viewport viewport)
+        public Level(IServiceProvider serviceProvider, Map currentMap, Viewport viewport)
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
             timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
 
-            string levelPath = string.Format("Levels/{0}.tmx", levelIndex); //levelPath for the current level
+            map = currentMap;
+            LoadMap();
 
-            LoadMap(levelPath);
             cam = new Camera(viewport); //instantiating the camera view
             cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
@@ -103,16 +103,16 @@ namespace Platformer
         /// <summary>
         /// Uses the Tiled library to load .tmx tile map
         /// </summary>
-        private void LoadMap(String levelPathName)
+        private void LoadMap()
         {
-            map = Map.Load(Path.Combine(Content.RootDirectory, levelPathName), content);
-
             LoadPlayer();
 
             LoadEnemies();
 
             LoadExit();
         }
+
+        
 
         /// <summary>
         /// Instantiates a player, puts him in the level, and remembers where to put him when he is resurrected.
@@ -171,7 +171,7 @@ namespace Platformer
         /// <summary>
         /// Instantiates an enemy and puts him in the level.
         /// </summary>
-        private void SpawnEnemy(int x, int y, string enemyType)
+        public void SpawnEnemy(int x, int y, string enemyType)
         {
             Vector2 position = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x, y));
             enemies.Add(EnemyFactory.NewEnemy(this, position, enemyType));
@@ -180,7 +180,7 @@ namespace Platformer
         /// <summary>
         /// Instantiates a consumable and puts it in the level.
         /// </summary>
-        private void SpawnConsumable(int x, int y, ConsumableType type)
+        public void SpawnConsumable(int x, int y, ConsumableType type)
         {
             Point position = GetTileAtPoint(x, y).Center;
             consumables.Add(new Consumable(this, new Vector2(position.X, position.Y), type));
@@ -241,8 +241,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Gets the tileset name of the current tile. This is done by looping through all the tilesets, if there are more than one,
-        /// and comparing the tile id with the first id of every tileset.
+        /// Gets the tileset names of the current level. This is used as the key for the dictionary in the TileCollision method.
         /// </summary>
         public string GetTilesetName(int tileId)
         {
@@ -263,6 +262,7 @@ namespace Platformer
             return map.Tilesets.Keys.ElementAt(0); //hopefully there is at least one tileset
 
         }
+        
 
         /// <summary>
         /// Gets the bounding rectangle of a tile in world space.
@@ -457,13 +457,6 @@ namespace Platformer
         private void OnEnemyKilled(Enemy enemy, Player killedBy)
         {
             enemy.OnKilled();
-
-            int rand = random.Next(100);
-
-            if (rand >= 90)
-                SpawnConsumable((int)enemy.Position.X, (int)enemy.Position.Y, ConsumableType.PowerUp);
-            else if (rand <= 30)
-                SpawnConsumable((int)enemy.Position.X, (int)enemy.Position.Y, ConsumableType.Health);
         }
 
         /// <summary>
@@ -525,7 +518,7 @@ namespace Platformer
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
 
-            spriteBatch.Begin(SpriteSortMode.BackToFront,
+            spriteBatch.Begin(SpriteSortMode.Deferred,
                         BlendState.AlphaBlend,
                         null,
                         null,
