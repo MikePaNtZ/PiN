@@ -26,8 +26,8 @@ namespace Platformer
         /// </summary>
         public MonsterD(Level level, Vector2 position) : base(level, position)
         {
-            // Base enemies just default to look like monster a with 5 health. 
-            health = 2.0f;
+            MaxHealth = 4.0F;
+            health = MaxHealth;
             enemyType = "MonsterD";
             LoadContent();
         }
