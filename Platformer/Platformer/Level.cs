@@ -525,7 +525,7 @@ namespace Platformer
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
 
-            spriteBatch.Begin(SpriteSortMode.FrontToBack,
+            spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
                         null,
                         null,
