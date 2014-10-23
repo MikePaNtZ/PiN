@@ -291,9 +291,12 @@
   <ItemGroup>
     <None Include="Levels\0.tmx">
       <Name>0</Name>
+<<<<<<< HEAD
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Levels\0.txt">
+=======
+>>>>>>> 32720248ab3821f662871ce8f8ef63a262b02cf6
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>0</Name>
     </None>

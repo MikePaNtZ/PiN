@@ -72,6 +72,8 @@ namespace Platformer
 
         public bool IsAlive { get; set; }
 
+        private Random random = new Random(354668); // Arbitrary, but constant seed
+
         // Animations
         private Animation runAnimation;
         private Animation idleAnimation;
@@ -82,6 +84,8 @@ namespace Platformer
         // Sounds
         private SoundEffect killedSound;
         private SoundEffect enemyHurtSound;
+
+        private Color color;
 
         /// <summary>
         /// The direction this enemy is facing and moving along the X axis.
@@ -97,16 +101,41 @@ namespace Platformer
         /// How long to wait before turning around.
         /// </summary>
         private const float MaxWaitTime = 0.5f;
+        
 
+        // Attributes intended to be overwritten in derived class.//
+        //--------------------------------------------------------//
 
         /// <summary>
         /// The speed at which this enemy moves along the X axis.
         /// </summary>
-        private const float MoveSpeed = 40.0f; //changed from 64 to 40f
+        protected float MoveSpeed = 40.0F;
 
-        // Attributes intended to be overwritten in derived class.
+        /// <summary>
+        /// max health of enemy
+        /// </summary>
+        protected float MaxHealth = 10.0F;
+
+        /// <summary>
+        /// if player is within this distance than transition to tracking state from searching state
+        /// </summary>
+        protected float MinTrackDistance = 500.0F;
+
+        /// <summary>
+        /// if player is within this distance than you can attack
+        /// </summary>
+        protected float MaxAttackDistance = 200.0F;
+
+        /// <summary>
+        /// if health is less than this percent of max health than kamikaze
+        /// </summary>
+        protected float KamikazeThresholdPercent = 0.4F;
+        
+        protected EnemyState state;
         protected float health;
         protected string enemyType;
+
+        
 
         /// <summary>
         /// Constructs a new Enemy.
@@ -116,11 +145,11 @@ namespace Platformer
             this.level = level;
             this.position = position;
             this.IsAlive = true;
-
+            this.state = EnemyState.Search;
         }
 
         /// <summary>
-        /// Loads a particular enemy resetAfterHit sheet and sounds.
+        /// Loads a particular enemy sprite sheet and sounds.
         /// </summary>
         public void LoadContent()
         {
@@ -161,15 +190,89 @@ namespace Platformer
 
 
         /// <summary>
-        /// Paces back and forth along a platform, waiting at either end.
+        /// Updates the ai and position of enemy
         /// </summary>
         public void Update(GameTime gameTime)
         {
-            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             if (!IsAlive)
                 return;
 
+            Vector2 lineOfSight = getLineOfSight(); //line of sight to player
+
+            UpdateState(gameTime, lineOfSight); //changes the state if need be
+
+            //These different methods define the enemy's actions for this frame
+            switch (state)
+            {
+                case EnemyState.Search:
+                    Search(gameTime);
+                    break;
+                case EnemyState.Track:
+                    Track(gameTime, lineOfSight);
+                    break;
+                case EnemyState.Attack:
+                    Attack(gameTime, lineOfSight);
+                    break;
+                case EnemyState.Kamikaze:
+                    Kamikaze(gameTime, lineOfSight);
+                    break;
+            }
+            
+        }
+
+        /// <summary>
+        /// changes the state of the enemy depending on the distance to the player and health
+        /// </summary>
+        protected void UpdateState(GameTime gameTime, Vector2 lineOfSight)
+        {
+            switch (state)
+            {
+                case EnemyState.Search:
+                    //if health is lower than threshold then kamikaze
+                    if (health <= MaxHealth * KamikazeThresholdPercent)
+                        state = EnemyState.Kamikaze;
+                    else if (lineOfSight.X * (int)direction >= 0) //make sure enemy is facing the right direction
+                    {
+                        if (Math.Abs(lineOfSight.X) <= MaxAttackDistance)// player is in attacking distance then attack
+                            state = EnemyState.Attack;
+                        else if (Math.Abs(lineOfSight.X) <= MinTrackDistance)//or at least in tracking distance then track
+                            state = EnemyState.Track;
+                    }
+                    break;
+
+                case EnemyState.Track:
+                    //if health is lower than threshold than kamikaze
+                    if (health <= MaxHealth * KamikazeThresholdPercent)
+                        state = EnemyState.Kamikaze;
+                    else if (Math.Abs(lineOfSight.X) <= MaxAttackDistance)// player is in attacking distance then attack
+                        state = EnemyState.Attack;
+
+                    Track(gameTime, lineOfSight);
+                    break;
+
+                case EnemyState.Attack:
+                    // if health is lower than threshold than kamikaze
+                    if (health <= MaxHealth * KamikazeThresholdPercent)
+                        state = EnemyState.Kamikaze;
+                    else if (Math.Abs(lineOfSight.X) > MaxAttackDistance)// player moved outside of attacking range then track
+                        state = EnemyState.Track;
+                    break;
+
+                case EnemyState.Kamikaze:
+                    //nothing to change to
+                    break;
+
+            }
+        }
+
+        /// <summary>
+        /// Searches by pacing back and forth along a platform, waiting at either end.
+        /// </summary>
+        protected void Search(GameTime gameTime)
+        {
+            color = Color.White; //for debugging no change if searching
+
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             // Calculate tile position based on the side we are walking towards.
             float posX = Position.X + localBounds.Width / 2 * (int)direction;
             int tileX = (int)Math.Floor(posX / level.TileWidth) - (int)direction;
@@ -203,6 +306,71 @@ namespace Platformer
         }
 
         /// <summary>
+        /// Moves toward player, is still too far away to attack
+        /// </summary>
+        protected void Track(GameTime gameTime, Vector2 lineOfSight)
+        {
+            color = Color.Yellow;//for debugging yellow if tracking
+
+            if (lineOfSight.X * (int)direction < 0) //make sure enemy is facing the right direction
+                direction = (FaceDirection)(-(int)direction); //if not turn around
+
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // Calculate tile position based on the side we are walking towards.
+            float posX = Position.X + localBounds.Width / 2 * (int)direction;
+            int tileX = (int)Math.Floor(posX / level.TileWidth) - (int)direction;
+            int tileY = (int)Math.Floor(Position.Y / level.TileHeight);
+
+            // If we are about to run into a wall or off a cliff, then stop.
+            if (Level.GetCollision(tileX + (int)direction, tileY - 1) != TileCollision.Impassable &&
+                    Level.GetCollision(tileX + (int)direction, tileY) != TileCollision.Passable)
+            {
+                // Else Move in the current direction.
+                Vector2 velocity = new Vector2((int)direction * MoveSpeed * elapsed, 0.0f);
+                position = position + velocity;
+            }
+        }
+
+        /// <summary>
+        /// Attacking player, by shooting
+        /// </summary>
+        protected void Attack(GameTime gameTime, Vector2 lineOfSight)
+        {
+            color = Color.Orange;//for debugging orange if attacking
+
+            if (lineOfSight.X * (int)direction < 0) //make sure enemy is facing the right direction
+                direction = (FaceDirection)(-(int)direction); //if not turn around
+
+            //-------------SHOOTING HERE----------------------- maybe some movement too
+
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
+        /// <summary>
+        /// Charges at player
+        /// </summary>
+        protected void Kamikaze(GameTime gameTime, Vector2 lineOfSight)
+        {
+            color = Color.Red;//for debugging red if kamikaze
+
+            if (lineOfSight.X * (int)direction < 0) //make sure enemy is facing the right direction
+                direction = (FaceDirection)(-(int)direction); //if not turn around
+
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // move in the current direction.
+            Vector2 velocity = new Vector2((int)direction * MoveSpeed * 2 * elapsed, 0.0f); //twice as fast
+            position = position + velocity;
+        }
+
+        /// <summary>
+        /// returns line of sight to player
+        /// </summary>
+        private Vector2 getLineOfSight()
+        {
+            return level.Player.Position - position;
+        }
+
+        /// <summary>
         /// Draws the animated enemy.
         /// </summary>
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -210,6 +378,7 @@ namespace Platformer
             // Stop running when the game is paused or before turning around.
             if (!IsAlive)
             {
+                //sprite.PlayAnimation(explosionAnimation); //doesn't work for some reason
                 sprite.PlayAnimation(dieAnimation);//then play the enemy dying
             }
             //if player is not alive or if player hasn't reached the exit, or if the time
@@ -230,17 +399,13 @@ namespace Platformer
 
             // Draw facing the way the enemy is moving.
             SpriteEffects flip = direction > 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            sprite.Draw(gameTime, spriteBatch, Position, flip);
+            sprite.Draw(gameTime, spriteBatch, Position, flip, color);
         }
 
         public void OnKilled()
         {
-            /*This explosion animation did not work. I might be missing an update call*/
-            //resetAfterHit.PlayAnimation(explosionAnimation);//first play the explosion
-            sprite.PlayAnimation(dieAnimation);
             IsAlive = false;
             killedSound.Play();
-
         }
 
     }

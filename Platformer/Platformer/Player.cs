@@ -195,7 +195,7 @@ namespace Platformer
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Die"), 0.1f, false);
-            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
+            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false); //placeholder
 
             // Calculate bounds within texture size.            
             int width = (int)(idleAnimation.FrameWidth * 0.4);
@@ -208,7 +208,7 @@ namespace Platformer
             killedSound = Level.Content.Load<SoundEffect>("Sounds/PlayerKilled");
             jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
             fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
-            hurtSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");//placeholder
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // load shooting related object
