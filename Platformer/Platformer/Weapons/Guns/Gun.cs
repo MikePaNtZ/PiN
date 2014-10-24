@@ -68,6 +68,8 @@ namespace Platformer
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
+
+            System.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
             spriteBatch.Draw(
                 crosshair.Texture,
                 crosshair.Position,

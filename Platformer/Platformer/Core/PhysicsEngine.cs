@@ -24,14 +24,14 @@ namespace Platformer
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             Vector2 previousPosition = character.Position;
-            Vector2 characterVelocity = new Vector2(0.0f, 0.0f);
+            Vector2 characterVelocity = character.Velocity;
 
             // Base velocity is a combination of horizontal movement control and
             // acceleration downward due to gravity.
             characterVelocity.X += character.Movement * MoveAcceleration * elapsed;
-            characterVelocity.Y = MathHelper.Clamp(character.Velocity.Y + GravityAcceleration * elapsed, -MaxFallSpeed, MaxFallSpeed);
+            characterVelocity.Y = MathHelper.Clamp(characterVelocity.Y + GravityAcceleration * elapsed, -MaxFallSpeed, MaxFallSpeed);
 
-            characterVelocity.Y = DoJump(character.Velocity.Y, gameTime);
+            characterVelocity.Y = DoJump(characterVelocity.Y, gameTime);
 
             // Apply pseudo-drag horizontally.
             if (character.IsOnGround)
@@ -40,10 +40,10 @@ namespace Platformer
                 characterVelocity.X *= AirDragFactor;
 
             // Prevent the player from running faster than his top speed.            
-            characterVelocity.X = MathHelper.Clamp(character.Velocity.X, -MaxMoveSpeed, MaxMoveSpeed);
+            characterVelocity.X = MathHelper.Clamp(characterVelocity.X, -MaxMoveSpeed, MaxMoveSpeed);
 
             // Apply Velocity.
-            character.Position += character.Velocity * elapsed;
+            character.Position += characterVelocity * elapsed;
             character.Position = new Vector2((float)Math.Round(character.Position.X), (float)Math.Round(character.Position.Y));
 
             // If the player is now colliding with the level, separate them.
@@ -128,6 +128,8 @@ namespace Platformer
             int rightTile = (int)Math.Ceiling(((float)bounds.Right / character.Level.TileWidth)) - 1;
             int topTile = (int)Math.Floor((float)bounds.Top / character.Level.TileHeight);
             int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / character.Level.TileHeight)) - 1;
+
+            System.Diagnostics.Debug.WriteLine("Bounds: " + bounds);
 
             // Reset flag to search for ground collision.
             character.IsOnGround = false;

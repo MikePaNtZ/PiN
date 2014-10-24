@@ -40,7 +40,6 @@ namespace Platformer
         // Meta-level game state.
         private int levelIndex = -1;
         private Level level;
-        private Hero hero;
         private List<Map> maps;
         private bool wasContinuePressed;
 
@@ -174,7 +173,7 @@ namespace Platformer
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 0;
+            levelIndex = 2;
             level = new Level(Services,maps[levelIndex],cam);
         }
 
