@@ -8,12 +8,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input.Touch;
+using Squared.Tiled;
 
 
 namespace Platformer
@@ -38,6 +40,7 @@ namespace Platformer
         // Meta-level game state.
         private int levelIndex = -1;
         private Level level;
+        private List<Map> maps;
         private Player player;
         private bool wasContinuePressed;
 
@@ -51,12 +54,6 @@ namespace Platformer
         private MouseState mouseState;
         private TouchCollection touchState;
         private AccelerometerState accelerometerState;
-        
-        // The number of levels in the Levels directory of our content. We assume that
-        // levels in our content are 0-based and that all numbers under this constant
-        // have a level file present. This allows us to not need to check for the file
-        // or handle exceptions, both of which can add unnecessary time to level loading.
-        private const int numberOfLevels = 1;
 
         public PlatformerGame()
         {
@@ -65,6 +62,8 @@ namespace Platformer
             //graphics.ToggleFullScreen();
 
             Content.RootDirectory = "Content";
+
+            maps = new List<Map>();
 
 #if WINDOWS_PHONE
             graphics.IsFullScreen = true;
@@ -91,6 +90,25 @@ namespace Platformer
             winOverlay = Content.Load<Texture2D>("Overlays/you_win");
             loseOverlay = Content.Load<Texture2D>("Overlays/you_lose");
             diedOverlay = Content.Load<Texture2D>("Overlays/you_died");
+
+            try //This is where the maps are added
+            {
+                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\TomLevel.tmx"), Content));
+                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeMLevel.tmx"), Content));
+                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeBLevel.tmx"), Content));
+
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine("Map file not found " + e);
+                this.Exit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Exit();
+            }
+
 
             //Known issue that you get exceptions if you use Media PLayer while connected to your PC
             //See http://social.msdn.microsoft.com/Forums/en/windowsphone7series/thread/c8a243d2-d360-46b1-96bd-62b1ef268c66
@@ -163,16 +181,17 @@ namespace Platformer
 
         private void LoadNextLevel()
         {
+            
             // move to the next level
-            levelIndex = (levelIndex + 1) % numberOfLevels;
+            levelIndex = (levelIndex + 1) % maps.Count;
 
             // Unloads the content for the current level before loading the next one.
             if (level != null)
                 level.Dispose();
 
             // Load the level.
-            
-            level = new Level(Services,levelIndex,spriteBatch.GraphicsDevice.Viewport);
+            levelIndex = 0;
+            level = new Level(Services,maps[levelIndex],spriteBatch.GraphicsDevice.Viewport);
         }
 
         private void ReloadCurrentLevel()

@@ -289,8 +289,18 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Levels\0.tmx">
-      <Name>0</Name>
+    <None Include="Levels\MikeMLevel.tmx">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>MikeMLevel</Name>
+    </None>
+    <None Include="Levels\MikeBLevel.tmx">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>MikeBLevel</Name>
+    </None>
+    <None Include="Levels\TomLevel.tmx">
+      <Name>TomLevel</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
