@@ -139,7 +139,7 @@ namespace Platformer
         /// The player who collected this gem. Although currently not used, this parameter would be
         /// useful for creating special powerup gems. For example, a gem could make the player invincible.
         /// </param>
-        public void OnCollected(Player collectedBy)
+        public void OnCollected(Hero collectedBy)
         {
             collectedSound.Play();
             switch (consumableType)
