@@ -79,6 +79,9 @@
     <Compile Include="Characters\Enemies\MonsterA.cs" />
     <Compile Include="Characters\Enemies\EnemyFactory.cs" />
     <Compile Include="Characters\GameCharacter.cs" />
+    <Compile Include="Consumables\ConsumableFactory.cs" />
+    <Compile Include="Consumables\PowerUps\HealthConsumable.cs" />
+    <Compile Include="Consumables\PowerUps\PowerUp.cs" />
     <Compile Include="Core\PhysicsEngine.cs" />
     <Compile Include="GameInputs\InputHandler.cs" />
     <Compile Include="GameInputs\KeyboardInput.cs" />
@@ -174,7 +177,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Consumables\PowerUps\" />
     <Folder Include="GameMechanics\Collision\" />
     <Folder Include="GameMechanics\Physics\" />
     <Folder Include="Weapons\Blades\" />

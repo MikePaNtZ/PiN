@@ -101,7 +101,7 @@ namespace Platformer
 
             map = currentMap;
 
-            LoadMap(levelPath);
+            LoadMap();
             cam = camera;
             cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
