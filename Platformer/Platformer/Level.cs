@@ -186,10 +186,10 @@ namespace Platformer
         /// <summary>
         /// Instantiates a consumable and puts it in the level.
         /// </summary>
-        public void SpawnConsumable(int x, int y, ConsumableType type)
+        public void SpawnConsumable(int x, int y, string type)
         {
             Point position = GetTileAtPoint(x, y).Center;
-            consumables.Add(new Consumable(this, new Vector2(position.X, position.Y), type));
+            consumables.Add(ConsumableFactory.NewConsumable(this, new Vector2(position.X, position.Y), type));
         }
 
 
@@ -543,15 +543,15 @@ namespace Platformer
                         null,
                         cam.GetViewMatrix(Vector2.One));
 
-            foreach (Consumable consumable in consumables)
-                consumable.Draw(gameTime, spriteBatch);
-
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
-            
-            Player.Draw(gameTime, spriteBatch);
 
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
+
+            foreach (Consumable consumable in consumables)
+                consumable.Draw(gameTime, spriteBatch);
+            
+            Player.Draw(gameTime, spriteBatch);
 
             spriteBatch.End();
 

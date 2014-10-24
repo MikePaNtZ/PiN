@@ -66,6 +66,15 @@ namespace Platformer
         public int Health
         {
             get { return health; }
+            set 
+            {
+                health = value;
+                if (health > 100)
+                    health = 100;
+                else if (health <= 0)
+                    //OnKilled()?
+                    ;
+            }
         }
         int health;
 
@@ -74,6 +83,8 @@ namespace Platformer
             get { return isHit; }
         }
         bool isHit;
+
+        private const int MaxHealth = 100;
 
         private const float MaxIFrames = 1.5F;
         private float IFrames;
@@ -231,7 +242,7 @@ namespace Platformer
             Velocity = Vector2.Zero;
             isAlive = true;
             isHit = false;
-            health = 100;
+            health = MaxHealth;
             IFrames = 0.0F;
             sprite.PlayAnimation(idleAnimation);
             powerUpTime = 0.0f;
@@ -718,12 +729,12 @@ namespace Platformer
             isHit = true;
             if (hitBy != null)
             {
-                UpdateHealth(-25);
+                health -= 25;
                 hurtSound.Play();
             }
             else
             {
-                UpdateHealth(-5);
+                health -= 5;
                 hurtSound.Play();
             }
             sprite.PlayAnimation(flinchAnimation);
@@ -732,14 +743,6 @@ namespace Platformer
                 OnKilled(hitBy);
             else
                 StartInvincibilityFrames();
-        }
-
-        /*Your health is updated */
-        public void UpdateHealth(int changeInHealth)
-        {
-            health += changeInHealth;
-            if (health > 100)
-                health = 100;
         }
 
         /// <summary>
