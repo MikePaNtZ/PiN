@@ -8,12 +8,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input.Touch;
+using Squared.Tiled;
 
 
 namespace Platformer
@@ -39,6 +41,7 @@ namespace Platformer
         private int levelIndex = -1;
         private Level level;
         private Hero hero;
+        private List<Map> maps;
         private bool wasContinuePressed;
 
         // When the time remaining is less than the warning time, it blinks on the hud
@@ -67,6 +70,8 @@ namespace Platformer
 
             Content.RootDirectory = "Content";
 
+            maps = new List<Map>();
+
         }
 
         /// <summary>
@@ -86,7 +91,26 @@ namespace Platformer
             winOverlay = Content.Load<Texture2D>("Overlays/you_win");
             loseOverlay = Content.Load<Texture2D>("Overlays/you_lose");
             diedOverlay = Content.Load<Texture2D>("Overlays/you_died");
+
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
+
+            try //This is where the maps are added
+            {
+                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\TomLevel.tmx"), Content));
+                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeMLevel.tmx"), Content));
+                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeBLevel.tmx"), Content));
+
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine("Map file not found " + e);
+                this.Exit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Exit();
+            }
 
             LoadNextLevel();
         }
@@ -141,16 +165,17 @@ namespace Platformer
 
         private void LoadNextLevel()
         {
+            
             // move to the next level
-            levelIndex = (levelIndex + 1) % numberOfLevels;
+            levelIndex = (levelIndex + 1) % maps.Count;
 
             // Unloads the content for the current level before loading the next one.
             if (level != null)
                 level.Dispose();
 
             // Load the level.
-            
-            level = new Level(Services,levelIndex,cam);
+            levelIndex = 0;
+            level = new Level(Services,maps[levelIndex],cam);
         }
 
         private void ReloadCurrentLevel()

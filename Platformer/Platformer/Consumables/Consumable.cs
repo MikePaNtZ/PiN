@@ -1,6 +1,6 @@
 ﻿#region File Description
 //-----------------------------------------------------------------------------
-// Gem.cs
+// Consumable.cs
 //
 // Microsoft XNA Community Game Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
@@ -14,37 +14,20 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Platformer
 {
-    /// <summary>
-    /// defines consumable type
-    /// </summary>
-    enum ConsumableType
-    {
-        /// <summary>
-        /// Increases player health
-        /// </summary>
-        Health = 0,
-
-        /// <summary>
-        /// Powers up player
-        /// </summary>
-        PowerUp = 1,
-    }
 
     /// <summary>
     /// A valuable item the player can collect.
     /// </summary>
-    class Consumable
+    abstract class Consumable
     {
-        private Texture2D texture;
-        private Vector2 origin;
-        private SoundEffect collectedSound;
-
-        public readonly ConsumableType consumableType;
-        public readonly Color Color;
+        protected Texture2D texture;
+        protected Vector2 origin;
+        protected SoundEffect collectedSound;
+        protected Color color;
 
         // The Consumable is animated from a base position along the Y axis.
-        private Vector2 basePosition;
-        private float bounce;
+        protected Vector2 basePosition;
+        protected float bounce;
 
         public Level Level
         {
@@ -77,23 +60,10 @@ namespace Platformer
         /// <summary>
         /// Constructs a new consumable.
         /// </summary>
-        public Consumable(Level level, Vector2 position, ConsumableType type)
+        public Consumable(Level level, Vector2 position)
         {
             this.level = level;
             this.basePosition = position;
-            consumableType = type;
-
-            switch (consumableType)
-            {
-                case ConsumableType.Health:
-                    Color = Color.White;
-                    break;
-                case ConsumableType.PowerUp:
-                    Color = Color.Red;
-                    break;
-            }
-    
-            LoadContent();
         }
 
         /// <summary>
@@ -101,17 +71,7 @@ namespace Platformer
         /// </summary>
         public void LoadContent()
         {
-
-            switch (consumableType)
-            {
-                case ConsumableType.Health:
-                    texture = Level.Content.Load<Texture2D>("Sprites/Gem");
-                    break;
-                case ConsumableType.PowerUp:
-                    texture = Level.Content.Load<Texture2D>("Sprites/Gem");
-                    break;
-            }
-            //texture = Level.Content.Load<Texture2D>("Sprites/Gem");
+            texture = Level.Content.Load<Texture2D>("Sprites/Gem");
             origin = new Vector2(texture.Width / 2.0f, texture.Height / 2.0f);
             collectedSound = Level.Content.Load<SoundEffect>("Sounds/GemCollected");
         }
@@ -136,23 +96,9 @@ namespace Platformer
         /// Called when this item has been collected by a player and removed from the level.
         /// </summary>
         /// <param name="collectedBy">
-        /// The player who collected this gem. Although currently not used, this parameter would be
-        /// useful for creating special powerup gems. For example, a gem could make the player invincible.
+        /// The player who collected this gem.
         /// </param>
-        public void OnCollected(Hero collectedBy)
-        {
-            collectedSound.Play();
-            switch (consumableType)
-            {
-                case ConsumableType.Health:
-                    collectedBy.UpdateHealth(15);
-                    break;
-                case ConsumableType.PowerUp:
-                    collectedBy.PowerUp();
-                    break;
-            }
-    
-        }
+        abstract public void OnCollected(Hero collectedBy);
 
         /// <summary>
         /// Draws a gem in the appropriate color.
@@ -160,7 +106,7 @@ namespace Platformer
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             //spriteBatch.Begin();
-            spriteBatch.Draw(texture, Position, null, Color, 0.0f, origin, 1.0f, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(texture, Position, null, color, 0.0f, origin, 1.0f, SpriteEffects.None, 0.0f);
             //spriteBatch.End();
         }
     }

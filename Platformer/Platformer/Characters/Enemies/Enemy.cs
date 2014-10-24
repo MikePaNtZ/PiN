@@ -72,7 +72,7 @@ namespace Platformer
 
         public bool IsAlive { get; set; }
 
-        private Random random = new Random(354668); // Arbitrary, but constant seed
+        
 
         // Animations
         private Animation runAnimation;
@@ -403,11 +403,33 @@ namespace Platformer
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
         }
 
+        /// <summary>
+        /// enemy dies
+        /// </summary>
         public void OnKilled()
         {
             IsAlive = false;
             killedSound.Play();
+
+            SpawnRandomConsumable();
+            
         }
 
+        /// <summary>
+        /// spawns a random consumable at the place the enemy dies
+        /// </summary>
+        protected void SpawnRandomConsumable()
+        {
+            Point point;
+            point.Y = BoundingRectangle.Top + BoundingRectangle.Height / 3;
+            point.X = BoundingRectangle.Center.X;
+
+            Random random = new Random();
+            int rand = random.Next(100);
+            if (rand < 30)
+                level.SpawnConsumable(point.X, point.Y, "HealthConsumable");
+            else if (rand > 90)
+                level.SpawnConsumable(point.X, point.Y, "PowerUp");
+        }
     }
 }
