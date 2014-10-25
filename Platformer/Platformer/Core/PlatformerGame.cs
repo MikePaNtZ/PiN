@@ -41,7 +41,6 @@ namespace Platformer
         private int levelIndex = -1;
         private Level level;
         private List<Map> maps;
-        private Player player;
         private bool wasContinuePressed;
 
         // When the time remaining is less than the warning time, it blinks on the hud
@@ -49,11 +48,18 @@ namespace Platformer
 
         // We store our input states so that we only poll once per frame, 
         // then we use the same input state wherever needed
-        private GamePadState gamePadState;
+        private InputHandler gameInputHandler;
         private KeyboardState keyboardState;
         private MouseState mouseState;
-        private TouchCollection touchState;
-        private AccelerometerState accelerometerState;
+
+        // Game camera
+        private Camera cam;
+        
+        // The number of levels in the Levels directory of our content. We assume that
+        // levels in our content are 0-based and that all numbers under this constant
+        // have a level file present. This allows us to not need to check for the file
+        // or handle exceptions, both of which can add unnecessary time to level loading.
+        private const int numberOfLevels = 1;
 
         public PlatformerGame()
         {
@@ -65,12 +71,6 @@ namespace Platformer
 
             maps = new List<Map>();
 
-#if WINDOWS_PHONE
-            graphics.IsFullScreen = true;
-            TargetElapsedTime = TimeSpan.FromTicks(333333);
-#endif
-
-            Accelerometer.Initialize();
         }
 
         /// <summary>
@@ -91,6 +91,8 @@ namespace Platformer
             loseOverlay = Content.Load<Texture2D>("Overlays/you_lose");
             diedOverlay = Content.Load<Texture2D>("Overlays/you_died");
 
+            cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
+
             try //This is where the maps are added
             {
                 maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\TomLevel.tmx"), Content));
@@ -109,18 +111,6 @@ namespace Platformer
                 Exit();
             }
 
-
-            //Known issue that you get exceptions if you use Media PLayer while connected to your PC
-            //See http://social.msdn.microsoft.com/Forums/en/windowsphone7series/thread/c8a243d2-d360-46b1-96bd-62b1ef268c66
-            //Which means its impossible to test this from VS.
-            //So we have to catch the exception and throw it away
-            try
-            {
-                //MediaPlayer.IsRepeating = true;
-                //MediaPlayer.Play(Content.Load<Song>("Sounds/Music"));
-            }
-            catch { }
-
             LoadNextLevel();
         }
 
@@ -135,8 +125,7 @@ namespace Platformer
             HandleInput();
 
             // update our level, passing down the GameTime along with all of our input states
-            level.Update(gameTime, keyboardState, mouseState, gamePadState, touchState, 
-                         accelerometerState, Window.CurrentOrientation);
+            level.Update(gameTime, gameInputHandler);
 
             base.Update(gameTime);
         }
@@ -146,24 +135,18 @@ namespace Platformer
             // get all of our input states
             keyboardState = Keyboard.GetState();
             mouseState = Mouse.GetState();
-            gamePadState = GamePad.GetState(PlayerIndex.One);
-            touchState = TouchPanel.GetState();
-            accelerometerState = Accelerometer.GetState();
-
+            gameInputHandler = new InputHandler(cam, mouseState, keyboardState);
             // Exit the game when back is pressed.
-            if (gamePadState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
+            if (gameInputHandler.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
-            bool continuePressed =
-                keyboardState.IsKeyDown(Keys.Space) ||
-                gamePadState.IsButtonDown(Buttons.A) ||
-                touchState.AnyTouch();
+            bool continuePressed = gameInputHandler.KeyboardState.IsKeyDown(Keys.Space);
 
             // Perform the appropriate action to advance the game and
-            // to get the player back to playing.
+            // to get the hero back to playing.
             if (!wasContinuePressed && continuePressed)
             {
-                if (!level.Player.IsAlive)
+                if (!level.Hero.IsAlive)
                 {
                     level.StartNewLife();
                 }
@@ -190,8 +173,8 @@ namespace Platformer
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 0;
-            level = new Level(Services,maps[levelIndex],spriteBatch.GraphicsDevice.Viewport);
+            levelIndex = 2;
+            level = new Level(Services,maps[levelIndex],cam);
         }
 
         private void ReloadCurrentLevel()
@@ -207,7 +190,6 @@ namespace Platformer
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-
 
             level.Draw(gameTime, spriteBatch);
 
@@ -225,7 +207,7 @@ namespace Platformer
                                          titleSafeArea.Y + titleSafeArea.Height / 2.0f);
 
             // Draw time remaining. Uses modulo division to cause blinking when the
-            // player is running out of time.
+            // hero is running out of time.
             string timeString = "TIME: " + level.TimeRemaining.Minutes.ToString("00") + ":" + level.TimeRemaining.Seconds.ToString("00");
             Color timeColor;
             if (level.TimeRemaining > WarningTime ||
@@ -241,10 +223,10 @@ namespace Platformer
             DrawShadowedString(hudFont, timeString, hudLocation, timeColor);
 
             // Draw health
-            if (level.Player!=null)
+            if (level.Hero!=null)
             {
                 float timeHeight = hudFont.MeasureString(timeString).Y;
-                DrawShadowedString(hudFont, "HEALTH: " + level.Player.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+                DrawShadowedString(hudFont, "HEALTH: " + level.Hero.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
             }
            
             // Determine the status overlay message to show.
@@ -261,7 +243,7 @@ namespace Platformer
                     status = loseOverlay;
                 }
             }
-            else if (!level.Player.IsAlive)
+            else if (!level.Hero.IsAlive)
             {
                 status = diedOverlay;
             }

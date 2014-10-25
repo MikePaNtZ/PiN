@@ -98,7 +98,7 @@ namespace Platformer
         /// <param name="collectedBy">
         /// The player who collected this gem.
         /// </param>
-        abstract public void OnCollected(Player collectedBy);
+        abstract public void OnCollected(Hero collectedBy);
 
         /// <summary>
         /// Draws a gem in the appropriate color.

@@ -31,10 +31,10 @@ namespace Platformer
         /// <param name="collectedBy">
         /// The player who collected this item. He increases his health by the set amount
         /// </param>
-        override public void OnCollected(Player collectedBy)
+        override public void OnCollected(Hero collectedBy)
         {
             collectedSound.Play();
-            collectedBy.Health += healthGain;
+            collectedBy.UpdateHealth(healthGain);
         }
     }
 }

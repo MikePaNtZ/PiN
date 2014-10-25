@@ -1,6 +1,6 @@
 ﻿#region File Description
 //-----------------------------------------------------------------------------
-// AnimationPlayer.cs
+// AnimationLoader.cs
 //
 // Microsoft XNA Community Game Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
@@ -16,7 +16,7 @@ namespace Platformer
     /// <summary>
     /// Controls playback of an Animation.
     /// </summary>
-    struct AnimationPlayer
+    struct AnimationLoader
     {
         /// <summary>
         /// Gets the animation which is currently playing.
@@ -52,7 +52,7 @@ namespace Platformer
         /// <summary>
         /// Begins or continues playback of an animation.
         /// </summary>
-        public void PlayAnimation(Animation animation)
+        public void LoadAnimation(Animation animation)
         {
             // If this animation is already running, do not restart it.
             if (Animation == animation)
