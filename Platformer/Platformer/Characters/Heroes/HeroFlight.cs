@@ -15,7 +15,7 @@ namespace Platformer.Characters.Heroes
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class HeroFlight : Hero
+    class HeroFlight : Hero
     {
         public HeroFlight(Level level, Vector2 initialPosition, Texture2D defaultTexture)
             : base(level, initialPosition, defaultTexture)
@@ -24,7 +24,7 @@ namespace Platformer.Characters.Heroes
             Reset(initialPosition);
         }
 
-        public override void LoadContent()
+        protected override void LoadContent()
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"), 0.1f, true);

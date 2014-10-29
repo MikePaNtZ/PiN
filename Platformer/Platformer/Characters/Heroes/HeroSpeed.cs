@@ -15,7 +15,7 @@ namespace Platformer.Characters.Heroes
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class HeroSpeed : Hero
+    class HeroSpeed : Hero
     {
         public HeroSpeed(Level level, Vector2 initialPosition, Texture2D defaultTexture): base(level, initialPosition, defaultTexture)
         {
@@ -23,7 +23,7 @@ namespace Platformer.Characters.Heroes
             Reset(initialPosition);
         }
 
-        public override void LoadContent()
+        protected override void LoadContent()
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"), 0.1f, true);
