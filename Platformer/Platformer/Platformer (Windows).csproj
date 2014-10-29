@@ -78,6 +78,9 @@
     <Compile Include="Characters\Enemies\MonsterA.cs" />
     <Compile Include="Characters\Enemies\EnemyFactory.cs" />
     <Compile Include="Characters\GameCharacter.cs" />
+    <Compile Include="Characters\Heroes\HeroFlight.cs" />
+    <Compile Include="Characters\Heroes\HeroSpeed.cs" />
+    <Compile Include="Characters\Heroes\HeroStrength.cs" />
     <Compile Include="Consumables\ConsumableFactory.cs" />
     <Compile Include="Consumables\PowerUps\HealthConsumable.cs" />
     <Compile Include="Consumables\PowerUps\PowerUp.cs" />
