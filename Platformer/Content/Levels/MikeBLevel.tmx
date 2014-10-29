@@ -44,7 +44,7 @@
   </tile>
   <tile id="9">
    <properties>
-    <property name="TileCollision" value="1"/>
+    <property name="TileCollision" value="0"/>
    </properties>
   </tile>
   <tile id="10">
@@ -95,12 +95,382 @@
  </tileset>
  <tileset firstgid="25" name="oldPlatformer" tilewidth="32" tileheight="32">
   <image source="../Tiles/oldPlatformer.png" trans="ff00ff" width="128" height="160"/>
+  <tile id="0">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
  </tileset>
  <tileset firstgid="45" name="Classical_Ruin" tilewidth="32" tileheight="32">
   <image source="../Tiles/Classical_Ruin.png" trans="ff00ff" width="640" height="256"/>
  </tileset>
  <tileset firstgid="205" name="GreatTextures" tilewidth="32" tileheight="32">
   <image source="../Tiles/GreatTextures.png" trans="ff00ff" width="256" height="256"/>
+  <tile id="0">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="13">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="14">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="15">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="16">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="17">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="18">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="19">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="20">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="21">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="22">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="23">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="24">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="25">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="26">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="30">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="31">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="32">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="33">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="34">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="35">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="36">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="37">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="38">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="39">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="40">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="41">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="42">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="43">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="44">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="45">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="46">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="47">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="48">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="49">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="50">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="51">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="52">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="53">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="54">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="55">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="56">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="57">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="58">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="59">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="60">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="61">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="62">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="63">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
  </tileset>
  <tileset firstgid="269" name="Backgrounds" tilewidth="32" tileheight="32">
   <image source="../Tiles/Backgrounds.png" trans="ff00ff" width="1433" height="770"/>
@@ -110,6 +480,31 @@
  </tileset>
  <tileset firstgid="3085" name="Nightmare_Ice" tilewidth="32" tileheight="32">
   <image source="../Tiles/Nightmare_Ice.png" trans="ff00ff" width="181" height="62"/>
+  <tile id="0">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </tile>
  </tileset>
  <layer name="Background" width="200" height="32">
   <data>
@@ -11929,7 +12324,7 @@
    <tile gid="0"/>
    <tile gid="23"/>
    <tile gid="23"/>
-   <tile gid="5"/>
+   <tile gid="229"/>
    <tile gid="22"/>
    <tile gid="22"/>
    <tile gid="22"/>
@@ -12127,12 +12522,12 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="23"/>
-   <tile gid="1"/>
-   <tile gid="2"/>
-   <tile gid="7"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="3"/>
+   <tile gid="3085"/>
+   <tile gid="3085"/>
+   <tile gid="229"/>
+   <tile gid="229"/>
+   <tile gid="3088"/>
+   <tile gid="3089"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -12326,13 +12721,13 @@
    <tile gid="22"/>
    <tile gid="22"/>
    <tile gid="23"/>
-   <tile gid="1"/>
-   <tile gid="8"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="11"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="229"/>
+   <tile gid="3088"/>
+   <tile gid="3089"/>
    <tile gid="0"/>
    <tile gid="22"/>
    <tile gid="0"/>
@@ -12517,36 +12912,36 @@
    <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="8"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3089"/>
+   <tile gid="213"/>
+   <tile gid="213"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3089"/>
+   <tile gid="3088"/>
+   <tile gid="3089"/>
    <tile gid="213"/>
    <tile gid="213"/>
    <tile gid="213"/>
    <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="6"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="2"/>
-   <tile gid="8"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
    <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>
@@ -12717,19 +13112,19 @@
    <tile gid="10"/>
    <tile gid="10"/>
    <tile gid="10"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
-   <tile gid="213"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3085"/>
+   <tile gid="3086"/>
+   <tile gid="3087"/>
+   <tile gid="3088"/>
+   <tile gid="3089"/>
    <tile gid="213"/>
    <tile gid="213"/>
    <tile gid="213"/>
@@ -12921,7 +13316,11 @@
  </layer>
  <objectgroup name="events">
   <object name="player" x="4" y="893" width="64" height="64"/>
-  <object name="exit" x="6100" y="672" width="43" height="43"/>
+  <object name="exit" x="6100" y="672" width="43" height="43">
+   <properties>
+    <property name="TileCollision" value="1"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="enemies">
   <object name="enemy" x="1457" y="808" width="46" height="42">

@@ -329,7 +329,7 @@ namespace Platformer
         /// </summary>
         private bool isOnGround;
         // Local rectangle boundary.
-        private Rectangle localBounds;
+        protected Rectangle localBounds;
         // Powerup state
         private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
         // Jumping state
