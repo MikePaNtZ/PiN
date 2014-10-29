@@ -45,6 +45,9 @@ namespace Platformer
         }
         private Hero hero;
 
+        // array to store the three different types of heroes
+        public Hero[] heroType = new Hero[3];
+
         private List<Consumable> consumables = new List<Consumable>();
         public List<Enemy> enemies = new List<Enemy>();
 
@@ -150,6 +153,7 @@ namespace Platformer
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
 
+            // get the position of the exit object in Tiled map editor
             int x = map.ObjectGroups["events"].Objects["exit"].X;
             int y = map.ObjectGroups["events"].Objects["exit"].Y;
 
@@ -224,6 +228,7 @@ namespace Platformer
                 return TileCollision.Impassable;
             // Allow jumping past the level top and falling through the bottom.
             if (y < 0 || y >= Height)
+            //if (y >= Height)
                 return TileCollision.Passable;
 
             //get the id of tile
@@ -258,7 +263,8 @@ namespace Platformer
                 }
             }
 
-            return TileCollision.Passable; //ideally shouldn't actually get to here but if it does tile is passable
+            // changed this to Impassable so that the character won't fall through a tile if its TilCollision property was not set
+            return TileCollision.Impassable; //ideally shouldn't actually get to here
         }
 
         /// <summary>
@@ -341,7 +347,7 @@ namespace Platformer
 
         /// <summary>
         /// Updates all objects in the world, performs collision between them,
-        /// and handles the time limit with scoring.
+        /// and handles the time limit.
         /// </summary>
         public void Update(GameTime gameTime, InputHandler gameInputs)
         {
@@ -515,8 +521,6 @@ namespace Platformer
                         null,
                         null,
                         Camera.GetViewMatrix(Vector2.One));
-
-
             
             map.Draw(spriteBatch, new Rectangle((int)Camera.Position.X, (int)Camera.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), Camera.Position);
 
@@ -531,12 +535,6 @@ namespace Platformer
             spriteBatch.End();
 
         }//end Draw method
-
-
-
-        
-
-       
 
         #endregion
     }
