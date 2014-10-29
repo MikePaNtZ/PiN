@@ -72,14 +72,13 @@ namespace Platformer
 
         public bool IsAlive { get; set; }
 
-        private Random random = new Random(354668); // Arbitrary, but constant seed
+        
 
         // Animations
         private Animation runAnimation;
         private Animation idleAnimation;
         private Animation dieAnimation;
         public Animation explosionAnimation;
-        private AnimationPlayer sprite;
 
         // Sounds
         private SoundEffect killedSound;
@@ -135,6 +134,8 @@ namespace Platformer
         protected float health;
         protected string enemyType;
 
+        private AnimationLoader sprite;
+
         
 
         /// <summary>
@@ -159,7 +160,7 @@ namespace Platformer
             idleAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Idle"), 0.15f, true);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Die"), 0.07f, false);
             explosionAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/explosion"), 0.1f, false); //false means the animation is not going to loop
-            sprite.PlayAnimation(idleAnimation);
+            sprite.LoadAnimation(idleAnimation);
 
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
@@ -367,7 +368,7 @@ namespace Platformer
         /// </summary>
         private Vector2 getLineOfSight()
         {
-            return level.Player.Position - position;
+            return level.Hero.Position - position;
         }
 
         /// <summary>
@@ -378,23 +379,23 @@ namespace Platformer
             // Stop running when the game is paused or before turning around.
             if (!IsAlive)
             {
-                //sprite.PlayAnimation(explosionAnimation); //doesn't work for some reason
-                sprite.PlayAnimation(dieAnimation);//then play the enemy dying
+                //sprite.LoadAnimation(explosionAnimation); //doesn't work for some reason
+                sprite.LoadAnimation(dieAnimation);//then play the enemy dying
             }
             //if player is not alive or if player hasn't reached the exit, or if the time
             //remaining is 0, or if waiting time is greater than 0
             //then the idle animation for the enemies is playing
-            else if (!Level.Player.IsAlive ||
+            else if (!Level.Hero.IsAlive ||
                       Level.ReachedExit ||
                       Level.TimeRemaining == TimeSpan.Zero ||
                       waitTime > 0)
             {
-                sprite.PlayAnimation(idleAnimation);
+                sprite.LoadAnimation(idleAnimation);
             }
             else
             {
                 //if none of the above, then enemies are running
-                sprite.PlayAnimation(runAnimation);
+                sprite.LoadAnimation(runAnimation);
             }
 
             // Draw facing the way the enemy is moving.
@@ -402,11 +403,33 @@ namespace Platformer
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
         }
 
+        /// <summary>
+        /// enemy dies
+        /// </summary>
         public void OnKilled()
         {
             IsAlive = false;
             killedSound.Play();
+
+            SpawnRandomConsumable();
+            
         }
 
+        /// <summary>
+        /// spawns a random consumable at the place the enemy dies
+        /// </summary>
+        protected void SpawnRandomConsumable()
+        {
+            Point point;
+            point.Y = BoundingRectangle.Top + BoundingRectangle.Height / 3;
+            point.X = BoundingRectangle.Center.X;
+
+            Random random = new Random();
+            int rand = random.Next(100);
+            if (rand < 30)
+                level.SpawnConsumable(point.X, point.Y, "HealthConsumable");
+            else if (rand > 90)
+                level.SpawnConsumable(point.X, point.Y, "PowerUp");
+        }
     }
 }

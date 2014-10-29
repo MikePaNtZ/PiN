@@ -12920,7 +12920,7 @@
   </data>
  </layer>
  <objectgroup name="events">
-  <object name="player" x="4" y="893" width="64" height="64"/>
+  <object name="player" x="4" y="916" width="64" height="64"/>
   <object name="exit" x="6100" y="672" width="43" height="43"/>
  </objectgroup>
  <objectgroup name="enemies">
