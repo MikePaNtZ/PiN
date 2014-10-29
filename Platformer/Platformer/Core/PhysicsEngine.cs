@@ -191,13 +191,13 @@ namespace Platformer
         protected const float GroundDragFactor = 0.48f;
         protected const float AirDragFactor = 0.58f;
         // Constants for controlling vertical movement. Can be overriden. Could also be made a property of the game character class for
-        // custimization between game character's.
+        // customization between game characters.
         protected const float MaxJumpTime = 0.35f;
         protected const float JumpLaunchVelocity = -3500.0f;
         protected const float GravityAcceleration = 3400.0f;
         protected const float MaxFallSpeed = 550.0f;
         protected const float JumpControlPower = 0.14f;
-        // The character that the this physics engine is controlling
+        // The character that this physics engine is controlling
         private GameCharacter character;
         // Bottom bounds for the character
         private float previousBottom;

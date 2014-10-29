@@ -98,7 +98,6 @@ namespace Platformer
                 maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\TomLevel.tmx"), Content));
                 maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeMLevel.tmx"), Content));
                 maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeBLevel.tmx"), Content));
-
             }
             catch (FileNotFoundException e)
             {
