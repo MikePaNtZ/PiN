@@ -114,7 +114,6 @@ namespace Platformer
             cam = camera;
             cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
-
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
         }
@@ -150,8 +149,6 @@ namespace Platformer
 
             activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
 
-            //SwapHeroes(activeHero);
-
         }
 
         public void SwapHeroes(Hero activeHero)
@@ -184,7 +181,6 @@ namespace Platformer
             }
             else
                 activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
-
         }//SwapHeroes method
 
         /// <summary>
@@ -393,7 +389,7 @@ namespace Platformer
         /// </summary>
         public void Update(GameTime gameTime, InputHandler gameInputs)
         {
-           
+            SwapHeroes(activeHero);
             // Pause while the activeHero is dead or time is expired.
             if (!ActiveHero.IsAlive || TimeRemaining == TimeSpan.Zero)
             {
@@ -412,7 +408,7 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-                //SwapHeroes(activeHero);
+                SwapHeroes(activeHero);
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
