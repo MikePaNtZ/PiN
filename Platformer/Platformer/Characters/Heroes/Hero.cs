@@ -1,6 +1,6 @@
 #region File Description
 //-----------------------------------------------------------------------------
-// Hero.cs
+// ActiveHero.cs
 //
 // Microsoft XNA Community Game Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
@@ -16,19 +16,16 @@ using Microsoft.Xna.Framework.Input.Touch;
 namespace Platformer
 {
     /// <summary>
-    /// Hero base class. This is a GameCharacter that is controllable by the player.
+    /// ActiveHero base class. This is a GameCharacter that is controllable by the player.
     /// </summary>
     class Hero : GameCharacter
     {
-
-        // Should get moved into a mouse aimed weapon class.
-        private Camera _cam;
 
         private const float MaxIFrames = 1.5F;
         private float IFrames;
 
         /// <summary>
-        /// Constructors a new player.
+        /// Constructs a new player.
         /// </summary>
         public Hero(Level level, Vector2 initialPosition, Texture2D defaultTexture): base(level, initialPosition, defaultTexture)
         {
@@ -37,9 +34,10 @@ namespace Platformer
         }
 
         // This is where you load any content that is specific to this player class only.
-        protected virtual void LoadContent()
+        protected override void LoadContent()
         {
-            // Load the hero's default weapon
+            // Load the activeHero's default weapon
+            base.LoadContent();
             weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
         }
 
@@ -89,7 +87,7 @@ namespace Platformer
         /// <summary>
         /// Handles input, performs physics, and animates the player resetAfterHit.
         /// </summary>
-        public void Update(GameTime gameTime, InputHandler gameInputs)
+        public virtual void Update(GameTime gameTime, InputHandler gameInputs)
         {
             // Handle inputs
             GetInput(gameInputs);
@@ -209,5 +207,5 @@ namespace Platformer
 
         private MouseState oldMouseState;
 
-    }//end class Hero
+    }//end class ActiveHero
 }//end namespace Platformer

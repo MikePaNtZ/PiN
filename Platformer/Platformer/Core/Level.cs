@@ -24,7 +24,7 @@ namespace Platformer
 {
     /// <summary>
     /// A uniform grid of tiles with collections of gems and enemies.
-    /// The level owns the the hero and controls the game's win and lose
+    /// The level owns the the activeHero and controls the game's win and lose
     /// conditions as well as scoring.
     /// </summary>
     class Level : IDisposable
@@ -35,20 +35,26 @@ namespace Platformer
         // reordered list of tilesets. ordered by first tile id
         private Dictionary<string, Tileset> tilesets;
 
-        //private List<Layer> layers;
-        private Layer[] layers;
-
         // Entities in the level.
-        public Hero Hero
+        //public Hero ActiveHero
+        //{
+        //    get { return activeHero; }
+        //    //set { ActiveHero = activeHero; }
+        //}
+        private Hero activeHero;
+        public Hero ActiveHero
         {
-            get { return hero; }
+            get { return activeHero; }
+            set { this.activeHero = value; }
         }
-        private Hero hero;
 
-        // array to store the three different types of heroes
-        public Hero[] heroType = new Hero[3];
 
+        // list to store the three different types of heroes
+        private Hero[] Hero = new Hero[3];
+
+        //list to store all health and invincibility consumables
         private List<Consumable> consumables = new List<Consumable>();
+        //enemies list to store information about enemies
         public List<Enemy> enemies = new List<Enemy>();
 
         // Key locations in the level.        
@@ -100,7 +106,7 @@ namespace Platformer
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-            timeRemaining = TimeSpan.FromMinutes(5.0); //changed the time limit to 5 minutes for longer level testing
+            timeRemaining = TimeSpan.FromMinutes(6.0); //changed the time limit to 6 minutes for longer level testing
 
             map = currentMap;
 
@@ -129,21 +135,57 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Instantiates a hero, puts him in the level, and remembers where to put him when he is resurrected.
+        /// Instantiates an activeHero, puts him in the level, and remembers where to put him when he is resurrected.
         /// </summary>
         private void LoadHero()
-        {
-            if (Hero != null)
+        {            
+            if (ActiveHero != null)
                 throw new NotSupportedException("A level may only have one starting point.");
 
             int x = map.ObjectGroups["events"].Objects["player"].X;
             int y = map.ObjectGroups["events"].Objects["player"].Y;
 
+            //where the player starts in the Tiled map editor map
             start = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x,y));
 
-            hero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
+            activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
+
+            //SwapHeroes(activeHero);
 
         }
+
+        public void SwapHeroes(Hero activeHero)
+        {
+            KeyboardState keyboard = new KeyboardState();
+
+            if (keyboard.IsKeyDown(Keys.R))
+            {
+                //activeHero = Hero[0];
+                //activeHero = new HeroStrength(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
+                HeroStrength Kaeden = new HeroStrength(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
+                Hero[0] = (HeroStrength)Kaeden;
+                activeHero = Hero[0];
+            }
+            else if (keyboard.IsKeyDown(Keys.F))
+            {
+                //activeHero = Hero[1];
+                //activeHero = new HeroSpeed(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
+                HeroSpeed Sammie = new HeroSpeed(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
+                Hero[1] = (HeroSpeed)Sammie;
+                activeHero = Hero[1];
+            }
+            else if (keyboard.IsKeyDown(Keys.C))
+            {
+                //activeHero = Hero[2];
+                //activeHero = new HeroFlight(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
+                HeroFlight Aidan = new HeroFlight(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
+                Hero[2] = (HeroFlight)Aidan;
+                activeHero = Hero[2];
+            }
+            else
+                activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
+
+        }//SwapHeroes method
 
         /// <summary>
         /// Remembers the location of the level's exit.
@@ -228,7 +270,7 @@ namespace Platformer
                 return TileCollision.Impassable;
             // Allow jumping past the level top and falling through the bottom.
             if (y < 0 || y >= Height)
-            //if (y >= Height)
+ 
                 return TileCollision.Passable;
 
             //get the id of tile
@@ -352,11 +394,11 @@ namespace Platformer
         public void Update(GameTime gameTime, InputHandler gameInputs)
         {
            
-            // Pause while the hero is dead or time is expired.
-            if (!Hero.IsAlive || TimeRemaining == TimeSpan.Zero)
+            // Pause while the activeHero is dead or time is expired.
+            if (!ActiveHero.IsAlive || TimeRemaining == TimeSpan.Zero)
             {
-                // Still want to perform physics on the hero.
-                Hero.PhysicsEngine.ApplyPhysics(gameTime);
+                // Still want to perform physics on the activeHero.
+                ActiveHero.PhysicsEngine.ApplyPhysics(gameTime);
 
             }
             else if (ReachedExit)
@@ -370,30 +412,29 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-
-                Hero.Update(gameTime, gameInputs);
+                //SwapHeroes(activeHero);
+                ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
-                //follow the hero
-                Camera.LookAt(Hero.Position);
+                //follow the activeHero
+                Camera.LookAt(ActiveHero.Position);
 
-                // Falling off the bottom of the level kills the hero.
-                if (Hero.BoundingRectangle.Top >= Height * map.TileHeight)
+                // Falling off the bottom of the level kills the activeHero.
+                if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight)
                 {
                     OnHeroKilled(null);
                 }
 
                 UpdateEnemies(gameTime);
+                   
 
-                
-
-                // The hero has reached the exit if they are standing on the ground and
+                // The activeHero has reached the exit if they are standing on the ground and
                 // his bounding rectangle contains the center of the exit tile. They can only
                 // exit when they have collected all of the gems.
 
-                if (Hero.IsAlive &&
-                    Hero.IsOnGround &&
-                    Hero.BoundingRectangle.Contains(exit))
+                if (ActiveHero.IsAlive &&
+                    ActiveHero.IsOnGround &&
+                    ActiveHero.BoundingRectangle.Contains(exit))
                 {
                     OnExitReached();
                 }
@@ -404,7 +445,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Animates each consumable and checks to allows the hero to collect them.
+        /// Animates each consumable and checks to allows the activeHero to collect them.
         /// </summary>
         private void UpdateConsumables(GameTime gameTime)
         {
@@ -414,35 +455,36 @@ namespace Platformer
 
                 consumable.Update(gameTime);
 
-                if (consumable.BoundingCircle.Intersects(Hero.BoundingRectangle))
+                //if active hero intersects with the consumable, then the consumable is removes from consumables array
+                if (consumable.BoundingCircle.Intersects(ActiveHero.BoundingRectangle))
                 {
                     consumables.RemoveAt(i--);
-                    OnConsumableCollected(consumable, Hero);
+                    OnConsumableCollected(consumable, ActiveHero);
                 }
             }
         }
 
         /// <summary>
-        /// Animates each enemy and allow them to kill the hero.
+        /// Animates each enemy and allow them to kill the activeHero.
         /// </summary>
         private void UpdateEnemies(GameTime gameTime)
         {
             foreach (Enemy enemy in enemies)
             {
                 enemy.Update(gameTime);
-                // Touching an enemy decreases health of the hero
+                // Touching an enemy decreases health of the activeHero
 
-                if (enemy.IsAlive & enemy.BoundingRectangle.Intersects(Hero.BoundingRectangle))
+                if (enemy.IsAlive & enemy.BoundingRectangle.Intersects(ActiveHero.BoundingRectangle))
                 {
-                    if (Hero.IsPoweredUp)
+                    if (ActiveHero.IsPoweredUp)
                     {
-                        OnEnemyKilled(enemy, Hero); //enemy dies instantly when you are in invincibility mode
+                        OnEnemyKilled(enemy, ActiveHero); //enemy dies instantly when you are in invincibility mode
                     }
-                    else if (Hero.IsBlocking)
+                    else if (ActiveHero.IsBlocking)
                     {
-                        OnEnemyKilled(enemy, Hero);
+                        OnEnemyKilled(enemy, ActiveHero);
                     }
-                    else if (!Hero.IsHit)
+                    else if (!ActiveHero.IsHit)
                     {
                         OnHeroHit(enemy);
                     }
@@ -459,52 +501,52 @@ namespace Platformer
         /// Called when a consumable is collected.
         /// </summary>
         /// <param name="consumable">The consumable that was collected.</param>
-        /// <param name="collectedBy">The hero who collected this gem.</param>
+        /// <param name="collectedBy">The activeHero who collected this gem.</param>
         private void OnConsumableCollected(Consumable consumable, Hero collectedBy)
         {
             consumable.OnCollected(collectedBy);
         }
 
         /// <summary>
-        /// Called when the hero is hit by an enemy.
+        /// Called when the activeHero is hit by an enemy.
         /// </summary>
         /// <param name="hitBy">
-        /// The enemy who hit the hero. This is null if the hero was not hit by an
-        /// enemy, such as when a hero hits or is hit by a hazard.
+        /// The enemy who hit the activeHero. This is null if the activeHero was not hit by an
+        /// enemy, such as when a activeHero hits or is hit by a hazard.
         /// </param>
         private void OnHeroHit(Enemy hitBy)
         {
-            Hero.OnHit(hitBy);
+            ActiveHero.OnHit(hitBy);
         }
 
         /// <summary>
-        /// Called when the hero is killed.
+        /// Called when the activeHero is killed.
         /// </summary>
         /// <param name="killedBy">
-        /// The enemy who killed the hero. This is null if the hero was not killed by an
-        /// enemy, such as when a hero falls into a hole.
+        /// The enemy who killed the activeHero. This is null if the activeHero was not killed by an
+        /// enemy, such as when a activeHero falls into a hole.
         /// </param>
         private void OnHeroKilled(Enemy killedBy)
         {
-            Hero.OnKilled(killedBy);
+            ActiveHero.OnKilled(killedBy);
         }
 
         /// <summary>
-        /// Called when the hero reaches the level's exit.
+        /// Called when the activeHero reaches the level's exit.
         /// </summary>
         private void OnExitReached()
         {
-            Hero.OnReachedExit();
+            ActiveHero.OnReachedExit();
             exitReachedSound.Play();
             reachedExit = true;
         }
 
         /// <summary>
-        /// Restores the hero to the starting point to try the level again.
+        /// Restores the activeHero to the starting point to try the level again.
         /// </summary>
         public void StartNewLife()
         {
-            Hero.Reset(start);
+            ActiveHero.Reset(start);
         }
 
         #endregion
@@ -524,14 +566,15 @@ namespace Platformer
             
             map.Draw(spriteBatch, new Rectangle((int)Camera.Position.X, (int)Camera.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), Camera.Position);
 
+            //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
 
+            //draw each consumable in the consumables array
             foreach (Consumable consumable in consumables)
                 consumable.Draw(gameTime, spriteBatch);
-            
-            Hero.Draw(gameTime, spriteBatch);
-
+            //draw the active hero
+            ActiveHero.Draw(gameTime, spriteBatch);
             spriteBatch.End();
 
         }//end Draw method
