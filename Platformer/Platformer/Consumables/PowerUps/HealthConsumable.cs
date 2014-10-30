@@ -26,10 +26,10 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Called when this item has been collected by a player and removed from the level.
+        /// Called when this item has been collected by a hero and removed from the level.
         /// </summary>
         /// <param name="collectedBy">
-        /// The player who collected this item. He increases his health by the set amount
+        /// The hero who collected this item. He increases his health by the set amount
         /// </param>
         override public void OnCollected(Hero collectedBy)
         {

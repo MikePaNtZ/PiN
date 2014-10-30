@@ -155,7 +155,7 @@ namespace Platformer
             IsHit = true;
             if (hitBy != null)
             {
-                UpdateHealth(-25);
+                UpdateHealth(-10);
                 hurtSound.Play();
             }
             else
@@ -164,12 +164,26 @@ namespace Platformer
                 hurtSound.Play();
             }
             sprite.LoadAnimation(flinchAnimation);
-
             if (Health <= 0)
                 OnKilled(hitBy);
             else
                 StartInvincibilityFrames();
         }
+
+        //public void OnInjured()
+        //{
+        //    IsHit = true;
+
+        //    health -= 10;
+
+        //    if (health <= 0)
+        //    {
+        //        killedSound.Play();
+        //        sprite.LoadAnimation(dieAnimation);
+        //        IsAlive = false;
+        //    }
+        //}
+
 
         /// <summary>
         /// After being hit let the player get some breathing room

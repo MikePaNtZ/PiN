@@ -40,6 +40,7 @@ namespace Platformer
         public Vector2 Position
         {
             get { return position; }
+            set { position = value; }
         }
         Vector2 position;
 
