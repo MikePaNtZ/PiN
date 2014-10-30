@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
- 
+
 namespace Platformer
 {
     class PhysicsEngine
     {
- 
+
         public PhysicsEngine(GameCharacter gameChar)
         {
             character = gameChar;
@@ -113,7 +113,7 @@ namespace Platformer
             wasJumping = character.IsJumping;
             return velocityY;
         }
- 
+
         /// <summary>
         /// Detects and resolves all collisions between the player and his neighboring
         /// tiles. When a collision is detected, the player is pushed away along one
@@ -128,8 +128,6 @@ namespace Platformer
             int rightTile = (int)Math.Ceiling(((float)bounds.Right / character.Level.TileWidth)) - 1;
             int topTile = (int)Math.Floor((float)bounds.Top / character.Level.TileHeight);
             int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / character.Level.TileHeight)) - 1;
-
-            System.Diagnostics.Debug.WriteLine("Bounds: " + bounds);
 
             // Reset flag to search for ground collision.
             character.IsOnGround = false;
@@ -153,7 +151,7 @@ namespace Platformer
                             float absDepthY = Math.Abs(depth.Y);
 
                             // Resolve the collision along the shallow axis.
-                            if (absDepthY < absDepthX || collision == TileCollision.Platform || character.Velocity.Y > 500 && character.Velocity.X == 0)
+                            if (absDepthY < absDepthX || collision == TileCollision.Platform)
                             {
                                 // If we crossed the top of a tile, we are on the ground.
                                 if (previousBottom <= tileBounds.Top)
@@ -183,7 +181,7 @@ namespace Platformer
             }
             // Save the new bounds bottom.
             previousBottom = bounds.Bottom;
-        }       
+        }
 
         // Constants for controling horizontal movement. Can be overriden
         protected const float MoveAcceleration = 13000.0f;
