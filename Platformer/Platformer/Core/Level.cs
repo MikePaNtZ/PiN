@@ -30,9 +30,9 @@ namespace Platformer
     class Level : IDisposable
     {
         //possible health bar
-        private Texture2D healthBar;
-        private Vector2 healthBarLoc;
-        private Texture2D healthTexture;
+        //private Texture2D healthBar;
+        //private Vector2 healthBarLoc;
+        //private Texture2D healthTexture;
 
 
         // Physical structure of the level.
@@ -125,9 +125,9 @@ namespace Platformer
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
             //possible health bar
-            healthBar = Content.Load<Texture2D>("Sprites/Player/healthbar");
-            healthTexture = Content.Load<Texture2D>("Sprites/Player/health");
-            healthBarLoc = new Vector2(Width * TileWidth - 205, 5);//location for the health bar
+            //healthBar = Content.Load<Texture2D>("Sprites/Player/healthbar");
+            //healthTexture = Content.Load<Texture2D>("Sprites/Player/health");
+            //healthBarLoc = new Vector2(Width * TileWidth - 205, 5);//location for the health bar
         }
 
         /// <summary>
@@ -163,37 +163,42 @@ namespace Platformer
 
         }
 
-        public void SwapHeroes(Hero activeHero)
-        {
-            KeyboardState keyboard = new KeyboardState();
 
-            if (keyboard.IsKeyDown(Keys.R))
-            {
-                //activeHero = Hero[0];
-                //activeHero = new HeroStrength(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-                HeroStrength Kaeden = new HeroStrength(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-                Hero[0] = (HeroStrength)Kaeden;
-                activeHero = Hero[0];
-            }
-            else if (keyboard.IsKeyDown(Keys.F))
-            {
-                //activeHero = Hero[1];
-                //activeHero = new HeroSpeed(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-                HeroSpeed Sammie = new HeroSpeed(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-                Hero[1] = (HeroSpeed)Sammie;
-                activeHero = Hero[1];
-            }
-            else if (keyboard.IsKeyDown(Keys.C))
-            {
-                //activeHero = Hero[2];
-                //activeHero = new HeroFlight(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
-                HeroFlight Aidan = new HeroFlight(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
-                Hero[2] = (HeroFlight)Aidan;
-                activeHero = Hero[2];
-            }
-            else
-                activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
-        }//SwapHeroes method
+        /****************************************************BAD SWAP HERO CODE*****************************************************/
+
+        //public void SwapHeroes(Hero activeHero)
+        //{
+        //    KeyboardState keyboard = new KeyboardState();
+
+        //    if (keyboard.IsKeyDown(Keys.R))
+        //    {
+        //        //activeHero = Hero[0];
+        //        //activeHero = new HeroStrength(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
+        //        HeroStrength Kaeden = new HeroStrength(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
+        //        Hero[0] = (HeroStrength)Kaeden;
+        //        activeHero = Hero[0];
+        //    }
+        //    else if (keyboard.IsKeyDown(Keys.F))
+        //    {
+        //        //activeHero = Hero[1];
+        //        //activeHero = new HeroSpeed(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
+        //        HeroSpeed Sammie = new HeroSpeed(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
+        //        Hero[1] = (HeroSpeed)Sammie;
+        //        activeHero = Hero[1];
+        //    }
+        //    else if (keyboard.IsKeyDown(Keys.C))
+        //    {
+        //        //activeHero = Hero[2];
+        //        //activeHero = new HeroFlight(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
+        //        HeroFlight Aidan = new HeroFlight(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
+        //        Hero[2] = (HeroFlight)Aidan;
+        //        activeHero = Hero[2];
+        //    }
+        //    else
+        //        activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
+        //}//SwapHeroes method
+
+        /****************************************************************DOESN'T WORK****************************************************/
 
         /// <summary>
         /// Remembers the location of the level's exit.
@@ -425,7 +430,7 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-                SwapHeroes(activeHero);
+                //SwapHeroes(activeHero);
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
@@ -621,8 +626,6 @@ namespace Platformer
             //spriteBatch.Draw(healthTexture, new Rectangle((int)healthBarLoc.X + 1, (int)healthBarLoc.Y + 1, ActiveHero.Health * 2 - 2, 30), Color.White);
             /*************************************************END HEALTH BAR CODE**********************************************/
             spriteBatch.End();
-
-            
 
         }//end Draw method
 
