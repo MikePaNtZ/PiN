@@ -76,7 +76,7 @@ namespace Platformer
         }
 
         /// <summary>
-        /// Constructors a new animation.
+        /// Constructs a new animation.
         /// </summary>        
         public Animation(Texture2D texture, float frameTime, bool isLooping)
         {

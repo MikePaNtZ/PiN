@@ -1,23 +1,16 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
+using System.Text;
 
-
-namespace Platformer.Characters.Heroes
+namespace Platformer
 {
-    /// <summary>
-    /// This is a game component that implements IUpdateable.
-    /// </summary>
-    class HeroFlight : Hero
+    class HeroFlight: Hero
     {
-        public HeroFlight(Level level, Vector2 initialPosition, Texture2D defaultTexture)
+              public HeroFlight(Level level, Vector2 initialPosition, Texture2D defaultTexture)
             : base(level, initialPosition, defaultTexture)
         {
             LoadContent();
@@ -58,6 +51,18 @@ namespace Platformer.Characters.Heroes
             // Load character's default weapon
             weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Arm_Gun"), this);
 
+        }
+
+
+        public override void Update(GameTime gameTime, InputHandler gameInputs)
+        {
+            base.Update(gameTime, gameInputs);
+
+        }//end Update method
+
+        protected override void determineAnimation(GameTime gameTime)
+        {
+            base.determineAnimation(gameTime);
         }
     }
 }
