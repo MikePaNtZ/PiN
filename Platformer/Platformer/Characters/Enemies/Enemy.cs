@@ -72,8 +72,6 @@ namespace Platformer
 
         public bool IsAlive { get; set; }
 
-        
-
         // Animations
         private Animation runAnimation;
         private Animation idleAnimation;
@@ -136,8 +134,6 @@ namespace Platformer
 
         private AnimationLoader sprite;
 
-        
-
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
@@ -181,7 +177,6 @@ namespace Platformer
         /// </summary>
         public void OnHit()
         {
-
             health -= 1.0f;
             enemyHurtSound.Play();
             if (health <= 0)
@@ -368,7 +363,7 @@ namespace Platformer
         /// </summary>
         private Vector2 getLineOfSight()
         {
-            return level.Hero.Position - position;
+            return level.ActiveHero.Position - position;
         }
 
         /// <summary>
@@ -385,7 +380,7 @@ namespace Platformer
             //if player is not alive or if player hasn't reached the exit, or if the time
             //remaining is 0, or if waiting time is greater than 0
             //then the idle animation for the enemies is playing
-            else if (!Level.Hero.IsAlive ||
+            else if (!Level.ActiveHero.IsAlive ||
                       Level.ReachedExit ||
                       Level.TimeRemaining == TimeSpan.Zero ||
                       waitTime > 0)

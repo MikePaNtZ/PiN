@@ -11,7 +11,6 @@ namespace Platformer
 
     class Gun : Weapon
     {
-        private GameObject gunObj;
         private GameObject crosshair;
         private GameObject[] bullets;
         private int MAX_BULLETS = 12;
@@ -28,7 +27,7 @@ namespace Platformer
         /// <summary>
         /// Loads the weapon.
         /// </summary>
-        protected virtual void LoadContent()
+        protected override void LoadContent()
         {
             // set the default weapon to a gun.
             theWeapon = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));

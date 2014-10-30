@@ -142,10 +142,10 @@ namespace Platformer
             bool continuePressed = gameInputHandler.KeyboardState.IsKeyDown(Keys.Space);
 
             // Perform the appropriate action to advance the game and
-            // to get the hero back to playing.
+            // to get the activeHero back to playing.
             if (!wasContinuePressed && continuePressed)
             {
-                if (!level.Hero.IsAlive)
+                if (!level.ActiveHero.IsAlive)
                 {
                     level.StartNewLife();
                 }
@@ -172,7 +172,7 @@ namespace Platformer
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2;
+            levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(Services,maps[levelIndex],cam);
         }
 
@@ -206,7 +206,7 @@ namespace Platformer
                                          titleSafeArea.Y + titleSafeArea.Height / 2.0f);
 
             // Draw time remaining. Uses modulo division to cause blinking when the
-            // hero is running out of time.
+            // activeHero is running out of time.
             string timeString = "TIME: " + level.TimeRemaining.Minutes.ToString("00") + ":" + level.TimeRemaining.Seconds.ToString("00");
             Color timeColor;
             if (level.TimeRemaining > WarningTime ||
@@ -222,10 +222,10 @@ namespace Platformer
             DrawShadowedString(hudFont, timeString, hudLocation, timeColor);
 
             // Draw health
-            if (level.Hero!=null)
+            if (level.ActiveHero!=null)
             {
                 float timeHeight = hudFont.MeasureString(timeString).Y;
-                DrawShadowedString(hudFont, "HEALTH: " + level.Hero.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+                DrawShadowedString(hudFont, "HEALTH: " + level.ActiveHero.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
             }
            
             // Determine the status overlay message to show.
@@ -242,7 +242,7 @@ namespace Platformer
                     status = loseOverlay;
                 }
             }
-            else if (!level.Hero.IsAlive)
+            else if (!level.ActiveHero.IsAlive)
             {
                 status = diedOverlay;
             }
