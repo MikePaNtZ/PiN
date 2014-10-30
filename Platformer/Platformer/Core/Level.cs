@@ -401,7 +401,12 @@ namespace Platformer
         /// </summary>
         public void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            SwapHeroes(activeHero);
+
+            /******************************************SWAPHEROES CALL*********************************/
+            //SwapHeroes(activeHero);
+            /********************************************END SWAPHEROES*********************************/
+
+
             // Pause while the activeHero is dead or time is expired.
             if (!ActiveHero.IsAlive || TimeRemaining == TimeSpan.Zero)
             {
@@ -607,10 +612,17 @@ namespace Platformer
                 consumable.Draw(gameTime, spriteBatch);
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
+
+
+            /*********************************************WHERE HEALTH BAR SHOULD BE DRAWN**************************************/
+
             //draw health bar
-            spriteBatch.Draw(healthBar, healthBarLoc, Color.White);
-            spriteBatch.Draw(healthTexture, new Rectangle((int)healthBarLoc.X + 1, (int)healthBarLoc.Y + 1, ActiveHero.Health * 2 - 2, 30), Color.White);
+            //spriteBatch.Draw(healthBar, healthBarLoc, Color.White);
+            //spriteBatch.Draw(healthTexture, new Rectangle((int)healthBarLoc.X + 1, (int)healthBarLoc.Y + 1, ActiveHero.Health * 2 - 2, 30), Color.White);
+            /*************************************************END HEALTH BAR CODE**********************************************/
             spriteBatch.End();
+
+            
 
         }//end Draw method
 
