@@ -29,7 +29,7 @@ namespace Platformer
         /// </summary>
         public Hero(Level level, Vector2 initialPosition, Texture2D defaultTexture): base(level, initialPosition, defaultTexture)
         {
-            LoadContent();
+            //LoadContent();
             Reset(initialPosition);
         }
 
