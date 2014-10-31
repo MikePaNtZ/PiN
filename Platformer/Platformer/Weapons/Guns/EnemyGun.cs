@@ -57,7 +57,28 @@ namespace Platformer
         protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
         {
             Hero theTarget = weaponWielder.Level.ActiveHero;
-            if (bulletRect.Intersects(theTarget.BoundingRectangle) && theTarget.IsAlive)
+            if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsPoweredUp)
+            {
+                //bullet is deflected
+                bullet.Velocity = -bullet.Velocity;
+               if (bulletRect.Intersects(weaponWielder.BoundingRectangle))
+                {
+                    weaponWielder.UpdateHealth(-10);
+                    bullet.IsAlive = false;
+                }
+            }
+
+            else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsBlocking)
+            {
+                //hero doesn't take damage when blocking with shield
+                bullet.Velocity = -bullet.Velocity;
+                if (bulletRect.Intersects(weaponWielder.BoundingRectangle))
+                {
+                    weaponWielder.UpdateHealth(-5);
+                    bullet.IsAlive = false;
+                }
+            }
+            else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive)
             {
                 theTarget.OnHit(weaponWielder);
                 bullet.IsAlive = false;
