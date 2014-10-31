@@ -10,6 +10,17 @@ namespace Platformer
 {
     class GameObject
     {
+        /// TODO Tom is right about the base class taking a texture to its constructor.
+        ///      We need to fix this up. Providing multiple constructors is a hack work around
+        ///      that should be temporary.
+        public GameObject()
+        {
+            rotation = 0.0f;
+            position = Vector2.Zero;
+            velocity = Vector2.Zero;
+            texture = null;
+            alive = false;
+        }
  
         public GameObject(Texture2D loadedTexture)
         {

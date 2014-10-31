@@ -38,6 +38,11 @@ namespace Platformer
         {
             // Load the activeHero's default weapon
             base.LoadContent();
+            shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/ShieldPart1"), 0.1f, true);
+            shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Shield"), 0.1f, true); //load image for the shield
+            jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
+            celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
+            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false); //placeholder
             weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
         }
 
@@ -89,22 +94,10 @@ namespace Platformer
         /// </summary>
         public virtual void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            base.Update(gameTime, gameInputs);
+
             // Handle inputs
             GetInput(gameInputs);
-
-            // apply physics to the character.
-            physEngine.ApplyPhysics(gameTime);
-
-            // determine the animation to use based on player action.
-            determineAnimation(gameTime);
-
-            // Clear inputs.
-            movement = 0.0f;
-            IsJumping = false;
-
-            // Check for power up.
-            if (IsPoweredUp)
-                powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
             
             // Update the player's weapon.
             weapon.UpdateWeaponState(gameInputs);
@@ -150,7 +143,7 @@ namespace Platformer
         /// The enemy who hit the player. This parameter is null if the player was
         /// not hit by an enemy (a hazard).
         /// </param>
-        public void OnHit(Enemy hitBy)
+        public override void OnHit(GameCharacter hitBy)
         {
             IsHit = true;
             if (hitBy != null)

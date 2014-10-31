@@ -26,8 +26,7 @@ namespace Platformer
         /// </summary>
         public MonsterA(Level level, Vector2 position) : base(level, position)
         {
-            MaxHealth = 8.0F;
-            health = MaxHealth;
+            MaxHealth = 8;
             enemyType = "MonsterA";
             LoadContent();
         }
