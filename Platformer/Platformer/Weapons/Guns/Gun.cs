@@ -13,7 +13,7 @@ namespace Platformer
     {
         private GameObject gunObj;
         private GameObject crosshair;
-        private GameObject[] bullets;
+        protected GameObject[] bullets;
         private int MAX_BULLETS = 12;
 
         /// <summary>
@@ -42,10 +42,10 @@ namespace Platformer
             }
         }
 
-        public override void UpdateWeaponState(InputHandler gameInputs)
+        public override void UpdateWeaponState(Vector2 crosshairPosition)
         {
             // Shooting related updates
-            crosshair.Position = gameInputs.MouseInput.Position;
+            crosshair.Position = crosshairPosition;
 
             if (weaponWielder.Flip == SpriteEffects.FlipHorizontally)
                 theWeapon.Position = new Vector2(weaponWielder.Position.X + 5, weaponWielder.Position.Y - 60);
@@ -54,11 +54,12 @@ namespace Platformer
 
             // Updates the state of all bullets
             UpdateBullets();
-            updateShooting(gameInputs);
+            updateShooting();
         }
 
         public override void PerformNormalAttack()
         {
+            weaponWielder.IsAttacking = true;
             FireBullet();
         }
 
@@ -104,7 +105,7 @@ namespace Platformer
         }
 
 
-        private void updateShooting(InputHandler gameInputs)
+        private void updateShooting()
         {
             Vector2 aimDirection = theWeapon.Position - crosshair.Position;
             theWeapon.Rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
@@ -216,18 +217,7 @@ namespace Platformer
                         bullet.Texture.Width * 4,
                         bullet.Texture.Height * 4);
 
-
-                    //Check for collisions with the enemies
-                    foreach (Enemy enemy in weaponWielder.Level.enemies)
-                    {
-                        if (bulletRect.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
-                        {
-                            //We're going to want to put some enemy health reduction code here
-                            //Enemy class needs a health member variable too
-                            enemy.OnHit(weaponWielder);
-                            bullet.IsAlive = false;
-                        }
-                    }
+                    checkBulletCollision(bullet, bulletRect);
 
                     //Everything below here can be deleted if you want
                     //your bullets to shoot through all tiles.
@@ -262,6 +252,12 @@ namespace Platformer
                     }
                 }
             }
+        }
+
+        protected virtual void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
+        {
+            // No implementation in Gun Base class. It's up to derived gun classes 
+            // to implement their own bullet collision.
         }
 
 

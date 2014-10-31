@@ -49,7 +49,7 @@ namespace Platformer
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // Load character's default weapon
-            weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Arm_Gun"), this);
+            weapon = new HeroGun(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Arm_Gun"), this);
 
         }
 

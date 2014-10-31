@@ -29,7 +29,7 @@ namespace Platformer
         /// </summary>
         public Hero(Level level, Vector2 initialPosition, Texture2D defaultTexture): base(level, initialPosition, defaultTexture)
         {
-            LoadContent();
+            //LoadContent();
             Reset(initialPosition);
         }
 
@@ -43,7 +43,7 @@ namespace Platformer
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
             flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false); //placeholder
-            weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
+            weapon = new HeroGun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
         }
 
         /// <summary>
@@ -84,8 +84,6 @@ namespace Platformer
             // Check if the player wants to jump.
             IsJumping = gameInputs.KeyboardState.IsKeyDown(Keys.Space) || gameInputs.KeyboardState.IsKeyDown(Keys.Up) || gameInputs.KeyboardState.IsKeyDown(Keys.W);
 
-            weapon.UpdateWeaponState(gameInputs);
-
             oldMouseState = gameInputs.MouseState;
         }
 
@@ -100,7 +98,8 @@ namespace Platformer
             GetInput(gameInputs);
             
             // Update the player's weapon.
-            weapon.UpdateWeaponState(gameInputs);
+
+            weapon.UpdateWeaponState(gameInputs.MouseInput.Position);
             if (IsAttacking)
                 weapon.PerformNormalAttack();
 
