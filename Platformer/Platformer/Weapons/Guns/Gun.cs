@@ -69,8 +69,7 @@ namespace Platformer
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-
-            //            System.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
+            //ystem.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
             spriteBatch.Draw(
                 crosshair.Texture,
                 crosshair.Position,
@@ -225,7 +224,7 @@ namespace Platformer
                         {
                             //We're going to want to put some enemy health reduction code here
                             //Enemy class needs a health member variable too
-                            enemy.OnHit();
+                            enemy.OnHit(weaponWielder);
                             bullet.IsAlive = false;
                         }
                     }

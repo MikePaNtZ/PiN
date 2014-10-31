@@ -409,7 +409,7 @@ namespace Platformer
                     OnHeroKilled(null);
                 }
 
-                UpdateEnemies(gameTime);
+                UpdateEnemies(gameTime, gameInputs);
                    
 
                 // The activeHero has reached the exit if they are standing on the ground and
@@ -451,11 +451,11 @@ namespace Platformer
         /// <summary>
         /// Animates each enemy and allow them to kill the activeHero.
         /// </summary>
-        private void UpdateEnemies(GameTime gameTime)
+        private void UpdateEnemies(GameTime gameTime, InputHandler gameInputs)
         {
             foreach (Enemy enemy in enemies)
             {
-                enemy.Update(gameTime);
+                enemy.Update(gameTime, gameInputs);
                 // Touching an enemy decreases health of the activeHero
 
                 if (enemy.IsAlive & enemy.BoundingRectangle.Intersects(ActiveHero.BoundingRectangle))
@@ -536,7 +536,7 @@ namespace Platformer
 
         private void OnEnemyKilled(Enemy enemy, Hero killedBy)
         {
-            enemy.OnKilled();
+            enemy.OnKilled(killedBy);
         }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace Platformer
         /// The enemy who hit the activeHero. This is null if the activeHero was not hit by an
         /// enemy, such as when a activeHero hits or is hit by a hazard.
         /// </param>
-        private void OnHeroHit(Enemy hitBy)
+        private void OnHeroHit(GameCharacter hitBy)
         {
             ActiveHero.OnHit(hitBy);
         }

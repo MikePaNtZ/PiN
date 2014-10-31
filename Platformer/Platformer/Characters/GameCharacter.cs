@@ -18,6 +18,21 @@ namespace Platformer
     {
 
         /// <summary>
+        /// Game character constructor without a base texture
+        /// TODO Tom is right about the base class taking a texture to its constructor.
+        ///      We need to fix this up. Providing multiple constructors is a hack work around
+        ///      that should be temporary.
+        /// </summary>
+        public GameCharacter(Level level, Vector2 initialPosition) : base()
+        {
+            Position = initialPosition;
+            this.level = level;
+            // construct the physics engine.
+            this.physEngine = new PhysicsEngine(this);
+            Reset(initialPosition);
+        }
+
+        /// <summary>
         /// Game character constructor
         /// </summary>
         public GameCharacter(Level level, Vector2 initialPosition, Texture2D loadedTexture) : base(loadedTexture)
@@ -26,7 +41,6 @@ namespace Platformer
             this.level = level;
             // construct the physics engine.
             this.physEngine = new PhysicsEngine(this);
-            LoadContent();
             Reset(initialPosition);
         }
 
@@ -138,13 +152,9 @@ namespace Platformer
         {
             // Load animated textures.
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Idle"), 0.1f, true);
-            shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/ShieldPart1"), 0.1f, true);
-            shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Shield"), 0.1f, true); //load image for the shield
             runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Run"), 0.1f, true);
-            jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Jump"), 0.1f, false);
-            celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Die"), 0.1f, false);
-            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Celebrate"), 0.1f, false); //placeholder
+
 
             // Calculate bounds within texture size.            
             // TODO It needs to be more clear what this is doing, and why it is done here. It is for collision detection.
@@ -188,19 +198,44 @@ namespace Platformer
         /// once per frame. We also pass the game's orientation because when using the accelerometer,
         /// we need to reverse our motion when the orientation is in the LandscapeRight orientation.
         /// </remarks>
-        protected override void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime, InputHandler gameInputs)
         {
             physEngine.ApplyPhysics(gameTime);
 
+            // determine the animation to use based on player action.
             determineAnimation(gameTime);
 
-            // Clear input.
+            // Clear inputs.
             movement = 0.0f;
-            isJumping = false;
+            IsJumping = false;
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
         }//end Update method
+
+
+        /// <summary>
+        /// Called when the game character has been hit.
+        /// </summary>
+        public virtual void OnHit(GameCharacter hitBy)
+        {
+            IsHit = true;
+            if (hitBy != null)
+            {
+                UpdateHealth(-25);
+                hurtSound.Play();
+            }
+            else
+            {
+                UpdateHealth(-5);
+                hurtSound.Play();
+            }
+
+            if (Health <= 0)
+                OnKilled(hitBy);
+
+        }
+        
 
         /*Your health is updated */
         public void UpdateHealth(int changeInHealth)
@@ -217,7 +252,7 @@ namespace Platformer
         /// The enemy who killed the player. This parameter is null if the player was
         /// not killed by an enemy (fell into a hole).
         /// </param>
-        public void OnKilled(Enemy killedBy)
+        public virtual void OnKilled(GameCharacter killedBy)
         {
             IsAlive = false;
 
@@ -269,8 +304,6 @@ namespace Platformer
             else if (Velocity.X < 0)
                 Flip = SpriteEffects.None;
 
-            // Calculate a tint color based on power up state.
-            Color color;
             if (IsPoweredUp)
             {
                 float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
@@ -326,6 +359,9 @@ namespace Platformer
         protected float movement = 0.0f;
         // Character health
         protected int health;
+
+        // tint color drawn on top of game character.
+        protected Color color;
 
         private SpriteEffects flip = SpriteEffects.None;
         // Character's weapon
