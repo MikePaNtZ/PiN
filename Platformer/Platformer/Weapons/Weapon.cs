@@ -33,7 +33,7 @@ namespace Platformer
             theWeapon = null;
         }
 
-        public virtual void UpdateWeaponState(InputHandler gameInputs)
+        public virtual void UpdateWeaponState(Vector2 attackTarget)
         {
             // base weapon class has no implementation for this. implement in a derived class
         }

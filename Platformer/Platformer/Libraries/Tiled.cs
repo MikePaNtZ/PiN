@@ -307,7 +307,6 @@ namespace Squared.Tiled {
                                             }
                                         }
                                     }
-                    Console.WriteLine("It made it!");
                                 } break;
                             case "properties":
                                 {

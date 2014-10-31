@@ -49,7 +49,7 @@ namespace Platformer
             set { this.rotation = value; }
         }
 
-        public Vector2 Center
+        public virtual Vector2 Center
         {
             get { return center; }
             set { this.center = value; }

@@ -65,7 +65,7 @@ namespace Platformer
             // Temporary hurt sound. We probably want to use something different in the future.
             hurtSound = killedSound;
             // Load enemy default weapon
-            weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
+            weapon = new EnemyGun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
         }
 
 
@@ -76,20 +76,39 @@ namespace Platformer
         /// </summary>
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            // is this a necessary/smart call? If called we could get some re-use
-            // out of the physics/collision engine code, but we need to refactor
-            // determineAnimation
-            // base.Update(GameTime gameTime, InputHandler gameInputs)
             if (!IsAlive)
                 return;
             // update enemy AI with the line of sight to the player.
             UpdateAI(gameTime); 
+
+            weapon.UpdateWeaponState(Level.ActiveHero.Center);
+            if (IsAttacking && !alreadyAttacking)
+            {
+                weapon.PerformNormalAttack();
+                alreadyAttacking = true;
+                attackWaitTime = MaxAttackWaitTime;
+            }else if (alreadyAttacking)
+            {
+                attackWaitTime = Math.Max(0.0f, attackWaitTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+                if (attackWaitTime <= 0.0f)
+                {
+                    alreadyAttacking = false;
+                }
+            }
+            
+
+
+            // is this a necessary/smart call? If called we could get some re-use
+            // out of the physics/collision engine code, but we need to refactor
+            // determineAnimation
+            //base.Update(gameTime, gameInputs);
         }
 
         protected virtual void UpdateAI(GameTime gameTime)
         {
             // Updates the enemy AI state machine
             UpdateState(gameTime); //changes the state if need be
+
             //These different methods define the enemy's actions for this frame
             switch (state)
             {
@@ -183,8 +202,8 @@ namespace Platformer
                 else
                 {
                     // Move in the current direction.
-                    Vector2 velocity = new Vector2((int)direction * MoveSpeed * elapsed, 0.0f);
-                    Position = Position + velocity;
+                    Velocity = new Vector2((int)direction * MoveSpeed * elapsed, 0.0f);
+                    Position = Position + Velocity;
                 }
             }
         }
@@ -210,8 +229,8 @@ namespace Platformer
                     Level.GetCollision(tileX + (int)direction, tileY) != TileCollision.Passable)
             {
                 // Else Move in the current direction.
-                Vector2 velocity = new Vector2((int)direction * MoveSpeed * elapsed, 0.0f);
-                Position = Position + velocity;
+                Velocity = new Vector2((int)direction * MoveSpeed * elapsed, 0.0f);
+                Position = Position + Velocity;
             }
         }
 
@@ -226,8 +245,9 @@ namespace Platformer
                 direction = (FaceDirection)(-(int)direction); //if not turn around
 
             //-------------SHOOTING HERE----------------------- maybe some movement too
+            IsAttacking = true;
 
-            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         }
 
         /// <summary>
@@ -242,8 +262,25 @@ namespace Platformer
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             // move in the current direction.
-            Vector2 velocity = new Vector2((int)direction * MoveSpeed * 2 * elapsed, 0.0f); //twice as fast
-            Position = Position + velocity;
+            Velocity = new Vector2((int)direction * MoveSpeed * 2 * elapsed, 0.0f); //twice as fast
+            Position = Position + Velocity;
+        }
+
+        protected override void determineAnimation(GameTime gameTime)
+        {
+            Vector2 enemyVelocity = Velocity;
+            if (IsAlive && IsOnGround)
+            {
+                if (Math.Abs(Velocity.X) - 0.02f > 0)
+                {
+                    sprite.LoadAnimation(runAnimation);
+                }
+                else
+                {
+                    sprite.LoadAnimation(idleAnimation);
+                }
+                
+            }
         }
 
 
@@ -277,6 +314,12 @@ namespace Platformer
             // Draw facing the way the enemy is moving.
             SpriteEffects flip = direction > 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             sprite.Draw(gameTime, spriteBatch, Position, flip, color);
+
+            // Shooting related drawing.
+            if (IsAlive)
+            {
+                weapon.Draw(gameTime, spriteBatch);
+            }
         }
 
         /// <summary>
@@ -345,6 +388,16 @@ namespace Platformer
         private FaceDirection direction = FaceDirection.Left;
 
         /// <summary>
+        /// How long to wait between shots
+        /// </summary>
+        private const float MaxAttackWaitTime = 1.0f;
+
+        /// <summary>
+        /// How long this enemy has been waiting to shoot again.
+        /// </summary>
+        private float attackWaitTime;
+
+        /// <summary>
         /// How long this enemy has been waiting before turning around.
         /// </summary>
         private float waitTime;
@@ -353,5 +406,9 @@ namespace Platformer
         /// How long to wait before turning around.
         /// </summary>
         private const float MaxWaitTime = 0.5f;
+        /// <summary>
+        /// The enemy is currently attacking.
+        /// </summary>
+        private bool alreadyAttacking = false;
     }
 }
