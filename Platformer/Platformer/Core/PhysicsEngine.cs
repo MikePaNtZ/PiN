@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
- 
+
 namespace Platformer
 {
     class PhysicsEngine
     {
- 
+
         public PhysicsEngine(GameCharacter gameChar)
         {
             character = gameChar;
@@ -113,7 +113,7 @@ namespace Platformer
             wasJumping = character.IsJumping;
             return velocityY;
         }
- 
+
         /// <summary>
         /// Detects and resolves all collisions between the player and his neighboring
         /// tiles. When a collision is detected, the player is pushed away along one
@@ -181,7 +181,7 @@ namespace Platformer
             }
             // Save the new bounds bottom.
             previousBottom = bounds.Bottom;
-        }       
+        }
 
         // Constants for controling horizontal movement. Can be overriden
         protected const float MoveAcceleration = 13000.0f;

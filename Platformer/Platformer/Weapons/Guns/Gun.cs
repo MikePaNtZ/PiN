@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
- 
+
 namespace Platformer
 {
 
     class Gun : Weapon
     {
+        private GameObject gunObj;
         private GameObject crosshair;
         protected GameObject[] bullets;
         private int MAX_BULLETS = 12;
@@ -18,7 +19,8 @@ namespace Platformer
         /// <summary>
         /// Gun constructor
         /// </summary>
-        public Gun(Texture2D loadedTexture, GameCharacter theShooter) : base(loadedTexture, theShooter)
+        public Gun(Texture2D loadedTexture, GameCharacter theShooter)
+            : base(loadedTexture, theShooter)
         {
             LoadContent();
 
@@ -68,8 +70,7 @@ namespace Platformer
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-
-//            System.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
+            //ystem.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
             spriteBatch.Draw(
                 crosshair.Texture,
                 crosshair.Position,

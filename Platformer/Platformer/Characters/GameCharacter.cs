@@ -120,11 +120,13 @@ namespace Platformer
             set { this.isBlocking = value; }
         }
 
-        public bool IsSwapping
-        {
-            get { return isSwapping; }
-            set { this.isSwapping = value; }
-        }
+      
+
+        //public bool IsSwapping
+        //{
+        //    get { return isSwapping; }
+        //    set { this.isSwapping = value; }
+        //}
 
         public bool IsJumping
         {
@@ -381,7 +383,7 @@ namespace Platformer
         private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
         // Jumping state
         private bool isJumping;
-        private bool isSwapping;
+        //private bool isSwapping;
         private bool isAttacking;
         private bool isBlocking; //is player using his force field shield
         // Power up colors

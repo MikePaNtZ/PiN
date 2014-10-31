@@ -29,28 +29,29 @@ namespace Platformer
     /// </summary>
     class Level : IDisposable
     {
+        //possible health bar
+        //private Texture2D healthBar;
+        //private Vector2 healthBarLoc;
+        //private Texture2D healthTexture;
+
+
         // Physical structure of the level.
         private Map map;
 
         // reordered list of tilesets. ordered by first tile id
         private Dictionary<string, Tileset> tilesets;
-
-        // Entities in the level.
-        //public Hero ActiveHero
-        //{
-        //    get { return activeHero; }
-        //    //set { ActiveHero = activeHero; }
-        //}
-        private Hero activeHero;
+        
+        //The active hero
+        // This is the hero that gets drawn and is updated
         public Hero ActiveHero
         {
             get { return activeHero; }
             set { this.activeHero = value; }
         }
-
+        private Hero activeHero;
 
         // list to store the three different types of heroes
-        private Hero[] Hero = new Hero[3];
+        private Hero[] Heroes = new Hero[3];
 
         //list to store all health and invincibility consumables
         private List<Consumable> consumables = new List<Consumable>();
@@ -104,18 +105,24 @@ namespace Platformer
         /// </param>
         public Level(IServiceProvider serviceProvider, Map currentMap, Camera camera)
         {
+
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-            timeRemaining = TimeSpan.FromMinutes(6.0); //changed the time limit to 6 minutes for longer level testing
-
+            timeRemaining = TimeSpan.FromMinutes(10.0); //changed the time limit to 6 minutes for longer level testing
+            
             map = currentMap;
-
+            
             LoadMap();
+           
             cam = camera;
             cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
 
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
+            //possible health bar
+            //healthBar = Content.Load<Texture2D>("Sprites/Player/healthbar");
+            //healthTexture = Content.Load<Texture2D>("Sprites/Player/health");
+            //healthBarLoc = new Vector2(Width * TileWidth - 205, 5);//location for the health bar
         }
 
         /// <summary>
@@ -147,41 +154,16 @@ namespace Platformer
             //where the player starts in the Tiled map editor map
             start = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x,y));
 
-            activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
+            Heroes[0] = new HeroStrength(this, new Vector2(-1,-1), this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
+            Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
+            Heroes[2] = new HeroFlight(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
 
+            activeHero = (Hero)Heroes[1];
+            activeHero.Position = start;
         }
 
-        public void SwapHeroes(Hero activeHero)
-        {
-            KeyboardState keyboard = new KeyboardState();
 
-            if (keyboard.IsKeyDown(Keys.R))
-            {
-                //activeHero = Hero[0];
-                //activeHero = new HeroStrength(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-                HeroStrength Kaeden = new HeroStrength(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-                Hero[0] = (HeroStrength)Kaeden;
-                activeHero = Hero[0];
-            }
-            else if (keyboard.IsKeyDown(Keys.F))
-            {
-                //activeHero = Hero[1];
-                //activeHero = new HeroSpeed(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-                HeroSpeed Sammie = new HeroSpeed(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-                Hero[1] = (HeroSpeed)Sammie;
-                activeHero = Hero[1];
-            }
-            else if (keyboard.IsKeyDown(Keys.C))
-            {
-                //activeHero = Hero[2];
-                //activeHero = new HeroFlight(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
-                HeroFlight Aidan = new HeroFlight(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
-                Hero[2] = (HeroFlight)Aidan;
-                activeHero = Hero[2];
-            }
-            else
-                activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
-        }//SwapHeroes method
+        
 
         /// <summary>
         /// Remembers the location of the level's exit.
@@ -266,7 +248,6 @@ namespace Platformer
                 return TileCollision.Impassable;
             // Allow jumping past the level top and falling through the bottom.
             if (y < 0 || y >= Height)
- 
                 return TileCollision.Passable;
 
             //get the id of tile
@@ -302,7 +283,9 @@ namespace Platformer
             }
 
             // changed this to Impassable so that the character won't fall through a tile if its TilCollision property was not set
-            return TileCollision.Impassable; //ideally shouldn't actually get to here
+            //better if its Passable so player can't get stuck, and we'll know something is wrong 
+            //because we're falling through tiles that we shouldn't be falling through
+            return TileCollision.Passable; //ideally shouldn't actually get to here
         }
 
         /// <summary>
@@ -389,7 +372,13 @@ namespace Platformer
         /// </summary>
         public void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            SwapHeroes(activeHero);
+
+            //switching characters in the air screws up the physics sometimes
+            //This is a work around, but I would like to fixthe bug
+            if (activeHero.IsOnGround)
+                SwapHeroes(gameInputs);
+
+
             // Pause while the activeHero is dead or time is expired.
             if (!ActiveHero.IsAlive || TimeRemaining == TimeSpan.Zero)
             {
@@ -408,7 +397,6 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-                SwapHeroes(activeHero);
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
@@ -478,7 +466,31 @@ namespace Platformer
                     }
                     else if (ActiveHero.IsBlocking)
                     {
-                        OnEnemyKilled(enemy, ActiveHero);
+                        //OnEnemyKilled(enemy, ActiveHero);
+                        if (ActiveHero.Position.X == enemy.Position.X)
+                        {
+                            enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
+                            ActiveHero.UpdateHealth(8);
+                            //really just to offset the tight bounding box of player
+                            //player shouldn't be losing health when using shield
+                            //now player just loses some health when using shield against enemy
+                            //this implies the shield helped reduce some of the damage from the enemy
+                        }
+                        else if (ActiveHero.Position.X < enemy.Position.X)
+                        {
+                            enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
+                            ActiveHero.UpdateHealth(8);
+                        }
+                        else if (ActiveHero.Position.X > enemy.Position.X)
+                        {
+                            enemy.Position = new Vector2(enemy.Position.X - 100, enemy.Position.Y);
+                            ActiveHero.UpdateHealth(8);
+                        }
+                        else
+                        {
+                            enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
+                            ActiveHero.UpdateHealth(8);
+                        }
                     }
                     else if (!ActiveHero.IsHit)
                     {
@@ -487,6 +499,40 @@ namespace Platformer
                 }
             }
         }
+
+        /// <summary>
+        /// Handles swapping between the three main characters.
+        /// </summary>
+        /// <param name="gameInputs">The current inputs.</param>
+        public void SwapHeroes(InputHandler gameInputs)
+        {
+            if (gameInputs.KeyboardState.IsKeyDown(Keys.D1))
+            {
+                if (!activeHero.Equals(Heroes[0]) && Heroes[0].IsAlive)
+                {
+                    Heroes[0].SwapIn();
+                    activeHero = (Hero)Heroes[0];
+                }
+                
+            }
+            else if (gameInputs.KeyboardState.IsKeyDown(Keys.D2))
+            {
+                if (!activeHero.Equals(Heroes[1]) && Heroes[1].IsAlive)
+                {
+                    Heroes[1].SwapIn();
+                    activeHero = (Hero)Heroes[1];
+                }
+            }
+            else if (gameInputs.KeyboardState.IsKeyDown(Keys.D3))
+            {
+                if (!activeHero.Equals(Heroes[2]) && Heroes[2].IsAlive)
+                {
+                    Heroes[2].SwapIn();
+                    activeHero = (Hero)Heroes[2];
+                }
+            }
+        }
+
 
         private void OnEnemyKilled(Enemy enemy, Hero killedBy)
         {
@@ -561,7 +607,7 @@ namespace Platformer
                         Camera.GetViewMatrix(Vector2.One));
             
             map.Draw(spriteBatch, new Rectangle((int)Camera.Position.X, (int)Camera.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), Camera.Position);
-
+            
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
                 enemy.Draw(gameTime, spriteBatch);
@@ -571,6 +617,14 @@ namespace Platformer
                 consumable.Draw(gameTime, spriteBatch);
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
+
+
+            /*********************************************WHERE HEALTH BAR SHOULD BE DRAWN**************************************/
+
+            //draw health bar
+            //spriteBatch.Draw(healthBar, healthBarLoc, Color.White);
+            //spriteBatch.Draw(healthTexture, new Rectangle((int)healthBarLoc.X + 1, (int)healthBarLoc.Y + 1, ActiveHero.Health * 2 - 2, 30), Color.White);
+            /*************************************************END HEALTH BAR CODE**********************************************/
             spriteBatch.End();
 
         }//end Draw method

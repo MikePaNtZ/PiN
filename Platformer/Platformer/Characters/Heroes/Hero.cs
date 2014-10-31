@@ -134,6 +134,20 @@ namespace Platformer
             }
         }
 
+        public void SwapIn()
+        {
+            IFrames = Level.ActiveHero.IFrames;
+            Position = Level.ActiveHero.Position;
+            Velocity = Level.ActiveHero.Velocity;
+            IsJumping = Level.ActiveHero.IsJumping;
+            IsOnGround = Level.ActiveHero.IsOnGround;
+            IsBlocking = Level.ActiveHero.IsBlocking;
+            IsAttacking = Level.ActiveHero.IsAttacking;
+            IsHit = Level.ActiveHero.IsHit;
+            //sprite.LoadAnimation(Level.ActiveHero.sprite.Animation);
+            powerUpTime = Level.ActiveHero.powerUpTime;
+        }
+
 
         /// <summary>
         /// Called when the player has been hit.
@@ -147,7 +161,7 @@ namespace Platformer
             IsHit = true;
             if (hitBy != null)
             {
-                UpdateHealth(-25);
+                UpdateHealth(-10);
                 hurtSound.Play();
             }
             else
@@ -156,12 +170,26 @@ namespace Platformer
                 hurtSound.Play();
             }
             sprite.LoadAnimation(flinchAnimation);
-
             if (Health <= 0)
                 OnKilled(hitBy);
             else
                 StartInvincibilityFrames();
         }
+
+        //public void OnInjured()
+        //{
+        //    IsHit = true;
+
+        //    health -= 10;
+
+        //    if (health <= 0)
+        //    {
+        //        killedSound.Play();
+        //        sprite.LoadAnimation(dieAnimation);
+        //        IsAlive = false;
+        //    }
+        //}
+
 
         /// <summary>
         /// After being hit let the player get some breathing room
