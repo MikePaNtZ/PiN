@@ -142,6 +142,20 @@ namespace Platformer
             }
         }
 
+        public void SwapIn()
+        {
+            IFrames = Level.ActiveHero.IFrames;
+            Position = Level.ActiveHero.Position;
+            Velocity = Level.ActiveHero.Velocity;
+            IsJumping = Level.ActiveHero.IsJumping;
+            IsOnGround = Level.ActiveHero.IsOnGround;
+            IsBlocking = Level.ActiveHero.IsBlocking;
+            IsAttacking = Level.ActiveHero.IsAttacking;
+            IsHit = Level.ActiveHero.IsHit;
+            //sprite.LoadAnimation(Level.ActiveHero.sprite.Animation);
+            powerUpTime = Level.ActiveHero.powerUpTime;
+        }
+
 
         /// <summary>
         /// Called when the player has been hit.

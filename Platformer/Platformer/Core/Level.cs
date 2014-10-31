@@ -40,23 +40,18 @@ namespace Platformer
 
         // reordered list of tilesets. ordered by first tile id
         private Dictionary<string, Tileset> tilesets;
-
-        // Entities in the level.
-        //public Hero ActiveHero
-        //{
-        //    get { return activeHero; }
-        //    //set { ActiveHero = activeHero; }
-        //}
-        private Hero activeHero;
+        
+        //The active hero
+        // This is the hero that gets drawn and is updated
         public Hero ActiveHero
         {
             get { return activeHero; }
             set { this.activeHero = value; }
         }
-
+        private Hero activeHero;
 
         // list to store the three different types of heroes
-        private Hero[] Hero = new Hero[3];
+        private Hero[] Heroes = new Hero[3];
 
         //list to store all health and invincibility consumables
         private List<Consumable> consumables = new List<Consumable>();
@@ -159,46 +154,16 @@ namespace Platformer
             //where the player starts in the Tiled map editor map
             start = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x,y));
 
-            activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
+            Heroes[0] = new HeroStrength(this, new Vector2(-1,-1), this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
+            Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
+            Heroes[2] = new HeroFlight(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
 
+            activeHero = (Hero)Heroes[1];
+            activeHero.Position = start;
         }
 
 
-        /****************************************************BAD SWAP HERO CODE*****************************************************/
-
-        //public void SwapHeroes(Hero activeHero)
-        //{
-        //    KeyboardState keyboard = new KeyboardState();
-
-        //    if (keyboard.IsKeyDown(Keys.R))
-        //    {
-        //        //activeHero = Hero[0];
-        //        //activeHero = new HeroStrength(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-        //        HeroStrength Kaeden = new HeroStrength(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-        //        Hero[0] = (HeroStrength)Kaeden;
-        //        activeHero = Hero[0];
-        //    }
-        //    else if (keyboard.IsKeyDown(Keys.F))
-        //    {
-        //        //activeHero = Hero[1];
-        //        //activeHero = new HeroSpeed(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-        //        HeroSpeed Sammie = new HeroSpeed(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-        //        Hero[1] = (HeroSpeed)Sammie;
-        //        activeHero = Hero[1];
-        //    }
-        //    else if (keyboard.IsKeyDown(Keys.C))
-        //    {
-        //        //activeHero = Hero[2];
-        //        //activeHero = new HeroFlight(this, activeHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
-        //        HeroFlight Aidan = new HeroFlight(this, ActiveHero.Position, this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
-        //        Hero[2] = (HeroFlight)Aidan;
-        //        activeHero = Hero[2];
-        //    }
-        //    else
-        //        activeHero = new Hero(this, start, this.Content.Load<Texture2D>("Sprites/Player/Idle"));
-        //}//SwapHeroes method
-
-        /****************************************************************DOESN'T WORK****************************************************/
+        
 
         /// <summary>
         /// Remembers the location of the level's exit.
@@ -283,7 +248,6 @@ namespace Platformer
                 return TileCollision.Impassable;
             // Allow jumping past the level top and falling through the bottom.
             if (y < 0 || y >= Height)
- 
                 return TileCollision.Passable;
 
             //get the id of tile
@@ -319,7 +283,9 @@ namespace Platformer
             }
 
             // changed this to Impassable so that the character won't fall through a tile if its TilCollision property was not set
-            return TileCollision.Impassable; //ideally shouldn't actually get to here
+            //better if its Passable so player can't get stuck, and we'll know something is wrong 
+            //because we're falling through tiles that we shouldn't be falling through
+            return TileCollision.Passable; //ideally shouldn't actually get to here
         }
 
         /// <summary>
@@ -407,9 +373,10 @@ namespace Platformer
         public void Update(GameTime gameTime, InputHandler gameInputs)
         {
 
-            /******************************************SWAPHEROES CALL*********************************/
-            //SwapHeroes(activeHero);
-            /********************************************END SWAPHEROES*********************************/
+            //switching characters in the air screws up the physics sometimes
+            //This is a work around, but I would like to fixthe bug
+            if (activeHero.IsOnGround)
+                SwapHeroes(gameInputs);
 
 
             // Pause while the activeHero is dead or time is expired.
@@ -430,7 +397,6 @@ namespace Platformer
             else
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
-                //SwapHeroes(activeHero);
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
@@ -533,6 +499,40 @@ namespace Platformer
                 }
             }
         }
+
+        /// <summary>
+        /// Handles swapping between the three main characters.
+        /// </summary>
+        /// <param name="gameInputs">The current inputs.</param>
+        public void SwapHeroes(InputHandler gameInputs)
+        {
+            if (gameInputs.KeyboardState.IsKeyDown(Keys.D1))
+            {
+                if (!activeHero.Equals(Heroes[0]) && Heroes[0].IsAlive)
+                {
+                    Heroes[0].SwapIn();
+                    activeHero = (Hero)Heroes[0];
+                }
+                
+            }
+            else if (gameInputs.KeyboardState.IsKeyDown(Keys.D2))
+            {
+                if (!activeHero.Equals(Heroes[1]) && Heroes[1].IsAlive)
+                {
+                    Heroes[1].SwapIn();
+                    activeHero = (Hero)Heroes[1];
+                }
+            }
+            else if (gameInputs.KeyboardState.IsKeyDown(Keys.D3))
+            {
+                if (!activeHero.Equals(Heroes[2]) && Heroes[2].IsAlive)
+                {
+                    Heroes[2].SwapIn();
+                    activeHero = (Hero)Heroes[2];
+                }
+            }
+        }
+
 
         private void OnEnemyKilled(Enemy enemy, Hero killedBy)
         {
