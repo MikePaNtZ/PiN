@@ -59,6 +59,11 @@ namespace Platformer
             get { return sprite; }
         }
 
+        public override Vector2 Center
+        {
+            get { return new Vector2(Position.X + sprite.Animation.Texture.Width/2, Position.Y - sprite.Animation.Texture.Height); }
+        }
+
         /// <summary>
         /// Gets whether or not the character's feet are on the ground.
         /// </summary>
