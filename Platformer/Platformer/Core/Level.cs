@@ -29,12 +29,6 @@ namespace Platformer
     /// </summary>
     class Level : IDisposable
     {
-        //possible health bar
-        //private Texture2D healthBar;
-        //private Vector2 healthBarLoc;
-        //private Texture2D healthTexture;
-
-
         // Physical structure of the level.
         private Map map;
 
@@ -51,7 +45,7 @@ namespace Platformer
         private Hero activeHero;
 
         // list to store the three different types of heroes
-        private Hero[] Heroes = new Hero[3];
+        public Hero[] Heroes = new Hero[3];
 
         //list to store all health and invincibility consumables
         private List<Consumable> consumables = new List<Consumable>();
@@ -119,10 +113,6 @@ namespace Platformer
 
             // Load sounds.
             exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
-            //possible health bar
-            //healthBar = Content.Load<Texture2D>("Sprites/Player/healthbar");
-            //healthTexture = Content.Load<Texture2D>("Sprites/Player/health");
-            //healthBarLoc = new Vector2(Width * TileWidth - 205, 5);//location for the health bar
         }
 
         /// <summary>
@@ -618,13 +608,6 @@ namespace Platformer
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
 
-
-            /*********************************************WHERE HEALTH BAR SHOULD BE DRAWN**************************************/
-
-            //draw health bar
-            //spriteBatch.Draw(healthBar, healthBarLoc, Color.White);
-            //spriteBatch.Draw(healthTexture, new Rectangle((int)healthBarLoc.X + 1, (int)healthBarLoc.Y + 1, ActiveHero.Health * 2 - 2, 30), Color.White);
-            /*************************************************END HEALTH BAR CODE**********************************************/
             spriteBatch.End();
 
         }//end Draw method

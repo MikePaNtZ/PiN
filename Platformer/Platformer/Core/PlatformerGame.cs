@@ -37,6 +37,10 @@ namespace Platformer
         private Texture2D loseOverlay;
         private Texture2D diedOverlay;
 
+        //health bar
+        private Texture2D healthBar;
+        private Texture2D healthTexture;
+
         // Meta-level game state.
         private int levelIndex = -1;
         private Level level;
@@ -90,6 +94,10 @@ namespace Platformer
             winOverlay = Content.Load<Texture2D>("Overlays/you_win");
             loseOverlay = Content.Load<Texture2D>("Overlays/you_lose");
             diedOverlay = Content.Load<Texture2D>("Overlays/you_died");
+
+            //health bar
+            healthBar = Content.Load<Texture2D>("Sprites/Player/healthbar");
+            healthTexture = Content.Load<Texture2D>("Sprites/Player/health");
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
 
@@ -204,6 +212,7 @@ namespace Platformer
             Vector2 hudLocation = new Vector2(titleSafeArea.X, titleSafeArea.Y);
             Vector2 center = new Vector2(titleSafeArea.X + titleSafeArea.Width / 2.0f,
                                          titleSafeArea.Y + titleSafeArea.Height / 2.0f);
+            float hudOpacity = 0.7F;
 
             // Draw time remaining. Uses modulo division to cause blinking when the
             // activeHero is running out of time.
@@ -213,19 +222,48 @@ namespace Platformer
                 level.ReachedExit ||
                 (int)level.TimeRemaining.TotalSeconds % 2 == 0)
             {
-                timeColor = Color.White;
+                timeColor = Color.White * hudOpacity;
             }
             else
             {
-                timeColor = Color.Red;
+                timeColor = Color.Red * hudOpacity;
             }
             DrawShadowedString(hudFont, timeString, hudLocation, timeColor);
 
             // Draw health
-            if (level.ActiveHero!=null)
+            if (level.Heroes != null)
             {
                 float timeHeight = hudFont.MeasureString(timeString).Y;
-                DrawShadowedString(hudFont, "HEALTH: " + level.ActiveHero.Health.ToString(), hudLocation + new Vector2(0.0f, timeHeight * 1.2f), Color.White);
+                
+                //define the health bar positions
+                Vector2 Hero1HealthBarLocation = new Vector2(hudLocation.X, hudLocation.Y + timeHeight * 1.2f);
+                Vector2 Hero2HealthBarLocation = new Vector2(hudLocation.X, hudLocation.Y + Hero1HealthBarLocation.Y + healthBar.Height + 2); //the 2 is the distance between bars
+                Vector2 Hero3HealthBarLocation = new Vector2(hudLocation.X, hudLocation.Y + Hero2HealthBarLocation.Y + healthBar.Height + 2);
+
+                //hero names
+                string Hero1Name = "Kaeden ";
+                string Hero2Name = "Sammie ";
+                string Hero3Name = "Aidan ";
+
+                //drawing hero names
+                DrawShadowedString(hudFont, Hero1Name, Hero1HealthBarLocation, Color.White * hudOpacity);
+                DrawShadowedString(hudFont, Hero2Name, Hero2HealthBarLocation, Color.White * hudOpacity);
+                DrawShadowedString(hudFont, Hero3Name, Hero3HealthBarLocation, Color.White * hudOpacity);
+
+                //updating healthbar locations x so they are next to the names and at an equal x
+                Hero1HealthBarLocation.X = hudFont.MeasureString(Hero1Name).X + Hero1HealthBarLocation.X;
+                Hero2HealthBarLocation.X = Hero1HealthBarLocation.X;
+                Hero3HealthBarLocation.X = Hero1HealthBarLocation.X;
+
+                //draw health bars; The +1s are to compensate for the little offset of the green bar on the background
+                spriteBatch.Draw(healthBar, Hero1HealthBarLocation, Color.White * hudOpacity);
+                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero1HealthBarLocation.X + 1, (int)Hero1HealthBarLocation.Y + 1, level.Heroes[0].Health * 2 - 2, 30), Color.White * hudOpacity);
+
+                spriteBatch.Draw(healthBar, Hero2HealthBarLocation, Color.White * hudOpacity);
+                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero2HealthBarLocation.X + 1, (int)Hero2HealthBarLocation.Y + 1, level.Heroes[1].Health * 2 - 2, 30), Color.White * hudOpacity);
+
+                spriteBatch.Draw(healthBar, Hero3HealthBarLocation, Color.White * hudOpacity);
+                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero3HealthBarLocation.X + 1, (int)Hero3HealthBarLocation.Y + 1, level.Heroes[2].Health * 2 - 2, 30), Color.White * hudOpacity);
             }
            
             // Determine the status overlay message to show.
