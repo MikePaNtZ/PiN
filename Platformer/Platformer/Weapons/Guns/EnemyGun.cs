@@ -52,6 +52,19 @@ namespace Platformer
             }
         }
 
+        protected override void LoadContent()
+        {
+            // set the default weapon to a gun.
+            theWeapon = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
+            crosshair = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
+            // load all bullets
+            bullets = new GameObject[MAX_BULLETS];
+
+            for (int i = 0; i < MAX_BULLETS; i++)
+            {
+                bullets[i] = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet"));
+            }
+        }
 
 
         protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
@@ -72,11 +85,7 @@ namespace Platformer
             {
                 //hero doesn't take damage when blocking with shield
                 bullet.Velocity = -bullet.Velocity;
-                if (bulletRect.Intersects(weaponWielder.BoundingRectangle))
-                {
-                    weaponWielder.UpdateHealth(-5);
-                    bullet.IsAlive = false;
-                }
+                bullet.IsAlive = false;
             }
             else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive)
             {
