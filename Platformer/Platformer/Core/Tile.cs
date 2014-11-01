@@ -42,23 +42,23 @@ namespace Platformer
     /// </summary>
     struct Tile
     {
-        public Texture2D Texture;
         public TileCollision Collision;
-
+        public int x;
+        public int y;
         public int Width;
         public int Height;
-
-        //public static readonly Vector2 Size = new Vector2(Width, Height);
+        
 
         /// <summary>
         /// Constructs a new tile.
         /// </summary>
-        public Tile(Texture2D texture, TileCollision collision, Level level)
+        public Tile(TileCollision collision, int x, int y, int width, int height)
         {
-            Texture = texture;
             Collision = collision;
-            Width = level.TileWidth;
-            Height = level.TileHeight;
+            this.x = x;
+            this.y = y;
+            Width = width;
+            Height = height;
         }
     }
 }
