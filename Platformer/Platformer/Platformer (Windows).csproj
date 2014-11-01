@@ -84,6 +84,7 @@
     <Compile Include="Consumables\ConsumableFactory.cs" />
     <Compile Include="Consumables\PowerUps\HealthConsumable.cs" />
     <Compile Include="Consumables\PowerUps\PowerUp.cs" />
+    <Compile Include="Core\Hud.cs" />
     <Compile Include="Core\Map.cs" />
     <Compile Include="Core\PhysicsEngine.cs" />
     <Compile Include="GameInputs\InputHandler.cs" />
