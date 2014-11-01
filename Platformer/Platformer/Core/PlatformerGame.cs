@@ -15,7 +15,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input.Touch;
-using Squared.Tiled;
 
 
 namespace Platformer
@@ -103,9 +102,9 @@ namespace Platformer
 
             try //This is where the maps are added
             {
-                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\TomLevel.tmx"), Content));
-                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeMLevel.tmx"), Content));
-                maps.Add(Map.Load(Path.Combine(Content.RootDirectory, "Levels\\MikeBLevel.tmx"), Content));
+                maps.Add(new Map(Path.Combine(Content.RootDirectory, "Levels\\TomLevel.tmx"), Content));
+                maps.Add(new Map(Path.Combine(Content.RootDirectory, "Levels\\MikeMLevel.tmx"), Content));
+                maps.Add(new Map(Path.Combine(Content.RootDirectory, "Levels\\MikeBLevel.tmx"), Content));
             }
             catch (FileNotFoundException e)
             {
