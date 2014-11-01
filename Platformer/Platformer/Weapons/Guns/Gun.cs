@@ -11,10 +11,10 @@ namespace Platformer
 
     class Gun : Weapon
     {
-        private GameObject gunObj;
-        private GameObject crosshair;
+        protected GameObject gunObj;
+        protected GameObject crosshair;
         protected GameObject[] bullets;
-        private int MAX_BULLETS = 12;
+        protected int MAX_BULLETS = 12;
 
         /// <summary>
         /// Gun constructor
@@ -36,6 +36,7 @@ namespace Platformer
             crosshair = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
             // load all bullets
             bullets = new GameObject[MAX_BULLETS];
+
             for (int i = 0; i < MAX_BULLETS; i++)
             {
                 bullets[i] = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet"));

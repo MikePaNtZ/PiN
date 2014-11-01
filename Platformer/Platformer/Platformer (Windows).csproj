@@ -103,8 +103,11 @@
     <Compile Include="Libraries\Node.cs" />
     <Compile Include="Libraries\NodeList.cs" />
     <Compile Include="RectangleExtensions.cs" />
-    <Compile Include="Weapons\Guns\EnemyGun.cs" />
+    <Compile Include="Weapons\Guns\HeroFlightGun.cs" />
     <Compile Include="Weapons\Guns\HeroGun.cs" />
+    <Compile Include="Weapons\Guns\EnemyGun.cs" />
+    <Compile Include="Weapons\Guns\HeroSpeedGun.cs" />
+    <Compile Include="Weapons\Guns\HeroStrengthGun.cs" />
     <Compile Include="Weapons\Weapon.cs" />
     <Compile Include="Weapons\Guns\Gun.cs" />
     <Compile Include="Core\GameObject.cs" />

@@ -48,7 +48,7 @@ namespace Platformer
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // Load character's default weapon
-            weapon = new HeroGun(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Arm_Gun"), this);
+            weapon = new HeroSpeedGun(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Arm_Gun"), this);
         }
 
         public override void Update(GameTime gameTime, InputHandler gameInputs)
