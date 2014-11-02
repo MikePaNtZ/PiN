@@ -120,14 +120,6 @@ namespace Platformer
             set { this.isBlocking = value; }
         }
 
-      
-
-        //public bool IsSwapping
-        //{
-        //    get { return isSwapping; }
-        //    set { this.isSwapping = value; }
-        //}
-
         public bool IsJumping
         {
             get { return isJumping; }
@@ -216,6 +208,7 @@ namespace Platformer
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+
         }//end Update method
 
 
@@ -380,18 +373,25 @@ namespace Platformer
         // Local rectangle boundary.
         protected Rectangle localBounds;
         // Powerup state
-        private const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
+        protected const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
         // Jumping state
         private bool isJumping;
         //private bool isSwapping;
         private bool isAttacking;
         private bool isBlocking; //is player using his force field shield
         // Power up colors
-        private readonly Color[] poweredUpColors = {
+        protected readonly Color[] poweredUpColors = {
                                Color.Red,
                                Color.Blue,
                                Color.Orange,
                                Color.Yellow,
+                                               };
+        protected readonly Color[] isHitColors = {
+                               Color.Transparent,
+                               Color.Beige,
+                               Color.Transparent,
+                               Color.Beige,
+                        
                                                };
 
     }
