@@ -125,6 +125,7 @@ namespace Platformer
                 {
                     sprite.LoadAnimation(idleAnimation);
                 }
+
                 
             }
             if (IsAlive && IsHit)
@@ -176,21 +177,6 @@ namespace Platformer
                 StartInvincibilityFrames();
         }
 
-        //public void OnInjured()
-        //{
-        //    IsHit = true;
-
-        //    health -= 10;
-
-        //    if (health <= 0)
-        //    {
-        //        killedSound.Play();
-        //        sprite.LoadAnimation(dieAnimation);
-        //        IsAlive = false;
-        //    }
-        //}
-
-
         /// <summary>
         /// After being hit let the player get some breathing room
         /// </summary>
@@ -224,6 +210,45 @@ namespace Platformer
         {
             sprite.LoadAnimation(celebrateAnimation);
         }
+
+
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            // Flip the resetAfterHit to face the way we are moving.
+            if (Velocity.X > 0)
+                Flip = SpriteEffects.FlipHorizontally;
+            else if (Velocity.X < 0)
+                Flip = SpriteEffects.None;
+            if (IsHit)
+            {
+                float s = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 3.0f;
+                int colorIdx = (int)s % isHitColors.Length;
+                color = isHitColors[colorIdx];
+            }
+            else if (IsPoweredUp)
+            {
+                float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
+                int colorIndex = (int)t % poweredUpColors.Length;
+                color = poweredUpColors[colorIndex];
+
+            }
+            
+
+            else
+            {
+                color = Color.White;
+            }
+
+            // Draw that resetAfterHit.
+            sprite.Draw(gameTime, spriteBatch, Position, Flip, color);
+
+            // Shooting related drawing.
+            if (IsAlive)
+            {
+                weapon.Draw(gameTime, spriteBatch);
+            }
+        }
+
 
         private MouseState oldMouseState;
 
