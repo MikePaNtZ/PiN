@@ -23,6 +23,13 @@ namespace Platformer
 
         private const float MaxIFrames = 1.5F;
         private float IFrames;
+        protected readonly Color[] isHitColors = {
+                               Color.Transparent,
+                               Color.White,
+                               Color.Transparent,
+                               Color.White,
+                        
+                                               };
 
         /// <summary>
         /// Constructs a new player.
@@ -90,7 +97,7 @@ namespace Platformer
         /// <summary>
         /// Handles input, performs physics, and animates the player resetAfterHit.
         /// </summary>
-        public virtual void Update(GameTime gameTime, InputHandler gameInputs)
+        public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
             base.Update(gameTime, gameInputs);
 
@@ -108,6 +115,10 @@ namespace Platformer
         protected override void determineAnimation(GameTime gameTime)
         {
             Vector2 heroVelocity = Velocity;
+            if (!IsOnGround)
+                {
+                    sprite.LoadAnimation(jumpAnimation);
+                }
             if (IsAlive && IsOnGround)
             {
                 if (Math.Abs(Velocity.X) - 0.02f > 0)
@@ -120,6 +131,14 @@ namespace Platformer
                     Velocity = heroVelocity;
                     IsJumping = false;
                     sprite.LoadAnimation(shieldAnimation);
+                }
+                else if (IsHit)
+                {
+                    sprite.LoadAnimation(flinchAnimation);
+                }
+                else if (!IsOnGround)
+                {
+                    sprite.LoadAnimation(jumpAnimation);
                 }
                 else
                 {
@@ -170,7 +189,7 @@ namespace Platformer
                 UpdateHealth(-5);
                 hurtSound.Play();
             }
-            sprite.LoadAnimation(flinchAnimation);
+            
             if (Health <= 0)
                 OnKilled(hitBy);
             else
@@ -221,7 +240,7 @@ namespace Platformer
                 Flip = SpriteEffects.None;
             if (IsHit)
             {
-                float s = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 3.0f;
+                float s = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 100.0f;
                 int colorIdx = (int)s % isHitColors.Length;
                 color = isHitColors[colorIdx];
             }
