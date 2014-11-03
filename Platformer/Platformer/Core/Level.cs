@@ -18,7 +18,6 @@ using Microsoft.Xna.Framework.Audio;
 using System.IO;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Input;
-using Squared.Tiled;
 
 namespace Platformer
 {
@@ -31,9 +30,6 @@ namespace Platformer
     {
         // Physical structure of the level.
         private Map map;
-
-        // reordered list of tilesets. ordered by first tile id
-        private Dictionary<string, Tileset> tilesets;
         
         //The active hero
         // This is the hero that gets drawn and is updated
@@ -99,35 +95,23 @@ namespace Platformer
         /// </param>
         public Level(IServiceProvider serviceProvider, Map currentMap, Camera camera)
         {
-
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-            timeRemaining = TimeSpan.FromMinutes(10.0); //changed the time limit to 6 minutes for longer level testing
+            timeRemaining = TimeSpan.FromMinutes(10.0); //changed the time limit to 10 minutes for longer level testing
             
             map = currentMap;
-            
-            LoadMap();
-           
-            cam = camera;
-            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
-
-            // Load sounds.
-            exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
-        }
-
-        /// <summary>
-        /// Uses the Tiled library to load .tmx tile map
-        /// </summary>
-        private void LoadMap()
-        {
-            //order tilesets by the first tile id. needed for tile collision
-            tilesets = map.Tilesets.OrderBy((item) => item.Value.FirstTileID).ToDictionary(i => i.Key, i => i.Value);
 
             LoadHero();
 
             LoadEnemies();
 
             LoadExit();
+           
+            cam = camera;
+            cam.Limits = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);//defining world limits
+
+            // Load sounds.
+            exitReachedSound = Content.Load<SoundEffect>("Sounds/ExitReached");
         }
 
         /// <summary>
@@ -138,11 +122,8 @@ namespace Platformer
             if (ActiveHero != null)
                 throw new NotSupportedException("A level may only have one starting point.");
 
-            int x = map.ObjectGroups["events"].Objects["player"].X;
-            int y = map.ObjectGroups["events"].Objects["player"].Y;
-
-            //where the player starts in the Tiled map editor map
-            start = RectangleExtensions.GetBottomCenter(GetTileAtPoint(x,y));
+            //where the player starts in the map
+            start = RectangleExtensions.GetBottomCenter(GetBounds((int)map.StartTile.X,(int)map.StartTile.Y));
 
             Heroes[0] = new HeroStrength(this, new Vector2(-1,-1), this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
             Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
@@ -152,9 +133,6 @@ namespace Platformer
             activeHero.Position = start;
         }
 
-
-        
-
         /// <summary>
         /// Remembers the location of the level's exit.
         /// </summary>
@@ -163,11 +141,7 @@ namespace Platformer
             if (exit != InvalidPosition)
                 throw new NotSupportedException("A level may only have one exit.");
 
-            // get the position of the exit object in Tiled map editor
-            int x = map.ObjectGroups["events"].Objects["exit"].X;
-            int y = map.ObjectGroups["events"].Objects["exit"].Y;
-
-            exit = GetTileAtPoint(x, y).Center;
+            exit = GetBounds(map.ExitTile.X,map.ExitTile.Y).Center;
         }
 
         /// <summary>
@@ -175,22 +149,8 @@ namespace Platformer
         /// </summary>
         private void LoadEnemies()
         {
-            //first is named enemy without a number after it
-            int x = map.ObjectGroups["enemies"].Objects["enemy"].X;
-            int y = map.ObjectGroups["enemies"].Objects["enemy"].Y;
-            string enemyType = map.ObjectGroups["enemies"].Objects["enemy"].Properties["enemyType"];
-
-            SpawnEnemy(x, y, enemyType);
-
-            //the rest are called enemy1, enemy2, etc.
-            for (int i = 1; i < map.ObjectGroups["enemies"].Objects.Values.Count((item) => item.Name.Equals("enemy")); i++)
-            {
-                x = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].X;
-                y = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].Y;
-                enemyType = map.ObjectGroups["enemies"].Objects[String.Format("enemy{0}",i)].Properties["enemyType"];
-
-                SpawnEnemy(x, y, enemyType);
-            }
+            foreach (var enemy in map.Enemies)
+                SpawnEnemy(enemy.x, enemy.y, enemy.type);
         }
 
         /// <summary>
@@ -226,82 +186,14 @@ namespace Platformer
 
         /// <summary>
         /// Gets the collision mode of the tile at a particular location.
-        /// This method handles tiles outside of the levels boundries by making it
+        /// This method handles tiles outside of the map boundaries by making it
         /// impossible to escape past the left or right edges, but allowing things
         /// to jump beyond the top of the level and fall off the bottom.
         /// </summary>
         public TileCollision GetCollision(int x, int y)
         {
-
-            // Prevent escaping past the level ends.
-            if (x < 0 || x >= Width)
-                return TileCollision.Impassable;
-            // Allow jumping past the level top and falling through the bottom.
-            if (y < 0 || y >= Height)
-                return TileCollision.Passable;
-
-            //get the id of tile
-            int tileId = map.Layers["Foreground"].GetTile(x, y);
-
-            //if tileId is 0 that means there is no tile, so it's passable
-            if (tileId == 0)
-                return TileCollision.Passable;
-
-            Tileset.TilePropertyList currentTileProperties;
-            try
-            {
-                //get list of properties for tile
-                currentTileProperties = GetTileProperties(tileId);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Something wrong with getting tileset name " + e);
-                return TileCollision.Passable;
-            }
-
-            if (currentTileProperties != null) //check if current tile has properties
-            {
-                switch (Convert.ToInt32(currentTileProperties["TileCollision"]))//should be a number 0-2
-                {
-                    case 0:
-                        return TileCollision.Passable;
-                    case 1:
-                        return TileCollision.Impassable;
-                    case 2:
-                        return TileCollision.Platform;
-                }
-            }
-
-            // changed this to Impassable so that the character won't fall through a tile if its TilCollision property was not set
-            //better if its Passable so player can't get stuck, and we'll know something is wrong 
-            //because we're falling through tiles that we shouldn't be falling through
-            return TileCollision.Passable; //ideally shouldn't actually get to here
+            return map.GetCollision(x, y);
         }
-
-        /// <summary>
-        /// Returns the property list of the current tile id. First it has to find which tileset the tile belongs to.
-        /// The tilesets are ordered by the FirstTileID. This is done by looping through the tilesets and comparing the first tile id to the current tile id. 
-        /// If it is greater then return the previous tileset properties.
-        /// </summary>
-        public Tileset.TilePropertyList GetTileProperties(int tileId)
-        {
-            //If there is only one tileset return its properties
-            if (tilesets.Count == 1)
-                return tilesets.First().Value.GetTileProperties(tileId);
-            
-            //loops through all the tilesets
-            for (int i = 1; i < tilesets.Count; i++)//start at the second one
-            {
-                //checks if first tile id of the tileset is greater than current tile id
-                //If it is then return the previous tileset properties
-                if (tilesets.ElementAt(i).Value.FirstTileID > tileId)
-                    return tilesets.ElementAt(i-1).Value.GetTileProperties(tileId);
-            }
-
-            //if tileId is greater than all of the FirstTileID of the tilesets then it has to be the last one
-            return tilesets.Last().Value.GetTileProperties(tileId);
-        }
-        
 
         /// <summary>
         /// Gets the bounding rectangle of a tile in world space.
@@ -593,7 +485,7 @@ namespace Platformer
                         null,
                         Camera.GetViewMatrix(Vector2.One));
             
-            map.Draw(spriteBatch, new Rectangle((int)Camera.Position.X, (int)Camera.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), Camera.Position);
+            map.Draw(spriteBatch, Camera);
             
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
