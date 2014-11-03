@@ -98,6 +98,13 @@ namespace Platformer
                 Exit();
             }
 
+            try 
+           { 
+               MediaPlayer.IsRepeating = true; 
+                MediaPlayer.Play(Content.Load<Song>("Sounds/TheDescent"));             } 
+            catch { } 
+
+
             LoadNextLevel();
         }
 

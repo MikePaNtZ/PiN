@@ -105,7 +105,7 @@ namespace Platformer
             //order tilesets by the first tile id. needed for tile collision
             tilesets = map.Tilesets.OrderBy((item) => item.Value.FirstTileID).ToDictionary(i => i.Key, i => i.Value);
 
-            CreateNavMesh();
+            //CreateNavMesh();
             GetEnemyInfo();
         }
 
@@ -400,19 +400,19 @@ namespace Platformer
         {
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
 
-            Vector2 currentCenter, neighborCenter;
-            foreach (GraphNode<Tile> gNode in NavMesh)
-            {
-                currentCenter = new Vector2(gNode.Value.Rectangle.Center.X, gNode.Value.Rectangle.Center.Y);
-                spriteBatch.DrawCircle(currentCenter,4,Color.Red,1);
+            //Vector2 currentCenter, neighborCenter;
+            //foreach (GraphNode<Tile> gNode in NavMesh)
+            //{
+            //    currentCenter = new Vector2(gNode.Value.Rectangle.Center.X, gNode.Value.Rectangle.Center.Y);
+            //    spriteBatch.DrawCircle(currentCenter,4,Color.Red,1);
 
-                foreach (GraphNode<Tile> neighbor in gNode.Neighbors)
-                {
-                    neighborCenter = new Vector2(neighbor.Value.Rectangle.Center.X, neighbor.Value.Rectangle.Center.Y);
-                    spriteBatch.DrawLineSegment(currentCenter,neighborCenter,Color.Red,1);
-                }
+            //    foreach (GraphNode<Tile> neighbor in gNode.Neighbors)
+            //    {
+            //        neighborCenter = new Vector2(neighbor.Value.Rectangle.Center.X, neighbor.Value.Rectangle.Center.Y);
+            //        spriteBatch.DrawLineSegment(currentCenter,neighborCenter,Color.Red,1);
+            //    }
                 
-            }
+            //}
         }
 
     }

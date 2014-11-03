@@ -283,10 +283,16 @@ namespace Platformer
                     IsJumping = false;
                     sprite.LoadAnimation(shieldAnimation);
                 }
+                else if (!IsOnGround)
+                {
+                    sprite.LoadAnimation(jumpAnimation);
+                }
+
                 else
                 {
                     sprite.LoadAnimation(idleAnimation);
                 }
+                
                 
             }
         }
@@ -386,12 +392,6 @@ namespace Platformer
                                Color.Orange,
                                Color.Yellow,
                                                };
-        protected readonly Color[] isHitColors = {
-                               Color.Transparent,
-                               Color.Beige,
-                               Color.Transparent,
-                               Color.Beige,
-                        
-                                               };
+        
     }
 }

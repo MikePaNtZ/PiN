@@ -358,17 +358,17 @@ namespace Platformer
                             //    GetCollision(x, y);
                             //}
                             
-                            ActiveHero.UpdateHealth(8);
+                           // ActiveHero.UpdateHealth(8);
                         }
                         else if (ActiveHero.Position.X > enemy.Position.X)
                         {
                             enemy.Position = new Vector2(enemy.Position.X - 100, enemy.Position.Y);
-                            ActiveHero.UpdateHealth(8);
+                           // ActiveHero.UpdateHealth(8);
                         }
                         else
                         {
                             enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
-                            ActiveHero.UpdateHealth(8);
+                           // ActiveHero.UpdateHealth(8);
                         }
                     }
                     else if (!ActiveHero.IsHit)
@@ -449,6 +449,7 @@ namespace Platformer
         /// </param>
         private void OnHeroKilled(Enemy killedBy)
         {
+            
             ActiveHero.OnKilled(killedBy);
         }
 
@@ -467,6 +468,21 @@ namespace Platformer
         /// </summary>
         public void StartNewLife()
         {
+            if (!activeHero.Equals(Heroes[0]) && Heroes[0].IsAlive)
+            {
+                Heroes[0].SwapIn();
+                activeHero = (Hero)Heroes[0];
+            }
+            else if (!activeHero.Equals(Heroes[1]) && Heroes[1].IsAlive)
+            {
+                Heroes[1].SwapIn();
+                activeHero = (Hero)Heroes[1];
+            }
+            else if (!activeHero.Equals(Heroes[2]) && Heroes[2].IsAlive)
+            {
+                Heroes[2].SwapIn();
+                activeHero = (Hero)Heroes[2];
+            }
             ActiveHero.Reset(start);
         }
 

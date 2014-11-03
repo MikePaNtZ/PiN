@@ -596,7 +596,7 @@
     <Compile Include="Sounds\QuickLaser.mp3">
       <Name>QuickLaser</Name>
       <Importer>Mp3Importer</Importer>
-      <Processor>SongProcessor</Processor>
+      <Processor>SoundEffectProcessor</Processor>
     </Compile>
     <Compile Include="Sounds\Scattershot.mp3">
       <Name>Scattershot</Name>
@@ -604,7 +604,7 @@
       <Processor>SongProcessor</Processor>
     </Compile>
     <Compile Include="Sounds\The Descent.mp3">
-      <Name>The Descent</Name>
+      <Name>TheDescent</Name>
       <Importer>Mp3Importer</Importer>
       <Processor>SongProcessor</Processor>
     </Compile>

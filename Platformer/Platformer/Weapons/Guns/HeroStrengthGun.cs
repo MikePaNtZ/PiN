@@ -22,6 +22,7 @@ namespace Platformer
 
         protected override void LoadContent()
         {
+            shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");//placeholder
             // set the default weapon to a gun.
             theWeapon = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
             crosshair = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));

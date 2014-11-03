@@ -74,6 +74,7 @@ namespace Platformer
             {
                 //bullet is deflected
                 bullet.Velocity = -bullet.Velocity;
+
             }
 
             else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsBlocking)
@@ -84,6 +85,7 @@ namespace Platformer
             else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive)
             {
                 theTarget.OnHit(weaponWielder);
+
                 bullet.IsAlive = false;
             }
         }

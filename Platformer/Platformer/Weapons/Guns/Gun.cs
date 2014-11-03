@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Platformer
 {
 
     class Gun : Weapon
     {
+        protected SoundEffect shootingSound;
         protected GameObject gunObj;
         protected GameObject crosshair;
         protected GameObject[] bullets;
@@ -31,6 +33,7 @@ namespace Platformer
         /// </summary>
         protected override void LoadContent()
         {
+            shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");//placeholder
             // set the default weapon to a gun.
             theWeapon = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
             crosshair = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
@@ -61,7 +64,10 @@ namespace Platformer
         public override void PerformNormalAttack()
         {
             weaponWielder.IsAttacking = true;
+            if (shootingSound != null)
+                shootingSound.Play();
             FireBullet();
+
         }
 
         public override void PerformSpecialAttack()
