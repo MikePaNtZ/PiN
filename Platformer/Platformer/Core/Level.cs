@@ -456,19 +456,16 @@ namespace Platformer
                     }
                     else if (ActiveHero.IsBlocking)
                     {
-                        //OnEnemyKilled(enemy, ActiveHero);
-                        if (ActiveHero.Position.X == enemy.Position.X)
+                        if (ActiveHero.Position.X <= enemy.Position.X)
                         {
-                            enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
-                            ActiveHero.UpdateHealth(8);
-                            //really just to offset the tight bounding box of player
-                            //player shouldn't be losing health when using shield
-                            //now player just loses some health when using shield against enemy
-                            //this implies the shield helped reduce some of the damage from the enemy
-                        }
-                        else if (ActiveHero.Position.X < enemy.Position.X)
-                        {
-                            enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
+                            int x = (int)Math.Floor(enemy.Position.X + 96);
+                            int y = (int)Math.Floor(enemy.Position.Y);
+                            enemy.Position = new Vector2(x,y);
+                            //if (enemy.BoundingRectangle.Intersects(GetTileAtPoint(x,y)))
+                            //{
+                            //    GetCollision(x, y);
+                            //}
+                            
                             ActiveHero.UpdateHealth(8);
                         }
                         else if (ActiveHero.Position.X > enemy.Position.X)

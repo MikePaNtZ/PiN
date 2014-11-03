@@ -259,7 +259,7 @@ namespace Platformer
                 health = 0;
                 killedSound.Play();
             }
-            else//
+            else
             {
                 health = 0;
                 fallSound.Play();
@@ -393,6 +393,5 @@ namespace Platformer
                                Color.Beige,
                         
                                                };
-
     }
 }
