@@ -75,6 +75,8 @@ namespace Platformer
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            XnaDebugDrawer.DebugDrawer.LoadContent(GraphicsDevice);
+
             hud = new Hud(Content);
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);

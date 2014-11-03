@@ -98,6 +98,7 @@
     <Compile Include="Core\Level.cs" />
     <Compile Include="Core\PlatformerGame.cs" />
     <Compile Include="Characters\Heroes\Hero.cs" />
+    <Compile Include="Libraries\DebugDrawer.cs" />
     <Compile Include="Libraries\Graph.cs" />
     <Compile Include="Libraries\GraphNode.cs" />
     <Compile Include="Libraries\Node.cs" />
