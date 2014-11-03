@@ -47,6 +47,14 @@ namespace Platformer
         public int y;
         public int Width;
         public int Height;
+
+        public Rectangle Rectangle
+        {
+            get
+            {
+                return new Rectangle(x * Width, y * Height, Width, Height);
+            }
+        }
         
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using XnaDebugDrawer;
 
 namespace Platformer
 {
@@ -128,7 +129,7 @@ namespace Platformer
 
             //if tileId is 0 that means there is no tile, so it's passable
             //tileId of -1 means the x or y were off the map
-            if (tileId == 0 || tileId == -1)
+            if (tileId <= 0)
                 return TileCollision.Passable;
 
             Squared.Tiled.Tileset.TilePropertyList currentTileProperties;
@@ -233,7 +234,163 @@ namespace Platformer
         /// </summary>
         private void CreateNavMesh()
         {
+            NavMesh = new Graph<Tile>();
+            TileCollision currentTileCollision;
+            
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    currentTileCollision = GetCollision(x, y);
+                    
 
+                    if (currentTileCollision == TileCollision.Passable)
+                    {
+                        if (GetCollision(x, y + 1) == TileCollision.Impassable || GetCollision(x, y + 1) == TileCollision.Platform)
+                        {
+                            if (GetCollision(x, y - 1) == TileCollision.Passable)
+                            {
+                                NavMesh.AddNode(new Tile(TileCollision.Passable, x, y, TileWidth, TileHeight));
+                            }
+                        }
+                    }
+                }
+            }
+
+            ConnectNodes();
+        }
+
+        /// <summary>
+        /// Finds any nodes that could connect to current node, and adds them to current node
+        /// </summary>
+        private void ConnectNodes()
+        {
+            Graph<Tile> possibleNeighbors;
+            foreach (GraphNode<Tile> currentGNode in NavMesh)
+            {
+                possibleNeighbors = CreateGraphAroundNode(currentGNode);
+                AddEdgesToNavMesh(possibleNeighbors, (GraphNode<Tile>)possibleNeighbors.Nodes.FindByValue(currentGNode.Value));
+            }
+            
+        }
+
+        private Graph<Tile> CreateGraphAroundNode(GraphNode<Tile> gNode)
+        {
+            Graph<Tile> possibleNeighbors = new Graph<Tile>();
+            int top = gNode.Value.y - 5;
+            int bottom = gNode.Value.y + 14;
+            int left = gNode.Value.x - 5;
+            int right = gNode.Value.x + 5;
+
+            if (top < 0)
+                top = 0;
+            if (bottom > Height)
+                bottom = Height;
+            if (left < 0)
+                left = 0;
+            if (right > Width)
+                right = Width;
+
+            Tile tempTile;
+            for (int y = top; y <= bottom; y++)
+            {
+                for (int x = left; x <= right; x++)
+                {
+                    tempTile = new Tile(GetCollision(x, y), x, y, TileWidth, TileHeight);
+                    if (tempTile.Collision == TileCollision.Passable)
+                        possibleNeighbors.AddNode(tempTile);
+                }
+            }
+
+            GraphNode<Tile> tempGNode;
+            foreach (var node in possibleNeighbors)
+            {
+                if (node.Value.x > left)
+                {
+                    tempTile = new Tile(GetCollision(node.Value.x-1, node.Value.y),node.Value.x-1,node.Value.y,TileWidth,TileHeight);
+                    tempGNode = (GraphNode<Tile>)possibleNeighbors.Nodes.FindByValue(tempTile);
+                    if (tempGNode != null)
+                        possibleNeighbors.AddDirectedEdge(node,tempGNode,1);
+                }
+                if (node.Value.x < right)
+                {
+                    tempTile = new Tile(GetCollision(node.Value.x + 1, node.Value.y), node.Value.x + 1, node.Value.y, TileWidth, TileHeight);
+                    tempGNode = (GraphNode<Tile>)possibleNeighbors.Nodes.FindByValue(tempTile);
+                    if (tempGNode != null)
+                        possibleNeighbors.AddDirectedEdge(node, tempGNode, 1);
+                }
+                if (node.Value.y > top)
+                {
+                    tempTile = new Tile(GetCollision(node.Value.x, node.Value.y - 1), node.Value.x, node.Value.y - 1, TileWidth, TileHeight);
+                    tempGNode = (GraphNode<Tile>)possibleNeighbors.Nodes.FindByValue(tempTile);
+                    if (tempGNode != null)
+                        possibleNeighbors.AddDirectedEdge(node, tempGNode, 1);
+                }
+                if (node.Value.y < bottom)
+                {
+                    tempTile = new Tile(GetCollision(node.Value.x, node.Value.y+1), node.Value.x, node.Value.y+1, TileWidth, TileHeight);
+                    tempGNode = (GraphNode<Tile>)possibleNeighbors.Nodes.FindByValue(tempTile);
+                    if (tempGNode != null)
+                        possibleNeighbors.AddDirectedEdge(node, tempGNode, 1);
+                }
+            }
+            return possibleNeighbors;
+        }
+
+        private void AddEdgesToNavMesh(Graph<Tile> possibleNeighbors, GraphNode<Tile> root)
+        {
+            Queue<GraphNode<Tile>> frontier = new Queue<GraphNode<Tile>>();
+            NodeList<Tile> visited = new NodeList<Tile>();
+            GraphNode<Tile> current, toNode, fromNode;
+            Tile tempTile;
+
+            fromNode = (GraphNode<Tile>)NavMesh.Nodes.FindByValue(root.Value);
+
+            frontier.Enqueue(root);
+            visited.Add(root);
+            while (frontier.Count > 0)
+            {
+                current = frontier.Dequeue();
+
+                toNode = (GraphNode<Tile>)NavMesh.Nodes.FindByValue(current.Value);
+                
+
+                if (toNode != null && !toNode.Equals(fromNode))
+                {
+                    NavMesh.AddDirectedEdge(fromNode, toNode, 1);
+                    /*
+                    if (fromNode.Neighbors.Count != 0)
+                    {
+                        foreach (GraphNode<Tile> neighbor in fromNode.Neighbors)
+                        {
+                            if (toNode.Value.x < fromNode.Value.x && neighbor.Value.x < fromNode.Value.x)
+                            {
+                                if (neighbor.Value.x > toNode.Value.x)
+                                    NavMesh.AddDirectedEdge(fromNode, toNode, 1);
+                            }
+                                
+                            else if (toNode.Value.x > fromNode.Value.x && !(neighbor.Value.x < toNode.Value.x))
+                                NavMesh.AddDirectedEdge(fromNode, toNode, 1);
+                        }
+                    }
+                    else
+                        NavMesh.AddDirectedEdge(fromNode, toNode, 1);
+                     * */
+                    
+                }
+                    
+                    
+                foreach (GraphNode<Tile> neighbor in current.Neighbors)
+                {
+                    if (visited.FindByValue(neighbor.Value) == null)
+                    {
+                        visited.Add(neighbor);
+                        frontier.Enqueue(neighbor);
+                    }
+                        
+
+                }
+            }
         }
 
         /// <summary>
@@ -242,6 +399,21 @@ namespace Platformer
         public void Draw(SpriteBatch spriteBatch, Camera cam)
         {
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height), cam.Position);
+
+            Vector2 currentCenter, neighborCenter;
+            foreach (GraphNode<Tile> gNode in NavMesh)
+            {
+                currentCenter = new Vector2(gNode.Value.Rectangle.Center.X, gNode.Value.Rectangle.Center.Y);
+                spriteBatch.DrawCircle(currentCenter,4,Color.Red,1);
+
+                foreach (GraphNode<Tile> neighbor in gNode.Neighbors)
+                {
+                    neighborCenter = new Vector2(neighbor.Value.Rectangle.Center.X, neighbor.Value.Rectangle.Center.Y);
+                    spriteBatch.DrawLineSegment(currentCenter,neighborCenter,Color.Red,1);
+                }
+                
+            }
         }
+
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Platformer
 {
-    public class Graph<T> : IEnumerable<T>
+    public class Graph<T> : IEnumerable<GraphNode<T>>
     {
         private NodeList<T> nodeSet;
 
@@ -76,9 +76,13 @@ namespace Platformer
             return true;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<GraphNode<T>> GetEnumerator()
         {
-            return (IEnumerator<T>)nodeSet.GetEnumerator();
+            foreach (GraphNode<T> gNode in nodeSet)
+            {
+                yield return gNode;
+            }
+            yield break;
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
