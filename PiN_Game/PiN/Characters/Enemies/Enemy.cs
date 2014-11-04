@@ -61,9 +61,9 @@ namespace PiN
             explosionAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/explosion"), 0.1f, false); //false means the animation is not going to loop
             sprite.LoadAnimation(idleAnimation);
             // Load sounds.
-            killedSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
+            killedSound = Level.Content.Load<SoundEffect>("Sounds/Dying");
             // Temporary hurt sound. We probably want to use something different in the future.
-            hurtSound = killedSound;
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
             // Load enemy default weapon
             weapon = new EnemyGun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
         }
