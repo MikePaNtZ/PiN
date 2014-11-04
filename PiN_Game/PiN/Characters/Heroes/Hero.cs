@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 
-namespace Platformer
+namespace PiN
 {
     /// <summary>
     /// ActiveHero base class. This is a GameCharacter that is controllable by the player.
@@ -272,4 +272,4 @@ namespace Platformer
         private MouseState oldMouseState;
 
     }//end class ActiveHero
-}//end namespace Platformer
+}//end namespace PiN

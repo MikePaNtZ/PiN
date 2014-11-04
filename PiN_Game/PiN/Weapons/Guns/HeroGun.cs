@@ -1,37 +1,31 @@
-﻿using System;
+﻿#region File Description
+//-----------------------------------------------------------------------------
+// Enemy.cs
+//
+// Microsoft XNA Community Game Platform
+// Copyright (C) Microsoft Corporation. All rights reserved.
+//-----------------------------------------------------------------------------
+#endregion
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 
-namespace Platformer
+namespace PiN
 {
 
     /// <summary>
     /// Monster A derives from base enemy type
     /// </summary>
-    class HeroSpeedGun : Gun
+    class HeroGun : Gun
     {
 
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
-        public HeroSpeedGun(Texture2D loadedTexture, GameCharacter theShooter)
-            : base(loadedTexture, theShooter)
+        public HeroGun(Texture2D loadedTexture, GameCharacter theShooter) : base(loadedTexture, theShooter)
         {
-        }
-
-        protected override void LoadContent()
-        {
-            shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");//placeholder
-            // set the default weapon to a gun.
-            theWeapon = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
-            crosshair = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
-            // load all bullets
-            bullets = new GameObject[MAX_BULLETS];
-            for (int i = 0; i < MAX_BULLETS; i++)
-            {
-                bullets[i] = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Bullet"));
-            }
         }
 
         protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)

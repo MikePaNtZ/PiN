@@ -19,7 +19,7 @@ using System.IO;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Input;
 
-namespace Platformer
+namespace PiN
 {
     /// <summary>
     /// A uniform grid of tiles with collections of gems and enemies.

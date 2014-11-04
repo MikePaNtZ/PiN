@@ -3,19 +3,19 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 
-namespace Platformer
+namespace PiN
 {
 
     /// <summary>
     /// Monster A derives from base enemy type
     /// </summary>
-    class HeroSpeedGun : Gun
+    class HeroStrengthGun : Gun
     {
 
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
-        public HeroSpeedGun(Texture2D loadedTexture, GameCharacter theShooter)
+        public HeroStrengthGun(Texture2D loadedTexture, GameCharacter theShooter)
             : base(loadedTexture, theShooter)
         {
         }
@@ -30,7 +30,7 @@ namespace Platformer
             bullets = new GameObject[MAX_BULLETS];
             for (int i = 0; i < MAX_BULLETS; i++)
             {
-                bullets[i] = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Bullet"));
+                bullets[i] = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/HeroStrength/Bullet"));
             }
         }
 

@@ -1,6 +1,6 @@
 #region File Description
 //-----------------------------------------------------------------------------
-// PlatformerGame.cs
+// PiN_Game.cs
 //
 // Microsoft XNA Community Game Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
@@ -17,12 +17,12 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input.Touch;
 
 
-namespace Platformer
+namespace PiN
 {
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class PlatformerGame : Microsoft.Xna.Framework.Game
+    public class PiN_Game : Microsoft.Xna.Framework.Game
     {
         // Resources for drawing.
         private GraphicsDeviceManager graphics;
@@ -55,7 +55,7 @@ namespace Platformer
         // or handle exceptions, both of which can add unnecessary time to level loading.
         private const int numberOfLevels = 1;
 
-        public PlatformerGame()
+        public PiN_Game()
         {
             graphics = new GraphicsDeviceManager(this);
 

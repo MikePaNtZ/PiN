@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using XnaDebugDrawer;
 
-namespace Platformer
+namespace PiN
 {
     class Map
     {

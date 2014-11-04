@@ -31,7 +31,7 @@ namespace Platformer
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Jump"), 0.1f, false);
             celebrateAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Celebrate"), 0.1f, false);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Die"), 0.1f, false);
-            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Celebrate"), 0.1f, false); //placeholder
+            flinchAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"), 0.1f, false); //placeholder
 
             // Calculate bounds within texture size.            
             // TODO It needs to be more clear what this is doing, and why it is done here. It is for collision detection.
