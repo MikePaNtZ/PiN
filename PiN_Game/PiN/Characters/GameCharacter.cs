@@ -220,7 +220,7 @@ namespace PiN
             IsHit = true;
             if (hitBy != null)
             {
-                UpdateHealth(-25);
+                UpdateHealth(-15);
                 hurtSound.Play();
             }
             else

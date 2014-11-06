@@ -73,14 +73,14 @@ namespace PiN
             if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsPoweredUp)
             {
                 //bullet is deflected
-                bullet.Velocity = -bullet.Velocity;
-
+                //bullet.Velocity = -0.7f*bullet.Velocity;
+                bullet.IsAlive = false;
             }
 
             else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsBlocking)
             {
                 //hero doesn't take damage when blocking with shield
-                bullet.Velocity = -bullet.Velocity;
+                bullet.Velocity = -0.7f*bullet.Velocity;
             }
             else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive)
             {
@@ -88,6 +88,8 @@ namespace PiN
 
                 bullet.IsAlive = false;
             }
+
+
         }
 
     }

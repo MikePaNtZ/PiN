@@ -56,11 +56,11 @@ namespace PiN
         private const int numberOfLevels = 1;
 
         public PiN_Game()
+
         {
             graphics = new GraphicsDeviceManager(this);
 
             //graphics.ToggleFullScreen();
-
             Content.RootDirectory = "Content";
 
             maps = new List<Map>();
