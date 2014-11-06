@@ -348,28 +348,30 @@ namespace PiN
                     }
                     else if (ActiveHero.IsBlocking)
                     {
-                        if (ActiveHero.Position.X <= enemy.Position.X)
-                        {
-                            int x = (int)Math.Floor(enemy.Position.X + 96);
-                            int y = (int)Math.Floor(enemy.Position.Y);
-                            enemy.Position = new Vector2(x,y);
-                            //if (enemy.BoundingRectangle.Intersects(GetTileAtPoint(x,y)))
-                            //{
-                            //    GetCollision(x, y);
-                            //}
+                        enemy.UpdateHealth(-enemy.Health / 2);
+
+                        //if (ActiveHero.Position.X <= enemy.Position.X)
+                        //{
+                        //    int x = (int)Math.Floor(enemy.Position.X + 96);
+                        //    int y = (int)Math.Floor(enemy.Position.Y);
+                        //    enemy.Position = new Vector2(x,y);
+                        //    //if (enemy.BoundingRectangle.Intersects(GetTileAtPoint(x,y)))
+                        //    //{
+                        //    //    GetCollision(x, y);
+                        //    //}
                             
-                           // ActiveHero.UpdateHealth(8);
-                        }
-                        else if (ActiveHero.Position.X > enemy.Position.X)
-                        {
-                            enemy.Position = new Vector2(enemy.Position.X - 100, enemy.Position.Y);
-                           // ActiveHero.UpdateHealth(8);
-                        }
-                        else
-                        {
-                            enemy.Position = new Vector2(enemy.Position.X + 100, enemy.Position.Y);
-                           // ActiveHero.UpdateHealth(8);
-                        }
+                        //   // ActiveHero.UpdateHealth(8);
+                        //}
+                        //else if (ActiveHero.Position.X > enemy.Position.X)
+                        //{
+                        //    enemy.Position = new Vector2(enemy.Position.X - 96, enemy.Position.Y);
+                        //   // ActiveHero.UpdateHealth(8);
+                        //}
+                        //else
+                        //{
+                        //    enemy.Position = new Vector2(enemy.Position.X + 96, enemy.Position.Y);
+                        //   // ActiveHero.UpdateHealth(8);
+                        //}
                     }
                     else if (!ActiveHero.IsHit)
                     {
