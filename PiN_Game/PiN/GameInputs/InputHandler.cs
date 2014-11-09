@@ -11,11 +11,11 @@ namespace PiN
 {
     public class InputHandler
     {
-        public InputHandler(Camera cam, MouseState mouseState, KeyboardState keyboardState)
+        public InputHandler(Camera cam, MouseState mouseState, MouseState prevMouseState, KeyboardState keyboardState, KeyboardState prevKeyboardState)
         {
             _cam = cam;
-            _mouseInput = new MouseInput(cam, mouseState);
-            _keyboardInput = new KeyboardInput(keyboardState);
+            _mouseInput = new MouseInput(cam, mouseState, prevMouseState);
+            _keyboardInput = new KeyboardInput(keyboardState, prevKeyboardState);
         }
 
 
@@ -24,9 +24,16 @@ namespace PiN
             get { return _mouseInput; }
             set { }
         }
+
         public MouseState MouseState
         {
             get { return _mouseInput.MouseState; }
+            set { }
+        }
+
+        public MouseState PreviousMouseState
+        {
+            get { return _mouseInput.PreviousMouseState; }
             set { }
         }
 
@@ -39,6 +46,12 @@ namespace PiN
         public KeyboardState KeyboardState
         {
             get { return _keyboardInput.KeyboardState; }
+            set { }
+        }
+
+        public KeyboardState PreviousKeyboardState
+        {
+            get { return _keyboardInput.PreviousKeyboardState; }
             set { }
         }
 
