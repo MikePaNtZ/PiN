@@ -10,11 +10,9 @@ namespace PiN
 {
     class HeroFlight: Hero
     {
-              public HeroFlight(Level level, Vector2 initialPosition, Texture2D defaultTexture)
-            : base(level, initialPosition, defaultTexture)
+              public HeroFlight(Level level, Vector2 initialPosition)
+            : base(level, initialPosition)
         {
-            LoadContent();
-            Reset(initialPosition);
         }
 
         protected override void LoadContent()
@@ -49,20 +47,8 @@ namespace PiN
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // Load character's default weapon
-            weapon = new HeroFlightGun(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Arm_Gun"), this);
-
-        }
-
-
-        public override void Update(GameTime gameTime, InputHandler gameInputs)
-        {
-            base.Update(gameTime, gameInputs);
-
-        }//end Update method
-
-        protected override void determineAnimation(GameTime gameTime)
-        {
-            base.determineAnimation(gameTime);
+            weapon = new HeroFlightGun(this);
+            base.LoadContent();
         }
     }
 }

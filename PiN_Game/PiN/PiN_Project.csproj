@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Platformer</RootNamespace>
-    <AssemblyName>Platformer</AssemblyName>
+    <RootNamespace>PiN</RootNamespace>
+    <AssemblyName>PiN</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
@@ -27,6 +27,7 @@
     </ApplicationIcon>
     <Thumbnail>
     </Thumbnail>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -39,7 +40,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -78,9 +78,18 @@
     <Compile Include="Characters\Enemies\MonsterA.cs" />
     <Compile Include="Characters\Enemies\EnemyFactory.cs" />
     <Compile Include="Characters\GameCharacter.cs" />
+    <Compile Include="Characters\Heroes\States\HeroCelebrateState.cs" />
+    <Compile Include="Characters\Heroes\States\DeadState.cs" />
     <Compile Include="Characters\Heroes\HeroFlight.cs" />
     <Compile Include="Characters\Heroes\HeroSpeed.cs" />
     <Compile Include="Characters\Heroes\HeroStrength.cs" />
+    <Compile Include="Characters\Heroes\States\CharacterStateMachine.cs" />
+    <Compile Include="Characters\Heroes\States\HeroStateMachine.cs" />
+    <Compile Include="Characters\Heroes\States\HeroIdleState.cs" />
+    <Compile Include="Characters\Heroes\States\HeroMainState.cs" />
+    <Compile Include="Characters\Heroes\States\HeroJumpingState.cs" />
+    <Compile Include="Characters\Heroes\States\MainState.cs" />
+    <Compile Include="Characters\Heroes\States\HeroRunningState.cs" />
     <Compile Include="Consumables\ConsumableFactory.cs" />
     <Compile Include="Consumables\PowerUps\HealthConsumable.cs" />
     <Compile Include="Consumables\PowerUps\PowerUp.cs" />

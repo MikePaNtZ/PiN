@@ -24,7 +24,7 @@ namespace PiN
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
-        public HeroGun(Texture2D loadedTexture, GameCharacter theShooter) : base(loadedTexture, theShooter)
+        public HeroGun(GameCharacter theShooter) : base(theShooter)
         {
         }
 

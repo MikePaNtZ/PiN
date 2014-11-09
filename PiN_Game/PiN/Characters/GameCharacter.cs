@@ -11,39 +11,19 @@ using Microsoft.Xna.Framework;
 namespace PiN
 {
 
+    public enum FaceDirection
+    {
+        Left = -1,
+        Right = 1,
+    }
+
     /// <summary>
     /// Base class for all game characters. Both Heroes and Enemies derive from this base class.
     /// </summary>
     class GameCharacter : GameObject
     {
-
-        /// <summary>
-        /// Game character constructor without a base texture
-        /// TODO Tom is right about the base class taking a texture to its constructor.
-        ///      We need to fix this up. Providing multiple constructors is a hack work around
-        ///      that should be temporary.
-        /// </summary>
-        public GameCharacter(Level level, Vector2 initialPosition) : base()
-        {
-            Position = initialPosition;
-            this.level = level;
-            // construct the physics engine.
-            this.physEngine = new PhysicsEngine(this);
-            Reset(initialPosition);
-        }
-
-        /// <summary>
-        /// Game character constructor
-        /// </summary>
-        public GameCharacter(Level level, Vector2 initialPosition, Texture2D loadedTexture) : base(loadedTexture)
-        {
-            Position = initialPosition;
-            this.level = level;
-            // construct the physics engine.
-            this.physEngine = new PhysicsEngine(this);
-            Reset(initialPosition);
-        }
-
+        //**********************PROPERTIES*****************//
+        //*************************************************//
         public Level Level
         {
             get { return level; }
@@ -57,11 +37,14 @@ namespace PiN
         public AnimationLoader Sprite
         {
             get { return sprite; }
+            set { sprite = value; }
         }
 
-        public override Vector2 Center
+        public FaceDirection FaceDirection = FaceDirection.Right;
+
+        public Vector2 Center
         {
-            get { return new Vector2(Position.X + sprite.Animation.Texture.Width/2, Position.Y - sprite.Animation.Texture.Height); }
+            get { return new Vector2(Position.X + sprite.Animation.Texture.Width / 2, Position.Y - sprite.Animation.Texture.Height); }
         }
 
         /// <summary>
@@ -76,23 +59,28 @@ namespace PiN
         public int Health
         {
             get { return health; }
+            set 
+            {
+                health = value;
+                if (health > maxHealth)
+                    health = maxHealth;
+                else if (health < 0)
+                    health = 0;
+            }
         }
+
+        public virtual bool IsJumping { get { return false; } }
 
         public float Movement
         {
             get { return movement; }
-        }
-
-        public bool IsHit
-        {
-            get { return isHit; }
-            set { this.isHit = value; }
+            set { movement = value; }
         }
 
         /// <summary>
-        /// Gets a rectangle which bounds this player in world space.
+        /// Gets a rectangle which bounds this character in world space.
         /// </summary>
-        public Rectangle BoundingRectangle
+        public virtual Rectangle BoundingRectangle
         {
             get
             {
@@ -120,70 +108,61 @@ namespace PiN
             set { this.isBlocking = value; }
         }
 
-        public bool IsJumping
-        {
-            get { return isJumping; }
-            set { this.isJumping = value; }
-        }
+        public SoundEffect KilledSound { get { return killedSound; } }
+        public SoundEffect JumpSound { get { return jumpSound; } }
+        public SoundEffect FallSound { get { return fallSound; } }
+        public SoundEffect HurtSound { get { return hurtSound; } }
+        public SoundEffect PowerUpSound { get { return powerUpSound; } }
 
-        public SoundEffect JumpSound
-        {
-            get { return jumpSound; }
-        }
-
-        public Animation JumpAnimation
-        {
-            get { return jumpAnimation; }
-        }
+        public Animation IdleAnimation { get { return idleAnimation; } }
+        public Animation RunAnimation { get { return runAnimation; } }
+        public Animation JumpAnimation { get { return jumpAnimation; } }
+        public Animation CelebrateAnimation { get { return celebrateAnimation; } }
+        public Animation DieAnimation { get { return dieAnimation; } }
+        public Animation ShieldAnimation { get { return shieldAnimation; } }
 
         public SpriteEffects Flip
         {
-            get { return flip; }
-            set { this.flip = value; }
+            get 
+            {
+                if (FaceDirection == FaceDirection.Right)
+                    return SpriteEffects.FlipHorizontally;
+                else
+                    return SpriteEffects.None;
+            }
         }
 
+
+        //**********************METHODS********************//
+        //*************************************************//
+
         /// <summary>
-        /// Loads the game character.
+        /// Game character constructor
         /// </summary>
-        protected virtual void LoadContent()
+        public GameCharacter(Level level, Vector2 initialPosition)
+            : base()
         {
-            // Load animated textures.
-            idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Idle"), 0.1f, true);
-            runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Run"), 0.1f, true);
-            dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/Die"), 0.1f, false);
+            Position = initialPosition;
+            maxHealth = 100;
 
-
-            // Calculate bounds within texture size.            
-            // TODO It needs to be more clear what this is doing, and why it is done here. It is for collision detection.
-            int width = (int)(idleAnimation.FrameWidth * 0.4);
-            int left = (idleAnimation.FrameWidth - width) / 2;
-            int height = (int)(idleAnimation.FrameWidth * 0.8);
-            int top = idleAnimation.FrameHeight - height;
-            localBounds = new Rectangle(left, top, width, height);
-
-            // Load sounds.            
-            killedSound = Level.Content.Load<SoundEffect>("Sounds/PlayerKilled");
-            jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
-            fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
-            hurtSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");//placeholder
-            powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
-
-            // Load character's default weapon
-            weapon = new Gun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
+            this.level = level;
+            // construct the physics engine.
+            this.physEngine = new PhysicsEngine(this);
+            
+            Reset(initialPosition);
+            
         }
 
-
         /// <summary>
-        /// Resets the player to life.
+        /// Resets the character to life.
         /// </summary>
         public override void Reset(Vector2 position)
         {
-            Position = position;
+            base.Reset(position);
+
             Velocity = Vector2.Zero;
             IsAlive = true;
-            isHit = false;
-            health = 100;
-            sprite.LoadAnimation(idleAnimation);
+            health = maxHealth;
             powerUpTime = 0.0f;
         }
 
@@ -199,15 +178,12 @@ namespace PiN
         {
             physEngine.ApplyPhysics(gameTime);
 
-            // determine the animation to use based on player action.
-            determineAnimation(gameTime);
-
-            // Clear inputs.
-            movement = 0.0f;
-            IsJumping = false;
+            
 
             if (IsPoweredUp)
                 powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            stateMachine.Update(gameTime, gameInputs);
 
         }//end Update method
 
@@ -215,32 +191,18 @@ namespace PiN
         /// <summary>
         /// Called when the game character has been hit.
         /// </summary>
-        public virtual void OnHit(GameCharacter hitBy)
+        public virtual void OnHit(GameObject hitBy)
         {
-            IsHit = true;
-            if (hitBy != null)
-            {
-                UpdateHealth(-15);
-                hurtSound.Play();
-            }
-            else
-            {
-                UpdateHealth(-5);
-                hurtSound.Play();
-            }
-
-            if (Health <= 0)
-                OnKilled(hitBy);
-
+            stateMachine.OnHit(hitBy);
         }
-        
 
-        /*Your health is updated */
-        public void UpdateHealth(int changeInHealth)
+        /// <summary>
+        /// Moves the character left or right
+        /// </summary>
+        public void Move(FaceDirection direction)
         {
-            health += changeInHealth;
-            if (health > 100)
-                health = 100;
+            FaceDirection = direction;
+            movement = 1 * (int)direction;
         }
 
         /// <summary>
@@ -250,78 +212,31 @@ namespace PiN
         /// The enemy who killed the player. This parameter is null if the player was
         /// not killed by an enemy (fell into a hole).
         /// </param>
-        public virtual void OnKilled(GameCharacter killedBy)
+        public virtual void OnKilled(GameObject killedBy)
         {
-            IsAlive = false;
+            stateMachine.OnKilled(killedBy);
+        }
 
-            if (killedBy != null)
+        public virtual void determineColor(GameTime gameTime)
+        {
+            if (IsPoweredUp)
             {
-                health = 0;
-                killedSound.Play();
+                float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
+                int colorIndex = (int)t % poweredUpColors.Length;
+                color = poweredUpColors[colorIndex];
             }
             else
             {
-                health = 0;
-                fallSound.Play();
-            }
-            sprite.LoadAnimation(dieAnimation);
-        }
-
-        protected virtual void determineAnimation(GameTime gameTime)
-        {
-            Vector2 heroVelocity = Velocity;
-            if (IsAlive && IsOnGround)
-            {
-                if (Math.Abs(Velocity.X) - 0.02f > 0)
-                {
-                    sprite.LoadAnimation(runAnimation);
-                }
-                else if (IsBlocking)
-                {
-                    heroVelocity.X = 0;
-                    Velocity = heroVelocity;
-                    IsJumping = false;
-                    sprite.LoadAnimation(shieldAnimation);
-                }
-                else if (!IsOnGround)
-                {
-                    sprite.LoadAnimation(jumpAnimation);
-                }
-
-                else
-                {
-                    sprite.LoadAnimation(idleAnimation);
-                }
-                
-                
+                color = Color.White;
             }
         }
 
         /// <summary>
         /// Draws the animated player.
         /// </summary>
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            // Flip the resetAfterHit to face the way we are moving.
-            if (Velocity.X > 0)
-                Flip = SpriteEffects.FlipHorizontally;
-            else if (Velocity.X < 0)
-                Flip = SpriteEffects.None;
-
-            if (IsPoweredUp)
-            {
-                float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 20.0f;
-                int colorIndex = (int)t % poweredUpColors.Length;
-                color = poweredUpColors[colorIndex];
-                
-            }
-            else
-            {
-                color = Color.White;
-            }
-
-            // Draw that resetAfterHit.
-            sprite.Draw(gameTime, spriteBatch, Position, Flip, color);
+            stateMachine.Draw(gameTime, spriteBatch);
 
             // Shooting related drawing.
             if (IsAlive)
@@ -336,13 +251,19 @@ namespace PiN
             powerUpSound.Play();
         }
 
+        //**********************VARIABLES********************//
+        //*************************************************//
+
         // The physics engine that updates the position and velocity of this game character.
         protected PhysicsEngine physEngine;
         // All game characters belong to, at any given time, a single level. This object keeps track of which level this player is in,
         // and can be used to access other game objects that are also part of this level.
         private Level level;
+
+        protected CharacterStateMachine stateMachine;
+
         // The game character sprite is an instance of an animation loader. The OnDraw routine will render this animation using the Animation Loader.
-        protected AnimationLoader sprite;
+        public AnimationLoader sprite;
         // Animations
         protected Animation idleAnimation;
         protected Animation runAnimation;
@@ -363,15 +284,10 @@ namespace PiN
         protected float movement = 0.0f;
         // Character health
         protected int health;
-
-        // tint color drawn on top of game character.
-        protected Color color;
-
-        private SpriteEffects flip = SpriteEffects.None;
+        protected int maxHealth;
+        
         // Character's weapon
         protected Weapon weapon;
-        // Character has been hit flag
-        private bool isHit;
         /// <summary>
         /// Flag indicating the game character is on solid ground.
         /// </summary>
@@ -380,8 +296,6 @@ namespace PiN
         protected Rectangle localBounds;
         // Powerup state
         protected const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
-        // Jumping state
-        private bool isJumping;
         //private bool isSwapping;
         private bool isAttacking;
         private bool isBlocking; //is player using his force field shield

@@ -17,11 +17,7 @@ namespace PiN
     /// <summary>
     /// Facing direction along the X axis.
     /// </summary>
-    enum FaceDirection
-    {
-        Left = -1,
-        Right = 1,
-    }
+    
 
     /// <summary>
     /// A monster who is impeding the progress of our fearless adventurer.
@@ -49,10 +45,8 @@ namespace PiN
         /// <summary>
         /// Loads a particular enemy sprite sheet and sounds.
         /// </summary>
-        protected override void LoadContent()
+        protected void LoadContent()
         {
-            // Load the activeHero's default weapon
-            base.LoadContent();
             // Load animations.
             string spriteSet = "Sprites/" + enemyType + "/";
             runAnimation = new Animation(Level.Content.Load<Texture2D>(spriteSet + "Run"), 0.1f, true);
@@ -65,7 +59,7 @@ namespace PiN
             // Temporary hurt sound. We probably want to use something different in the future.
             hurtSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
             // Load enemy default weapon
-            weapon = new EnemyGun(Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"), this);
+            weapon = new EnemyGun(this);
         }
 
 
@@ -267,7 +261,7 @@ namespace PiN
             Position = Position + Velocity;
         }
 
-        protected override void determineAnimation(GameTime gameTime)
+        protected void determineAnimation(GameTime gameTime)
         {
             Vector2 enemyVelocity = Velocity;
             if (IsAlive && IsOnGround)
@@ -326,7 +320,7 @@ namespace PiN
         /// <summary>
         /// enemy dies
         /// </summary>
-        public override void OnKilled(GameCharacter killedBy)
+        public override void OnKilled(GameObject killedBy)
         {
             base.OnKilled(killedBy);
             SpawnRandomConsumable();

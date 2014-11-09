@@ -125,9 +125,9 @@ namespace PiN
             //where the player starts in the map
             start = RectangleExtensions.GetBottomCenter(GetBounds((int)map.StartTile.X,(int)map.StartTile.Y));
 
-            Heroes[0] = new HeroStrength(this, new Vector2(-1,-1), this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-            Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-            Heroes[2] = new HeroFlight(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
+            Heroes[0] = new HeroStrength(this, new Vector2(-1,-1));
+            Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1));
+            Heroes[2] = new HeroFlight(this, new Vector2(-1, -1));
 
             activeHero = (Hero)Heroes[1];
             activeHero.Position = start;
@@ -286,7 +286,7 @@ namespace PiN
                 Camera.LookAt(ActiveHero.Position);
 
                 // Falling off the bottom of the level kills the activeHero.
-                if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight)
+                if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight && ActiveHero.IsAlive)
                 {
                     OnHeroKilled(null);
                 }
@@ -348,7 +348,7 @@ namespace PiN
                     }
                     else if (ActiveHero.IsBlocking)
                     {
-                        enemy.UpdateHealth(-enemy.Health / 2);
+                        enemy.Health -= enemy.Health / 2;
 
                         //if (ActiveHero.Position.X <= enemy.Position.X)
                         //{

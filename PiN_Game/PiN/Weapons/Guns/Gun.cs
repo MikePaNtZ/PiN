@@ -15,14 +15,15 @@ namespace PiN
         protected SoundEffect shootingSound;
         protected GameObject gunObj;
         protected GameObject crosshair;
+        protected Texture2D bulletTexture;
         protected GameObject[] bullets;
         protected int MAX_BULLETS = 12;
 
         /// <summary>
         /// Gun constructor
         /// </summary>
-        public Gun(Texture2D loadedTexture, GameCharacter theShooter)
-            : base(loadedTexture, theShooter)
+        public Gun(GameCharacter theShooter)
+            : base(theShooter)
         {
             LoadContent();
 
@@ -33,16 +34,20 @@ namespace PiN
         /// </summary>
         protected override void LoadContent()
         {
-            shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");//placeholder
+            shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");
             // set the default weapon to a gun.
-            theWeapon = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun"));
-            crosshair = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair"));
+            theWeapon = new GameObject();
+            theWeapon.Texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun");
+            crosshair = new GameObject();
+            crosshair.Texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair");
             // load all bullets
             bullets = new GameObject[MAX_BULLETS];
+            bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet");
 
             for (int i = 0; i < MAX_BULLETS; i++)
             {
-                bullets[i] = new GameObject(weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet"));
+                bullets[i] = new GameObject();
+                bullets[i].Texture = bulletTexture; 
             }
         }
 
@@ -122,7 +127,7 @@ namespace PiN
                 //If we try to aim behind our head then flip the
                 //character around.
                 if (theWeapon.Rotation < 0)
-                    weaponWielder.Flip = SpriteEffects.None;
+                    //weaponWielder.FaceDirection = FaceDirection.Left;
 
                 //If we aren't rotating our gun then set it to the
                 //default position. Aiming in front of us.
@@ -134,7 +139,7 @@ namespace PiN
                 //Once again, if we try to aim behind us then
                 //flip our character.
                 if (theWeapon.Rotation > 0)
-                    weaponWielder.Flip = SpriteEffects.FlipHorizontally;
+                    //weaponWielder.FaceDirection = FaceDirection.Left;
 
                 //If we're not rotating our gun, default it to
                 //aim the same direction we're facing.

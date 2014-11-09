@@ -10,26 +10,12 @@ namespace PiN
 {
     class GameObject
     {
-        /// TODO Tom is right about the base class taking a texture to its constructor.
-        ///      We need to fix this up. Providing multiple constructors is a hack work around
-        ///      that should be temporary.
         public GameObject()
         {
             rotation = 0.0f;
             position = Vector2.Zero;
             velocity = Vector2.Zero;
-            texture = null;
-            alive = false;
-        }
- 
-        public GameObject(Texture2D loadedTexture)
-        {
-            rotation = 0.0f;
-            position = Vector2.Zero;
-            texture = loadedTexture;
-            center = new Vector2(texture.Width / 2, texture.Height / 2);
-            velocity = Vector2.Zero;
-            alive = false;
+            isAlive = false;
         }
 
         public Vector2 Position
@@ -49,7 +35,7 @@ namespace PiN
             set { this.rotation = value; }
         }
 
-        public virtual Vector2 Center
+        public Vector2 Center
         {
             get { return center; }
             set { this.center = value; }
@@ -57,8 +43,8 @@ namespace PiN
 
         public bool IsAlive
         {
-            get { return alive; }
-            set { this.alive = value; }
+            get { return isAlive; }
+            set { this.isAlive = value; }
         }
 
         public Rectangle rectangle
@@ -79,6 +65,12 @@ namespace PiN
             set { this.texture = value; }
         }
 
+        public Color Color
+        {
+            get { return color; }
+            set { color = value; }
+        }
+
         /// Resets the base components of the game object
         public virtual void Reset(Vector2 pos)
         {
@@ -92,17 +84,24 @@ namespace PiN
         {
 
         }
- 
+
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+
+        }
+
         // Sprite associated with the game object. This is what's drawn to the screen in the OnDraw method.
         protected Texture2D texture;
+        // tint color drawn on top of game object.
+        protected Color color;
         // Center of the game object's texture
         protected Vector2 center;
         // Physics state variables
-        private Vector2 position;
-        private Vector2 velocity;
-        private float rotation;
+        protected Vector2 position;
+        protected Vector2 velocity;
+        protected float rotation;
         // Flag indicating the game object is "alive".
-        private bool alive;
+        protected bool isAlive;
 
     }
 }

@@ -17,7 +17,7 @@ namespace PiN
         /// <summary>
         /// Weapon constructor
         /// </summary>
-        public Weapon(Texture2D loadedTexture, GameCharacter weaponUser) : base(loadedTexture)
+        public Weapon(GameCharacter weaponUser) : base()
         {
             weaponWielder = weaponUser;
             LoadContent();
@@ -47,10 +47,5 @@ namespace PiN
         {
             // base weapon class has no implementation for this. implement in a derived class
         }
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        {
-            /// needs to be implemented by derived class.
-        }
-
     }
 }
