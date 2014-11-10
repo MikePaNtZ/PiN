@@ -40,6 +40,14 @@ namespace PiN
             }
         }
 
+        public override bool IsAttacking
+        {
+            get
+            {
+                return stateMachine.ShooterState.GetType() == typeof(HeroFiringState);
+            }
+        }
+
         protected float iFrames;
 
         public readonly Color[] isHitColors = 
@@ -68,8 +76,6 @@ namespace PiN
         public override void Reset(Vector2 position)
         {
             base.Reset(position);
-            if (stateMachine != null)
-                stateMachine.Reset();
             iFrames = 0.0F;
         }
 
@@ -78,12 +84,9 @@ namespace PiN
         /// </summary>
         private void GetInput(InputHandler gameInputs)
         {
-            // Check if player is firing weapon
-            IsAttacking = ((gameInputs.MouseState.LeftButton == ButtonState.Pressed) && (oldMouseState.LeftButton != ButtonState.Pressed));
             //the player is blocking by holding down the right mouse button
-            IsBlocking = (gameInputs.MouseState.RightButton == ButtonState.Pressed) & (oldMouseState.RightButton == ButtonState.Pressed);
+            IsBlocking = (gameInputs.MouseState.RightButton == ButtonState.Pressed) & (gameInputs.PreviousMouseState.RightButton == ButtonState.Pressed);
 
-            oldMouseState = gameInputs.MouseState;
         }
 
         /// <summary>
@@ -95,11 +98,6 @@ namespace PiN
 
             // Handle inputs
             GetInput(gameInputs);
-            
-            // Update the player's weapon.
-            weapon.UpdateWeaponState(gameInputs.MouseInput.Position);
-            if (IsAttacking)
-                weapon.PerformNormalAttack();
 
         }//end Update method
 
@@ -112,7 +110,6 @@ namespace PiN
             Velocity = Level.ActiveHero.Velocity;
             IsOnGround = Level.ActiveHero.IsOnGround;
             IsBlocking = Level.ActiveHero.IsBlocking;
-            IsAttacking = Level.ActiveHero.IsAttacking;
             powerUpTime = Level.ActiveHero.powerUpTime;
             stateMachine.MainState = Level.ActiveHero.stateMachine.MainState;
         }
@@ -122,7 +119,7 @@ namespace PiN
         /// </summary>
         public void OnReachedExit()
         {
-            ((HeroStateMachine)stateMachine).OnReachedExit();
+            stateMachine.OnReachedExit();
         }
 
         public override void determineColor(GameTime gameTime)
@@ -136,8 +133,6 @@ namespace PiN
             else
                 base.determineColor(gameTime);
         }
-
-        private MouseState oldMouseState;
 
     }//end class ActiveHero
 }//end namespace PiN

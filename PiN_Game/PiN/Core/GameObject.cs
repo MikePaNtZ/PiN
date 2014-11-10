@@ -35,10 +35,15 @@ namespace PiN
             set { this.rotation = value; }
         }
 
-        public Vector2 Center
+        public virtual Vector2 Center
         {
-            get { return center; }
-            set { this.center = value; }
+            get 
+            {
+                if (texture != null)
+                    return new Vector2(texture.Width / 2, texture.Height / 2);
+                else
+                    return position;
+            }
         }
 
         public bool IsAlive
@@ -47,7 +52,7 @@ namespace PiN
             set { this.isAlive = value; }
         }
 
-        public Rectangle rectangle
+        public virtual Rectangle rectangle
         {
             get
             {
@@ -80,7 +85,7 @@ namespace PiN
         /// <summary>
         /// Updates the base class game object instance. This is intended to be overriden by derived game object types.
         /// </summary>
-        protected virtual void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
 
         }
@@ -94,8 +99,6 @@ namespace PiN
         protected Texture2D texture;
         // tint color drawn on top of game object.
         protected Color color;
-        // Center of the game object's texture
-        protected Vector2 center;
         // Physics state variables
         protected Vector2 position;
         protected Vector2 velocity;

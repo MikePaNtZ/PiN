@@ -12,7 +12,6 @@ namespace PiN
     class Weapon : GameObject
     {
         protected GameCharacter weaponWielder;
-        protected GameObject theWeapon;
 
         /// <summary>
         /// Weapon constructor
@@ -28,9 +27,7 @@ namespace PiN
         /// </summary>
         protected virtual void LoadContent()
         {
-            // this is essentially an abstract base class. set the weapon to null to force the user of
-            // this class to properly derive from it.
-            theWeapon = null;
+
         }
 
         public virtual void UpdateWeaponState(Vector2 attackTarget)

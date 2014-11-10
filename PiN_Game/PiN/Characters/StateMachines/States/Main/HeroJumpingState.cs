@@ -11,6 +11,7 @@ namespace PiN
         public HeroJumpingState(HeroStateMachine HSM) : base(HSM)
         {
             hero.sprite.LoadAnimation(hero.JumpAnimation);
+            character.JumpSound.Play();
             System.Diagnostics.Debug.WriteLine("JumpingState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
@@ -34,7 +35,6 @@ namespace PiN
                 hsm.MainState = new HeroRunningState(hsm);
             else if (hero.IsOnGround)
                 hsm.MainState = new HeroIdleState(hsm);
-                
         }
     }
 }

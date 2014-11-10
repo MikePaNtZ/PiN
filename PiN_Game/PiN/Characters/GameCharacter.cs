@@ -42,9 +42,15 @@ namespace PiN
 
         public FaceDirection FaceDirection = FaceDirection.Right;
 
-        public Vector2 Center
+        public override Vector2 Center
         {
-            get { return new Vector2(Position.X + sprite.Animation.Texture.Width / 2, Position.Y - sprite.Animation.Texture.Height); }
+            get 
+            {
+                if (sprite.Animation != null)
+                    return new Vector2(Position.X + sprite.Animation.Texture.Width / 2, Position.Y - sprite.Animation.Texture.Height);
+                else
+                    return Position; 
+            }
         }
 
         /// <summary>
@@ -70,6 +76,7 @@ namespace PiN
         }
 
         public virtual bool IsJumping { get { return false; } }
+        public virtual bool IsAttacking { get { return false; } }
 
         public float Movement
         {
@@ -91,15 +98,42 @@ namespace PiN
             }
         }
 
+        public override Rectangle rectangle
+        {
+            get
+            {
+                int left = (int)position.X - sprite.Animation.FrameWidth/2;
+                int width = sprite.Animation.FrameWidth;
+                int top = (int)position.Y - sprite.Animation.FrameHeight;
+                int height = sprite.Animation.FrameHeight;
+                return new Rectangle(left, top, width, height);
+            }
+        }
+
+        public virtual Vector2 Arm
+        {
+            get
+            {
+                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width/8), 
+                                   rectangle.Y + rectangle.Height / 2);
+            }
+        }
+
+        public Weapon Weapon
+        {
+            get { return weapon; }
+            set { weapon = value; }
+        }
+
         public bool IsPoweredUp
         {
             get { return powerUpTime > 0.0f; }
         }
 
-        public bool IsAttacking
+        public float PowerUpTime
         {
-            get { return isAttacking; }
-            set { this.isAttacking = value; }
+            get { return powerUpTime; }
+            set { powerUpTime = value; }
         }
 
         public bool IsBlocking
@@ -148,9 +182,7 @@ namespace PiN
             this.level = level;
             // construct the physics engine.
             this.physEngine = new PhysicsEngine(this);
-            
             Reset(initialPosition);
-            
         }
 
         /// <summary>
@@ -159,7 +191,8 @@ namespace PiN
         public override void Reset(Vector2 position)
         {
             base.Reset(position);
-
+            if (stateMachine != null)
+                stateMachine.Reset();
             Velocity = Vector2.Zero;
             IsAlive = true;
             health = maxHealth;
@@ -178,11 +211,6 @@ namespace PiN
         {
             physEngine.ApplyPhysics(gameTime);
 
-            
-
-            if (IsPoweredUp)
-                powerUpTime = Math.Max(0.0f, powerUpTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
-
             stateMachine.Update(gameTime, gameInputs);
 
         }//end Update method
@@ -193,7 +221,8 @@ namespace PiN
         /// </summary>
         public virtual void OnHit(GameObject hitBy)
         {
-            stateMachine.OnHit(hitBy);
+            if (stateMachine != null)
+                stateMachine.OnHit(hitBy);
         }
 
         /// <summary>
@@ -237,12 +266,6 @@ namespace PiN
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             stateMachine.Draw(gameTime, spriteBatch);
-
-            // Shooting related drawing.
-            if (IsAlive)
-            {
-                weapon.Draw(gameTime, spriteBatch);
-            }
         }
 
         public void PowerUp()
@@ -296,8 +319,6 @@ namespace PiN
         protected Rectangle localBounds;
         // Powerup state
         protected const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
-        //private bool isSwapping;
-        private bool isAttacking;
         private bool isBlocking; //is player using his force field shield
         // Power up colors
         protected readonly Color[] poweredUpColors = {

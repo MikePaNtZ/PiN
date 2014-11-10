@@ -5,12 +5,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace PiN
 {
-    class MainState
+    class ShooterState
     {
         protected CharacterStateMachine sm;
         protected GameCharacter character;
 
-        public MainState(CharacterStateMachine sm)
+        public ShooterState(CharacterStateMachine sm)
         {
             this.sm = sm;
             character = sm.Character;
@@ -18,12 +18,17 @@ namespace PiN
 
         public virtual void Reset()
         {
+            //implement in derived class
+        }
+
+        public virtual void Update(GameTime gameTime, InputHandler gameInputs)
+        {
 
         }
 
-        public virtual void Update(GameTime gameTime, InputHandler input)
+        public virtual void Update(GameTime gameTime, Vector2 target)
         {
-            character.Movement = 0;
+
         }
         public virtual void OnHit(GameObject hitBy)
         {
@@ -32,18 +37,19 @@ namespace PiN
 
         public virtual void OnKilled(GameObject killedBy)
         {
-            System.Diagnostics.Debug.WriteLine("KilledBy");
-            sm.MainState = new DeadState(sm, killedBy);
+            sm.ShooterState = new HolsterState(sm);
         }
 
         public virtual void OnReachedExit()
         {
-            //implement in derived class
+            sm.ShooterState = new HolsterState(sm);
         }
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            character.determineColor(gameTime);
-            character.Sprite.Draw(gameTime, spriteBatch, character.Position, character.Flip, character.Color);
+            if (character.IsAlive)
+            {
+                character.Weapon.Draw(gameTime, spriteBatch);
+            }
         }
     }
 }

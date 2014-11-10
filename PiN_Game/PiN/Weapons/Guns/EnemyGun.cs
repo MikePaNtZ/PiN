@@ -27,29 +27,11 @@ namespace PiN
         public EnemyGun(GameCharacter theShooter) : base(theShooter)
         {
         }
-        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+
+        protected override void LoadContent()
         {
-
-            spriteBatch.Draw(
-                theWeapon.Texture,
-                theWeapon.Position,
-                null,
-                Color.White,
-                theWeapon.Rotation,
-                theWeapon.Center,
-                1.0f,
-                weaponWielder.Flip,
-                0);
-
-            //Draw the bullets
-            foreach (GameObject bullet in bullets)
-            {
-                if (bullet.IsAlive)
-                {
-                    spriteBatch.Draw(bullet.Texture,
-                        bullet.Position, Color.White);
-                }
-            }
+            bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet");
+            base.LoadContent();
         }
 
         protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)

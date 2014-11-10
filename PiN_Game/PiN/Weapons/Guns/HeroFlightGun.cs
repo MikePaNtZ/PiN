@@ -9,7 +9,7 @@ namespace PiN
     /// <summary>
     /// Monster A derives from base enemy type
     /// </summary>
-    class HeroFlightGun : Gun
+    class HeroFlightGun : HeroGun
     {
 
         /// <summary>
@@ -22,8 +22,9 @@ namespace PiN
 
         protected override void LoadContent()
         {
-            base.LoadContent();
+            
             bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/HeroFlight/Bullet");
+            base.LoadContent();
         }
 
 

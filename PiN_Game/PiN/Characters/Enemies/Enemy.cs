@@ -240,7 +240,6 @@ namespace PiN
                 direction = (FaceDirection)(-(int)direction); //if not turn around
 
             //-------------SHOOTING HERE----------------------- maybe some movement too
-            IsAttacking = true;
 
 
         }

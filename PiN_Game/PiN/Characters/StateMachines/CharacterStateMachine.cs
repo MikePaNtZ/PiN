@@ -10,7 +10,7 @@ namespace PiN
     {
         public GameCharacter Character;
         public MainState MainState;
-        //public ShooterState ShootState;
+        public ShooterState ShooterState;
         public CharacterStateMachine(GameCharacter character)
         {
             Character = character;
@@ -24,7 +24,10 @@ namespace PiN
 
         public virtual void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            
             MainState.Update(gameTime, gameInputs);
+            ShooterState.Update(gameTime, gameInputs);
+            
         }
         public virtual void OnHit(GameObject hitBy)
         {
@@ -33,10 +36,18 @@ namespace PiN
         public virtual void OnKilled(GameObject killedBy)
         {
             MainState.OnKilled(killedBy);
+            ShooterState.OnKilled(killedBy);
         }
+
+        public virtual void OnReachedExit() 
+        {
+            //to be implemented in derived class
+        }
+
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             MainState.Draw(gameTime, spriteBatch);
+            ShooterState.Draw(gameTime, spriteBatch);
         }
     }
 }

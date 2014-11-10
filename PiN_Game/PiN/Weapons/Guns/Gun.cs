@@ -18,6 +18,14 @@ namespace PiN
         protected Texture2D bulletTexture;
         protected GameObject[] bullets;
         protected int MAX_BULLETS = 12;
+        protected Vector2 target;
+        //protected float theWeaponCos;
+        //protected float theWeaponSin;
+
+        //protected Vector2 muzzle
+        //{
+        //    get { return new Vector2(position.X* -theWeaponCos, (position.Y - rectangle.Height/2)* -theWeaponCos); }
+        //}
 
         /// <summary>
         /// Gun constructor
@@ -25,8 +33,6 @@ namespace PiN
         public Gun(GameCharacter theShooter)
             : base(theShooter)
         {
-            LoadContent();
-
         }
 
         /// <summary>
@@ -35,40 +41,32 @@ namespace PiN
         protected override void LoadContent()
         {
             shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");
-            // set the default weapon to a gun.
-            theWeapon = new GameObject();
-            theWeapon.Texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun");
-            crosshair = new GameObject();
-            crosshair.Texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair");
+            texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun");
             // load all bullets
             bullets = new GameObject[MAX_BULLETS];
-            bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet");
 
             for (int i = 0; i < MAX_BULLETS; i++)
             {
                 bullets[i] = new GameObject();
                 bullets[i].Texture = bulletTexture; 
             }
+            
         }
 
         public override void UpdateWeaponState(Vector2 crosshairPosition)
         {
             // Shooting related updates
-            crosshair.Position = crosshairPosition;
-
-            if (weaponWielder.Flip == SpriteEffects.FlipHorizontally)
-                theWeapon.Position = new Vector2(weaponWielder.Position.X + 5, weaponWielder.Position.Y - 60);
-            else
-                theWeapon.Position = new Vector2(weaponWielder.Position.X - 5, weaponWielder.Position.Y - 60);
+            target = crosshairPosition;
+            position = weaponWielder.Arm;
 
             // Updates the state of all bullets
-            UpdateBullets();
             updateShooting();
+            UpdateBullets();
+            
         }
 
         public override void PerformNormalAttack()
         {
-            weaponWielder.IsAttacking = true;
             if (shootingSound != null)
                 shootingSound.Play();
             FireBullet();
@@ -84,23 +82,12 @@ namespace PiN
         {
             //ystem.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
             spriteBatch.Draw(
-                crosshair.Texture,
-                crosshair.Position,
+                texture,
+                position,
                 null,
                 Color.White,
-                crosshair.Rotation,
-                crosshair.Center,
-                1.0f,
-                weaponWielder.Flip,
-                0);
-
-            spriteBatch.Draw(
-                theWeapon.Texture,
-                theWeapon.Position,
-                null,
-                Color.White,
-                theWeapon.Rotation,
-                theWeapon.Center,
+                rotation,
+                Center,
                 1.0f,
                 weaponWielder.Flip,
                 0);
@@ -114,38 +101,23 @@ namespace PiN
                         bullet.Position, Color.White);
                 }
             }
+
+            XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, position, target, Color.Blue, 1);
+            
         }
 
 
         private void updateShooting()
         {
-            Vector2 aimDirection = theWeapon.Position - crosshair.Position;
-            theWeapon.Rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) - (float)Math.PI / 2; //this will return the mouse angle(in radians).
+            Vector2 aimDirection = position - target;
+            rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) -(float)Math.PI / 2; //this will return the mouse angle(in radians).
+            //theWeaponCos =  (float)Math.Cos(rotation - ((int)weaponWielder.FaceDirection * MathHelper.PiOver2));
+            //theWeaponSin = (float)Math.Sin(rotation - ((int)weaponWielder.FaceDirection * MathHelper.PiOver2));
 
-            if (weaponWielder.Flip == SpriteEffects.FlipHorizontally) //Facing right
-            {
-                //If we try to aim behind our head then flip the
-                //character around.
-                if (theWeapon.Rotation < 0)
-                    //weaponWielder.FaceDirection = FaceDirection.Left;
-
-                //If we aren't rotating our gun then set it to the
-                //default position. Aiming in front of us.
-                if (theWeapon.Rotation == 0)
-                    theWeapon.Rotation = MathHelper.PiOver2;
-            }
-            else //Facing left
-            {
-                //Once again, if we try to aim behind us then
-                //flip our character.
-                if (theWeapon.Rotation > 0)
-                    //weaponWielder.FaceDirection = FaceDirection.Left;
-
-                //If we're not rotating our gun, default it to
-                //aim the same direction we're facing.
-                if (theWeapon.Rotation == 0)
-                    theWeapon.Rotation = -MathHelper.PiOver2;
-            }
+            //If we aren't rotating our gun then set it to the
+            //default position. Aiming in front of us.
+            if (rotation == 0)
+                rotation = (int)weaponWielder.FaceDirection * MathHelper.PiOver2;
         }
 
         private void FireBullet()
@@ -160,33 +132,33 @@ namespace PiN
 
                     if (weaponWielder.Flip == SpriteEffects.FlipHorizontally) //Facing right
                     {
-                        float theWeaponCos = (float)Math.Cos(theWeapon.Rotation - MathHelper.PiOver2);
-                        float theWeaponSin = (float)Math.Sin(theWeapon.Rotation - MathHelper.PiOver2);
+                        float theWeaponCos = (float)Math.Cos(rotation - MathHelper.PiOver2);
+                        float theWeaponSin = (float)Math.Sin(rotation - MathHelper.PiOver2);
 
                         //Set the initial position of our bullet at the end of our gun
                         //42 is obtained be taking the width of the Arm_Gun texture / 2
                         //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
                         bullet.Position = new Vector2(
-                            theWeapon.Position.X + 42 * theWeaponCos,
-                            theWeapon.Position.Y + 42 * theWeaponSin);
+                            position.X + 42 * theWeaponCos,
+                            position.Y + 42 * theWeaponSin);
 
                         //And give it a velocity of the direction we're aiming.
                         //Increase/decrease speed by changing 15.0f
                         bullet.Velocity = new Vector2(
-                            (float)Math.Cos(theWeapon.Rotation - MathHelper.PiOver2),
-                            (float)Math.Sin(theWeapon.Rotation - MathHelper.PiOver2)) * 15.0f;
+                            (float)Math.Cos(rotation - MathHelper.PiOver2),
+                            (float)Math.Sin(rotation - MathHelper.PiOver2)) * 15.0f;
                     }
                     else //Facing left
                     {
-                        float theWeaponCos = (float)Math.Cos(theWeapon.Rotation + MathHelper.PiOver2);
-                        float theWeaponSin = (float)Math.Sin(theWeapon.Rotation + MathHelper.PiOver2);
+                        float theWeaponCos = (float)Math.Cos(rotation + MathHelper.PiOver2);
+                        float theWeaponSin = (float)Math.Sin(rotation + MathHelper.PiOver2);
 
                         //Set the initial position of our bullet at the end of our gun
                         //42 is obtained be taking the width of the Arm_Gun texture / 2
                         //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
                         bullet.Position = new Vector2(
-                            theWeapon.Position.X - 42 * theWeaponCos,
-                            theWeapon.Position.Y - 42 * theWeaponSin);
+                            position.X - 42 * theWeaponCos,
+                            position.Y - 42 * theWeaponSin);
 
                         //And give it a velocity of the direction we're aiming.
                         //Increase/decrease speed by changing 15.0f

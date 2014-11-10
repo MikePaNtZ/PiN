@@ -25,9 +25,9 @@ namespace PiN
         public override void OnHit(GameObject hitBy)
         {
             System.Diagnostics.Debug.WriteLine("OnHit");
-            if (hero.InvincibilityFrames <= 0 && hero.IsPoweredUp == false)
+            if (hero.IsHit == false && hero.IsPoweredUp == false)
             {
-                //ideally we could check exactly what hit us, bullet enemy, bomb w/e
+                //ideally we could check exactly what hit us, bullet, enemy, bomb w/e
                 //and take different actions, maybe this should be a state
                 if (hitBy is Enemy)
                 {

@@ -28,6 +28,34 @@ namespace PiN
         {
         }
 
+        protected override void LoadContent()
+        {
+            crosshair = new GameObject();
+            crosshair.Texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Crosshair");
+            base.LoadContent();
+        }
+
+        public override void UpdateWeaponState(Vector2 crosshairPosition)
+        {
+            crosshair.Position = crosshairPosition;
+            base.UpdateWeaponState(crosshairPosition);
+        }
+
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(
+                crosshair.Texture,
+                crosshair.Position,
+                null,
+                Color.White,
+                crosshair.Rotation,
+                crosshair.Center,
+                1.0f,
+                weaponWielder.Flip,
+                0);
+
+            base.Draw(gameTime, spriteBatch);
+        }
         protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
         {
             //Check for collisions with the enemies

@@ -15,11 +15,13 @@ namespace PiN
         public override void Reset()
         {
             MainState = new HeroIdleState(this);
+            ShooterState = new HeroAimingState(this);
         }
 
-        public void OnReachedExit()
+        public override void OnReachedExit()
         {
             MainState.OnReachedExit();
+            ShooterState.OnReachedExit();
         }
     }
 }
