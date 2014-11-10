@@ -70,6 +70,11 @@ namespace PiN
             set { health = (int)MathHelper.Clamp(value, 0, maxHealth); }
         }
 
+        public int MaxHealth
+        {
+            get { return maxHealth; }
+        }
+
         public virtual bool IsJumping { get { return false; } }
         public virtual bool IsAttacking { get { return false; } }
 
@@ -168,7 +173,6 @@ namespace PiN
             : base()
         {
             Position = initialPosition;
-            maxHealth = 100;
 
             this.level = level;
             // construct the physics engine.
@@ -212,8 +216,7 @@ namespace PiN
         /// </summary>
         public virtual void OnHit(GameObject hitBy)
         {
-            if (stateMachine != null)
-                stateMachine.OnHit(hitBy);
+            stateMachine.OnHit(hitBy);
         }
 
         /// <summary>
@@ -298,7 +301,7 @@ namespace PiN
         protected float movement = 0.0f;
         // Character health
         protected int health;
-        protected int maxHealth;
+        protected int maxHealth = 100;
         
         // Character's weapon
         protected Weapon weapon;

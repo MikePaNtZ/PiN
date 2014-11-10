@@ -5,46 +5,28 @@ using Microsoft.Xna.Framework.Input;
 
 namespace PiN
 {
-    class ShooterState
+    class ShooterState : State
     {
-        protected CharacterStateMachine sm;
-        protected GameCharacter character;
-
-        public ShooterState(CharacterStateMachine sm)
+        public ShooterState(CharacterStateMachine sm) : base(sm)
         {
-            this.sm = sm;
-            character = sm.Character;
-        }
-
-        public virtual void Reset()
-        {
-            //implement in derived class
-        }
-
-        public virtual void Update(GameTime gameTime, InputHandler gameInputs)
-        {
-
         }
 
         public virtual void Update(GameTime gameTime, Vector2 target)
         {
-
-        }
-        public virtual void OnHit(GameObject hitBy)
-        {
             //implement in derived class
         }
 
-        public virtual void OnKilled(GameObject killedBy)
+        public override void OnKilled(GameObject killedBy)
         {
             sm.ShooterState = new HolsterState(sm);
         }
 
-        public virtual void OnReachedExit()
+        public override void OnReachedExit()
         {
             sm.ShooterState = new HolsterState(sm);
         }
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             if (character.IsAlive)
             {

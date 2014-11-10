@@ -15,9 +15,9 @@ namespace PiN
             hero = (Hero)character;
         }
 
-        public override void Update(GameTime gameTime, InputHandler input)
+        public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            base.Update(gameTime, input);
+            base.Update(gameTime, gameInputs);
             if (hero.InvincibilityFrames > 0)
                 hero.InvincibilityFrames -= gameTime.ElapsedGameTime.Milliseconds / 1000.0F;
         }

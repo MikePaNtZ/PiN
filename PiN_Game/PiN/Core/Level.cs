@@ -480,13 +480,18 @@ namespace PiN
             
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
+            {
                 enemy.Draw(gameTime, spriteBatch);
+                XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 2);
+            }
+                
 
             //draw each consumable in the consumables array
             foreach (Consumable consumable in consumables)
                 consumable.Draw(gameTime, spriteBatch);
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
+            XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 2);
 
             spriteBatch.End();
 

@@ -12929,7 +12929,7 @@
     <property name="enemyType" value="MonsterA"/>
    </properties>
   </object>
-  <object name="enemy" x="582" y="928" width="46" height="42">
+  <object name="enemy" x="575" y="685" width="46" height="42">
    <properties>
     <property name="enemyType" value="MonsterB"/>
    </properties>

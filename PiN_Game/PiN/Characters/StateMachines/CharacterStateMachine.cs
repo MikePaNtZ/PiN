@@ -9,8 +9,9 @@ namespace PiN
     class CharacterStateMachine
     {
         public GameCharacter Character;
-        public MainState MainState;
-        public ShooterState ShooterState;
+        public State MainState;
+        public State ShooterState;
+
         public CharacterStateMachine(GameCharacter character)
         {
             Character = character;
@@ -29,10 +30,12 @@ namespace PiN
             ShooterState.Update(gameTime, gameInputs);
             
         }
+
         public virtual void OnHit(GameObject hitBy)
         {
             MainState.OnHit(hitBy);
         }
+
         public virtual void OnKilled(GameObject killedBy)
         {
             MainState.OnKilled(killedBy);
