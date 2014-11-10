@@ -86,11 +86,7 @@ namespace PiN
                 // Begin or continue a jump
                 if ((!wasJumping && character.IsOnGround) || jumpTime > 0.0f)
                 {
-                    if (jumpTime == 0.0f)
-                        character.JumpSound.Play();
-
                     jumpTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                    character.Sprite.LoadAnimation(character.JumpAnimation);
                 }
 
                 // If we are in the ascent of the jump

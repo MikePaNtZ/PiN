@@ -10,11 +10,9 @@ namespace PiN
 {
     class HeroFlight: Hero
     {
-              public HeroFlight(Level level, Vector2 initialPosition, Texture2D defaultTexture)
-            : base(level, initialPosition, defaultTexture)
+              public HeroFlight(Level level, Vector2 initialPosition)
+            : base(level, initialPosition)
         {
-            LoadContent();
-            Reset(initialPosition);
         }
 
         protected override void LoadContent()
@@ -25,7 +23,7 @@ namespace PiN
               I may have to do this later for the overdrive meter of the activeHero*/
             shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/ShieldPart1"), 0.1f, true);
             shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Shield"), 0.1f, true); //load image for the shield
-
+            shieldSprite = Level.Content.Load<Texture2D>("Sprites/HeroFlight/ShieldPart1");
 
             runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Run"), 0.1f, true);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Jump"), 0.1f, false);
@@ -49,20 +47,8 @@ namespace PiN
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // Load character's default weapon
-            weapon = new HeroFlightGun(Level.Content.Load<Texture2D>("Sprites/HeroFlight/Arm_Gun"), this);
-
-        }
-
-
-        public override void Update(GameTime gameTime, InputHandler gameInputs)
-        {
-            base.Update(gameTime, gameInputs);
-
-        }//end Update method
-
-        protected override void determineAnimation(GameTime gameTime)
-        {
-            base.determineAnimation(gameTime);
+            weapon = new HeroFlightGun(this);
+            base.LoadContent();
         }
     }
 }

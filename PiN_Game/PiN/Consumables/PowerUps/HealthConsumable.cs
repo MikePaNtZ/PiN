@@ -34,7 +34,7 @@ namespace PiN
         override public void OnCollected(Hero collectedBy)
         {
             collectedSound.Play();
-            collectedBy.UpdateHealth(healthGain);
+            collectedBy.Health += healthGain;
         }
     }
 }

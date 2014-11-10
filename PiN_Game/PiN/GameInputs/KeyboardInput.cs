@@ -11,9 +11,10 @@ namespace PiN
 {
     public class KeyboardInput
     {
-        public KeyboardInput(KeyboardState keyboardState)
+        public KeyboardInput(KeyboardState keyboardState, KeyboardState prevKeyboardState)
         {
             _keyboardState = keyboardState;
+            _prevKeyboardState = prevKeyboardState;
         }
 
         public KeyboardState KeyboardState
@@ -22,6 +23,13 @@ namespace PiN
             set { }
         }
 
+        public KeyboardState PreviousKeyboardState
+        {
+            get { return _prevKeyboardState; }
+            set { }
+        }
+
         private KeyboardState _keyboardState;
+        private KeyboardState _prevKeyboardState;
     }
 }

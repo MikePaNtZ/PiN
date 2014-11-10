@@ -26,9 +26,18 @@ namespace PiN
         /// </summary>
         public MonsterC(Level level, Vector2 position) : base(level, position)
         {
-            MaxHealth = 6;
-            enemyType = "MonsterC";
-            LoadContent();
+            maxHealth = 6;
+        }
+
+        protected override void LoadContent()
+        {
+            // Load animations.
+            runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterC/Run"), 0.1f, true);
+            idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterC/Idle"), 0.15f, true);
+            dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterC/Die"), 0.07f, false);
+            jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterC/Idle"), 0.15f, true); //placeholder
+
+            base.LoadContent();
         }
 
     }

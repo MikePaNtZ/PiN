@@ -26,9 +26,18 @@ namespace PiN
         /// </summary>
         public MonsterD(Level level, Vector2 position) : base(level, position)
         {
-            MaxHealth = 4;
-            enemyType = "MonsterD";
-            LoadContent();
+            maxHealth = 4;
+        }
+
+        protected override void LoadContent()
+        {
+            // Load animations.
+            runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterD/Run"), 0.1f, true);
+            idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterD/Idle"), 0.15f, true);
+            dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterD/Die"), 0.07f, false);
+            jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterD/Idle"), 0.15f, true); //placeholder
+
+            base.LoadContent();
         }
 
     }
