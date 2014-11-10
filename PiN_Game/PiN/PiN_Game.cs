@@ -44,7 +44,9 @@ namespace PiN
         // then we use the same input state wherever needed
         private InputHandler gameInputHandler;
         private KeyboardState keyboardState;
+        private KeyboardState previousKeyboardState;
         private MouseState mouseState;
+        private MouseState previousMouseState;
 
         // Game camera
         private Camera cam;
@@ -127,9 +129,12 @@ namespace PiN
         private void HandleInput()
         {
             // get all of our input states
+            previousKeyboardState = keyboardState;
             keyboardState = Keyboard.GetState();
+
+            previousMouseState = mouseState;
             mouseState = Mouse.GetState();
-            gameInputHandler = new InputHandler(cam, mouseState, keyboardState);
+            gameInputHandler = new InputHandler(cam, mouseState, previousMouseState, keyboardState, previousKeyboardState);
             // Exit the game when back is pressed.
             if (gameInputHandler.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
@@ -167,7 +172,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            levelIndex = 0; //index level 2 is MikeBLevel
             level = new Level(Services,maps[levelIndex],cam);
         }
 

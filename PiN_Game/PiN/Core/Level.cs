@@ -125,9 +125,9 @@ namespace PiN
             //where the player starts in the map
             start = RectangleExtensions.GetBottomCenter(GetBounds((int)map.StartTile.X,(int)map.StartTile.Y));
 
-            Heroes[0] = new HeroStrength(this, new Vector2(-1,-1), this.Content.Load<Texture2D>("Sprites/HeroStrength/Idle"));
-            Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroSpeed/Idle"));
-            Heroes[2] = new HeroFlight(this, new Vector2(-1, -1), this.Content.Load<Texture2D>("Sprites/HeroFlight/Idle"));
+            Heroes[0] = new HeroStrength(this, new Vector2(-1,-1));
+            Heroes[1] = new HeroSpeed(this, new Vector2(-1, -1));
+            Heroes[2] = new HeroFlight(this, new Vector2(-1, -1));
 
             activeHero = (Hero)Heroes[1];
             activeHero.Position = start;
@@ -286,7 +286,7 @@ namespace PiN
                 Camera.LookAt(ActiveHero.Position);
 
                 // Falling off the bottom of the level kills the activeHero.
-                if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight)
+                if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight && ActiveHero.IsAlive)
                 {
                     OnHeroKilled(null);
                 }
@@ -345,33 +345,6 @@ namespace PiN
                     if (ActiveHero.IsPoweredUp)
                     {
                         OnEnemyKilled(enemy, ActiveHero); //enemy dies instantly when you are in invincibility mode
-                    }
-                    else if (ActiveHero.IsBlocking)
-                    {
-                        enemy.UpdateHealth(-enemy.Health / 2);
-
-                        //if (ActiveHero.Position.X <= enemy.Position.X)
-                        //{
-                        //    int x = (int)Math.Floor(enemy.Position.X + 96);
-                        //    int y = (int)Math.Floor(enemy.Position.Y);
-                        //    enemy.Position = new Vector2(x,y);
-                        //    //if (enemy.BoundingRectangle.Intersects(GetTileAtPoint(x,y)))
-                        //    //{
-                        //    //    GetCollision(x, y);
-                        //    //}
-                            
-                        //   // ActiveHero.UpdateHealth(8);
-                        //}
-                        //else if (ActiveHero.Position.X > enemy.Position.X)
-                        //{
-                        //    enemy.Position = new Vector2(enemy.Position.X - 96, enemy.Position.Y);
-                        //   // ActiveHero.UpdateHealth(8);
-                        //}
-                        //else
-                        //{
-                        //    enemy.Position = new Vector2(enemy.Position.X + 96, enemy.Position.Y);
-                        //   // ActiveHero.UpdateHealth(8);
-                        //}
                     }
                     else if (!ActiveHero.IsHit)
                     {
@@ -507,13 +480,18 @@ namespace PiN
             
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
+            {
                 enemy.Draw(gameTime, spriteBatch);
+                XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 2);
+            }
+                
 
             //draw each consumable in the consumables array
             foreach (Consumable consumable in consumables)
                 consumable.Draw(gameTime, spriteBatch);
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
+            XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 2);
 
             spriteBatch.End();
 

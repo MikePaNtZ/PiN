@@ -12,12 +12,11 @@ namespace PiN
     class Weapon : GameObject
     {
         protected GameCharacter weaponWielder;
-        protected GameObject theWeapon;
 
         /// <summary>
         /// Weapon constructor
         /// </summary>
-        public Weapon(Texture2D loadedTexture, GameCharacter weaponUser) : base(loadedTexture)
+        public Weapon(GameCharacter weaponUser) : base()
         {
             weaponWielder = weaponUser;
             LoadContent();
@@ -28,9 +27,7 @@ namespace PiN
         /// </summary>
         protected virtual void LoadContent()
         {
-            // this is essentially an abstract base class. set the weapon to null to force the user of
-            // this class to properly derive from it.
-            theWeapon = null;
+
         }
 
         public virtual void UpdateWeaponState(Vector2 attackTarget)
@@ -47,10 +44,5 @@ namespace PiN
         {
             // base weapon class has no implementation for this. implement in a derived class
         }
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        {
-            /// needs to be implemented by derived class.
-        }
-
     }
 }

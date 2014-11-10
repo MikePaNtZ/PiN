@@ -11,16 +11,23 @@ namespace PiN
 {
     public class MouseInput
     {
-        public MouseInput(Camera cam, MouseState mouseState)
+        public MouseInput(Camera cam, MouseState mouseState, MouseState prevMouseState)
         {
             _cam = cam;
             _mouseState = mouseState;
+            _prevMouseState = prevMouseState;
         }
 
 
         public MouseState MouseState
         {
             get { return _mouseState; }
+            set { }
+        }
+
+        public MouseState PreviousMouseState
+        {
+            get { return _prevMouseState; }
             set { }
         }
 
@@ -46,6 +53,7 @@ namespace PiN
 
         private readonly Camera _cam;
         private MouseState _mouseState;
+        private MouseState _prevMouseState;
         private Vector2 _screenPosition;
     }
 }
