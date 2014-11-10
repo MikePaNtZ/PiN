@@ -78,6 +78,11 @@
     <Compile Include="Characters\Enemies\MonsterA.cs" />
     <Compile Include="Characters\Enemies\EnemyFactory.cs" />
     <Compile Include="Characters\GameCharacter.cs" />
+    <Compile Include="Characters\StateMachines\States\Shield\BlockingState.cs" />
+    <Compile Include="Characters\StateMachines\States\Shield\DepletedState.cs" />
+    <Compile Include="Characters\StateMachines\States\Shield\ShieldHitState.cs" />
+    <Compile Include="Characters\StateMachines\States\Shield\ShieldState.cs" />
+    <Compile Include="Characters\StateMachines\States\Shield\NotBlockingState.cs" />
     <Compile Include="Characters\StateMachines\States\Shooting\HeroAimingState.cs" />
     <Compile Include="Characters\StateMachines\States\Main\HeroCelebrateState.cs" />
     <Compile Include="Characters\StateMachines\States\Main\DeadState.cs" />

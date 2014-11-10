@@ -53,6 +53,8 @@ namespace PiN
             }
         }
 
+        
+
         /// <summary>
         /// Gets whether or not the character's feet are on the ground.
         /// </summary>
@@ -65,14 +67,7 @@ namespace PiN
         public int Health
         {
             get { return health; }
-            set 
-            {
-                health = value;
-                if (health > maxHealth)
-                    health = maxHealth;
-                else if (health < 0)
-                    health = 0;
-            }
+            set { health = (int)MathHelper.Clamp(value, 0, maxHealth); }
         }
 
         public virtual bool IsJumping { get { return false; } }
@@ -136,11 +131,7 @@ namespace PiN
             set { powerUpTime = value; }
         }
 
-        public bool IsBlocking
-        {
-            get { return isBlocking; }
-            set { this.isBlocking = value; }
-        }
+        
 
         public SoundEffect KilledSound { get { return killedSound; } }
         public SoundEffect JumpSound { get { return jumpSound; } }
@@ -318,8 +309,7 @@ namespace PiN
         // Local rectangle boundary.
         protected Rectangle localBounds;
         // Powerup state
-        protected const float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
-        private bool isBlocking; //is player using his force field shield
+        protected float MaxPowerUpTime = 10.0f; //maximum power up time is 10 seconds
         // Power up colors
         protected readonly Color[] poweredUpColors = {
                                Color.Red,

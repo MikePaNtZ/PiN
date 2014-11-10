@@ -46,7 +46,7 @@ namespace PiN
             }
         }
 
-        public bool IsAlive
+        public virtual bool IsAlive
         {
             get { return isAlive; }
             set { this.isAlive = value; }

@@ -98,6 +98,11 @@ namespace PiN
                 spriteBatch.Draw(healthTexture, new Rectangle((int)Hero3HealthBarLocation.X + 1, (int)Hero3HealthBarLocation.Y + 1, level.Heroes[2].Health * 2 - 2, 30), Color.White * hudOpacity);
             }
 
+            if (level.ActiveHero != null)
+            {
+                DrawShadowedString(spriteBatch, hudFont, "SHIELD: " + level.ActiveHero.ShieldCharge, new Vector2(hudLocation.X + hudFont.MeasureString(timeString).X * 1.2F, hudLocation.Y), Color.White * hudOpacity);
+            }
+
             // Determine the status overlay message to show.
             Texture2D status = null;
             if (level.TimeRemaining == TimeSpan.Zero)

@@ -22,7 +22,7 @@ namespace PiN
               I may have to do this later for the overdrive meter of the activeHero*/
             shieldPart1Animation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/ShieldPart1"), 0.1f, true);
             shieldAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Shield"), 0.1f, true); //load image for the shield
-
+            shieldSprite = Level.Content.Load<Texture2D>("Sprites/HeroSpeed/ShieldPart1");
 
             runAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Run"), 0.1f, true);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/HeroSpeed/Jump"), 0.1f, false);

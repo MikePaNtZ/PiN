@@ -48,7 +48,56 @@ namespace PiN
             }
         }
 
-        protected float iFrames;
+        public bool IsBlocking
+        {
+            get { return ((HeroStateMachine)stateMachine).ShieldState.GetType() == typeof(BlockingState) || 
+                         ((HeroStateMachine)stateMachine).ShieldState.GetType() == typeof(ShieldHitState); }
+        }
+
+        public Texture2D ShieldSprite
+        {
+            get { return shieldSprite; }
+        }
+
+        public float ShieldCharge
+        {
+            get { return shieldCharge; }
+            set { shieldCharge = MathHelper.Clamp(value, 0.0F, maxShieldCharge); }
+        }
+
+        public float MaxShieldCharge
+        {
+            get { return maxShieldCharge; }
+        }
+
+        public float ShieldChargeRate
+        {
+            get { return shieldChargeRate; }
+        }
+
+        public float ShieldHitTime
+        {
+            get { return shieldHitTime; }
+            set { shieldHitTime = MathHelper.Clamp(value, 0.0F, maxShieldHitTime); }
+        }
+
+        public float MaxShieldHitTime
+        {
+            get { return maxShieldHitTime; }
+        }
+
+        public float DepletedShieldTime
+        {
+            get { return depletedShieldTime; }
+            set { depletedShieldTime = MathHelper.Clamp(value, 0.0F, maxDepletedShieldTime); }
+        }
+
+        public float MaxDepletedShieldTime
+        {
+            get { return maxDepletedShieldTime; }
+        }
+        
+        
 
         public readonly Color[] isHitColors = 
         {
@@ -61,6 +110,9 @@ namespace PiN
         /// </summary>
         public Hero(Level level, Vector2 initialPosition): base(level, initialPosition)
         {
+            shieldCharge = maxShieldCharge;
+            depletedShieldTime = 0.0F;
+            shieldHitTime = 0.0F;
             iFrames = 0.0F;
             LoadContent();
         }
@@ -76,40 +128,21 @@ namespace PiN
         public override void Reset(Vector2 position)
         {
             base.Reset(position);
+            shieldCharge = maxShieldCharge;
+            shieldHitTime = 0.0F;
+            depletedShieldTime = 0.0F;
             iFrames = 0.0F;
         }
-
-        /// <summary>
-        /// Gets player horizontal movement and jump commands from input.
-        /// </summary>
-        private void GetInput(InputHandler gameInputs)
-        {
-            //the player is blocking by holding down the right mouse button
-            IsBlocking = (gameInputs.MouseState.RightButton == ButtonState.Pressed) & (gameInputs.PreviousMouseState.RightButton == ButtonState.Pressed);
-
-        }
-
-        /// <summary>
-        /// Handles input, performs physics, and animates the player resetAfterHit.
-        /// </summary>
-        public override void Update(GameTime gameTime, InputHandler gameInputs)
-        {
-            base.Update(gameTime, gameInputs);
-
-            // Handle inputs
-            GetInput(gameInputs);
-
-        }//end Update method
-
-        
 
         public void SwapIn()
         {
             iFrames = Level.ActiveHero.InvincibilityFrames;
+            depletedShieldTime = Level.ActiveHero.DepletedShieldTime;
+            shieldCharge = Level.ActiveHero.ShieldCharge;
+            shieldHitTime = Level.ActiveHero.ShieldHitTime;
             Position = Level.ActiveHero.Position;
             Velocity = Level.ActiveHero.Velocity;
             IsOnGround = Level.ActiveHero.IsOnGround;
-            IsBlocking = Level.ActiveHero.IsBlocking;
             powerUpTime = Level.ActiveHero.powerUpTime;
             stateMachine.MainState = Level.ActiveHero.stateMachine.MainState;
         }
@@ -133,6 +166,16 @@ namespace PiN
             else
                 base.determineColor(gameTime);
         }
+
+        protected Texture2D shieldSprite;
+        protected float iFrames;
+        protected float shieldCharge;
+        protected float maxShieldCharge = 50.0F;
+        protected float shieldChargeRate = 2.0F;
+        protected float shieldHitTime;
+        protected float maxShieldHitTime = 0.5F;
+        protected float depletedShieldTime;
+        protected float maxDepletedShieldTime = 2.0F;
 
     }//end class ActiveHero
 }//end namespace PiN

@@ -10,14 +10,13 @@ namespace PiN
     {
         public HeroAimingState(HeroStateMachine HSM) : base(HSM)
         {
+            //System.Diagnostics.Debug.WriteLine("AimingState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
             base.Update(gameTime, gameInputs);
 
-            System.Diagnostics.Debug.WriteLine("AimingState");
-
-            if (gameInputs.MouseState.LeftButton == ButtonState.Pressed)
+            if (gameInputs.MouseState.LeftButton == ButtonState.Pressed && hero.IsBlocking == false)
                 hsm.ShooterState = new HeroFiringState(hsm);
 
             //TODO reloading
