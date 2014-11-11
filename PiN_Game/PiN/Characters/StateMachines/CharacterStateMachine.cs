@@ -49,8 +49,8 @@ namespace PiN
 
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            MainState.Draw(gameTime, spriteBatch);
             ShooterState.Draw(gameTime, spriteBatch);
+            MainState.Draw(gameTime, spriteBatch);   
         }
     }
 }
