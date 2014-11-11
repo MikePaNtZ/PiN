@@ -43,14 +43,6 @@ namespace PiN
             get { return maxWaitTime; }
         }
 
-        public override Rectangle BoundingRectangle
-        {
-            get
-            {
-                return rectangle;
-            }
-        }
-
         public override bool IsJumping
         {
             get
@@ -63,8 +55,7 @@ namespace PiN
         /// Constructs a new Enemy.
         /// </summary>
         public Enemy(Level level, Vector2 initialPosition): base(level, initialPosition)
-       { 
-            health = maxHealth;
+        { 
             LoadContent();
         }
 
@@ -78,6 +69,15 @@ namespace PiN
             killedSound = Level.Content.Load<SoundEffect>("Sounds/Dying");
             // Temporary hurt sound. We probably want to use something different in the future.
             hurtSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
+
+            // Calculate bounds within texture size.            
+            // TODO It needs to be more clear what this is doing, and why it is done here. It is for collision detection.
+            int width = (int)(idleAnimation.FrameWidth * 0.4);
+            int left = (idleAnimation.FrameWidth - width) / 2;
+            int height = (int)(idleAnimation.FrameWidth * 0.8);
+            int top = idleAnimation.FrameHeight - height;
+            localBounds = new Rectangle(left, top, width, height);
+
             // Load enemy default weapon
             weapon = new EnemyGun(this);
 
@@ -142,11 +142,6 @@ namespace PiN
         /// Enemy explosion animation.
         /// </summary>
         protected Animation explosionAnimation;
-
-        /// <summary>
-        /// The speed at which this enemy moves along the X axis.
-        /// </summary>
-        protected float MoveSpeed = 40.0F;
 
         /// <summary>
         /// if player is within this distance than transition to tracking state from searching state

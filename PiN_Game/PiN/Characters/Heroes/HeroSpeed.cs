@@ -12,6 +12,7 @@ namespace PiN
     {
          public HeroSpeed(Level level, Vector2 initialPosition): base(level, initialPosition)
         {
+            moveSpeed = 1.2F;
         }
 
         protected override void LoadContent()

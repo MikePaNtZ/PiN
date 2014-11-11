@@ -28,7 +28,7 @@ namespace PiN
 
             // Base velocity is a combination of horizontal movement control and
             // acceleration downward due to gravity.
-            characterVelocity.X += character.Movement * MoveAcceleration * elapsed;
+            characterVelocity.X += character.Movement * character.MoveSpeed * MoveAcceleration * elapsed;
             characterVelocity.Y = MathHelper.Clamp(characterVelocity.Y + GravityAcceleration * elapsed, -MaxFallSpeed, MaxFallSpeed);
 
             characterVelocity.Y = DoJump(characterVelocity.Y, gameTime);
