@@ -29,6 +29,16 @@ namespace PiN
             maxHealth = 8;
         }
 
+        public override Vector2 Arm
+        {
+            get
+            {
+                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width * 8),
+                                   rectangle.Y + rectangle.Height / 2);
+            }
+        }
+
+
         protected override void LoadContent()
         {
             // Load animations.
