@@ -28,9 +28,10 @@ namespace PiN
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            if (character.Weapon.Rotation < 0)
+            float deadBand = MathHelper.ToRadians(0.0f);
+            if (character.Weapon.Rotation < deadBand)
                 character.FaceDirection = FaceDirection.Left;
-            else if (character.Weapon.Rotation > 0)
+            if (character.Weapon.Rotation > -deadBand)
                 character.FaceDirection = FaceDirection.Right;
 
             character.determineColor(gameTime);
