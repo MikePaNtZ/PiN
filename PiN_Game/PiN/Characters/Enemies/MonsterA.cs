@@ -20,20 +20,24 @@ namespace PiN
     /// </summary>
     class MonsterA : Enemy
     {
+        public override int MaxHealth
+        {
+            get { return 12; }
+        }
 
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
         public MonsterA(Level level, Vector2 position) : base(level, position)
         {
-            maxHealth = 8;
+            moveSpeed = 0.3F;
         }
 
         public override Vector2 Arm
         {
             get
             {
-                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width * 8),
+                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width / 8),
                                    rectangle.Y + rectangle.Height / 2);
             }
         }

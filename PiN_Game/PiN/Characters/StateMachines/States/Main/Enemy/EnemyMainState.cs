@@ -16,11 +16,6 @@ namespace PiN
             enemy = (Enemy)character;
         }
 
-        public override void Update(GameTime gameTime, InputHandler input)
-        {
-            base.Update(gameTime, input);
-        }
-
         public override void OnHit(GameObject hitBy)
         {
             System.Diagnostics.Debug.WriteLine("EnemyOnHit");

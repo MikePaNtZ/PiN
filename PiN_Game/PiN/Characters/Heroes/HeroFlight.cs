@@ -13,6 +13,7 @@ namespace PiN
               public HeroFlight(Level level, Vector2 initialPosition)
             : base(level, initialPosition)
         {
+            moveSpeed = 1.0F;
         }
 
         protected override void LoadContent()

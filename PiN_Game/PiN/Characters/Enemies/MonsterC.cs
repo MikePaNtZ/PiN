@@ -20,13 +20,17 @@ namespace PiN
     /// </summary>
     class MonsterC : Enemy
     {
+        public override int MaxHealth
+        {
+            get { return 6; }
+        }
 
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
         public MonsterC(Level level, Vector2 position) : base(level, position)
         {
-            maxHealth = 6;
+            moveSpeed = 0.6F;
         }
 
         protected override void LoadContent()

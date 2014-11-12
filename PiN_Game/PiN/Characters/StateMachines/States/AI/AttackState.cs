@@ -11,32 +11,36 @@ namespace PiN
         public AttackState(EnemyStateMachine ESM)
             : base(ESM)
         {
-            enemy.Color = Color.Orange;
+            esm.ShooterState = new EnemyFiringState(esm);
+            enemy.AttackTime = enemy.MaxAttackTime;
+            enemy.AttackWaitTime = enemy.MaxAttackWaitTime;
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            if (enemy.LineOfSight.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
+            base.Update(gameTime, gameInputs);
+            if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
                 enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
 
-            enemy.Weapon.UpdateWeaponState(enemy.Level.ActiveHero.Center);
-            if (enemy.IsAttacking && !enemy.alreadyAttacking)
+            if (enemy.IsAttacking)
             {
-                enemy.Weapon.PerformNormalAttack();
-                enemy.alreadyAttacking = true;
-                enemy.AttackWaitTime = enemy.MaxAttackWaitTime;
+                enemy.AttackTime = Math.Max(0.0f, enemy.AttackTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+                if (enemy.AttackTime <= 0.0f)
+                {
+                    esm.ShooterState = new EnemyAimingState(esm);
+                    enemy.AttackWaitTime = enemy.MaxAttackWaitTime;
+                }
+                
             }
-            else if (enemy.alreadyAttacking)
+            else
             {
                 enemy.AttackWaitTime = Math.Max(0.0f, enemy.AttackWaitTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
                 if (enemy.AttackWaitTime <= 0.0f)
                 {
-                    enemy.alreadyAttacking = false;
+                    esm.ShooterState = new EnemyFiringState(esm);
+                    enemy.AttackTime = enemy.MaxAttackTime;
                 }
             }
-
-            base.Update(gameTime, gameInputs);
-
-            if (Math.Abs(enemy.LineOfSight.X) > enemy.MaxAttackDistance)// player moved outside of attacking range then track
+            if (Math.Abs(enemy.LineOfSightToHero.X) > enemy.MaxAttackDistance)// player moved outside of attacking range then track
                 esm.BehaviorState = new TrackState(esm);
         }
     }

@@ -46,10 +46,7 @@ namespace PiN
         {
             get 
             {
-                if (sprite.Animation != null)
-                    return new Vector2(Position.X + sprite.Animation.Texture.Width / 2, Position.Y - sprite.Animation.Texture.Height);
-                else
-                    return Position; 
+                return new Vector2(BoundingRectangle.Center.X, BoundingRectangle.Center.Y);
             }
         }
 
@@ -67,21 +64,32 @@ namespace PiN
         public int Health
         {
             get { return health; }
-            set { health = (int)MathHelper.Clamp(value, 0, maxHealth); }
+            set { health = (int)MathHelper.Clamp(value, 0, MaxHealth); }
         }
 
-        public int MaxHealth
+        public virtual int MaxHealth
         {
-            get { return maxHealth; }
+            get { return 100; }
         }
 
         public virtual bool IsJumping { get { return false; } }
         public virtual bool IsAttacking { get { return false; } }
 
+        public override bool IsAlive
+        {
+            get { return stateMachine.MainState.GetType() != typeof(DeadState); }
+            set { ; }
+        }
+
         public float Movement
         {
             get { return movement; }
             set { movement = value; }
+        }
+
+        public float MoveSpeed
+        {
+            get { return moveSpeed; }
         }
 
         /// <summary>
@@ -189,8 +197,7 @@ namespace PiN
             if (stateMachine != null)
                 stateMachine.Reset();
             Velocity = Vector2.Zero;
-            IsAlive = true;
-            health = maxHealth;
+            health = MaxHealth;
             powerUpTime = 0.0f;
         }
 
@@ -299,9 +306,9 @@ namespace PiN
         protected float powerUpTime;
         // character movement term. applied to velocity in physics
         protected float movement = 0.0f;
+        protected float moveSpeed;
         // Character health
         protected int health;
-        protected int maxHealth = 100;
         
         // Character's weapon
         protected Weapon weapon;
