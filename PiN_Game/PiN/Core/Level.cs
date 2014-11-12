@@ -256,8 +256,8 @@ namespace PiN
         {
 
             //switching characters in the air screws up the physics sometimes
-            //This is a work around, but I would like to fixthe bug
-            if (activeHero.IsOnGround)
+            //This is a work around, but I would like to fix the bug
+            if (activeHero.IsOnGround && activeHero.IsAlive)
                 SwapHeroes(gameInputs);
 
 
