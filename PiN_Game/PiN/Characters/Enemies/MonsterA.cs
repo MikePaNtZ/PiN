@@ -37,7 +37,7 @@ namespace PiN
         {
             get
             {
-                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width * 8),
+                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width / 8),
                                    rectangle.Y + rectangle.Height / 2);
             }
         }

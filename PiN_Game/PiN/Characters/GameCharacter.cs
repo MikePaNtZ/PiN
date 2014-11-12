@@ -46,10 +46,7 @@ namespace PiN
         {
             get 
             {
-                if (sprite.Animation != null)
-                    return new Vector2(Position.X + sprite.Animation.Texture.Width / 2, Position.Y - sprite.Animation.Texture.Height);
-                else
-                    return Position; 
+                return new Vector2(BoundingRectangle.Center.X, BoundingRectangle.Center.Y);
             }
         }
 
@@ -77,6 +74,12 @@ namespace PiN
 
         public virtual bool IsJumping { get { return false; } }
         public virtual bool IsAttacking { get { return false; } }
+
+        public override bool IsAlive
+        {
+            get { return stateMachine.MainState.GetType() != typeof(DeadState); }
+            set { ; }
+        }
 
         public float Movement
         {
@@ -194,7 +197,6 @@ namespace PiN
             if (stateMachine != null)
                 stateMachine.Reset();
             Velocity = Vector2.Zero;
-            IsAlive = true;
             health = MaxHealth;
             powerUpTime = 0.0f;
         }

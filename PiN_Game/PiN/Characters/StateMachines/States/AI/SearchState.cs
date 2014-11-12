@@ -11,12 +11,22 @@ namespace PiN
         public SearchState(EnemyStateMachine ESM)
             : base(ESM)
         {
-            enemy.Color = Color.White;
+            esm.ShooterState = new EnemyAimingState(esm);
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            if (enemy.Health <= enemy.MaxHealth * enemy.KamikazeThresholdPercent)
+            {
+                esm.BehaviorState = new KamikazeState(esm);
+                return;
+            }
+
+            
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            enemy.Target = new Vector2(enemy.Center.X + ((int)enemy.FaceDirection * enemy.MinTrackDistance), enemy.Center.Y - (enemy.WaitTime*elapsed));
+
             // Calculate tile position based on the side we are walking towards.
             float posX = enemy.Position.X + enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
             int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth) - (int)enemy.FaceDirection;
@@ -46,13 +56,11 @@ namespace PiN
                 }
             }
 
-            base.Update(gameTime, gameInputs);
-
-            if (enemy.LineOfSight.X * (int)enemy.FaceDirection >= 0) //make sure enemy is facing the right direction
+            if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection >= 0) //make sure enemy is facing the right direction
             {
-                if (Math.Abs(enemy.LineOfSight.X) <= enemy.MaxAttackDistance)// player is in attacking distance then attack
+                if (Math.Abs(enemy.LineOfSightToHero.X) <= enemy.MaxAttackDistance)// player is in attacking distance then attack
                     esm.BehaviorState = new AttackState(esm);
-                else if (Math.Abs(enemy.LineOfSight.X) <= enemy.MinTrackDistance)//or at least in tracking distance then track
+                else if (Math.Abs(enemy.LineOfSightToHero.X) <= enemy.MinTrackDistance)//or at least in tracking distance then track
                     esm.BehaviorState = new TrackState(esm);
             }
         }

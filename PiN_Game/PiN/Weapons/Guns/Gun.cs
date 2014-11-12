@@ -67,8 +67,7 @@ namespace PiN
 
         public override void PerformNormalAttack()
         {
-            if (shootingSound != null)
-                shootingSound.Play();
+            
             FireBullet();
 
         }
@@ -127,6 +126,11 @@ namespace PiN
                 //Find a bullet that isn't alive
                 if (!bullet.IsAlive)
                 {
+
+                    if (shootingSound != null)
+                        shootingSound.Play();
+
+
                     //And set it to alive.
                     bullet.IsAlive = true;
 

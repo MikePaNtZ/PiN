@@ -494,6 +494,7 @@ namespace PiN
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
             XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
+            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, ActiveHero.Center, 3, Color.Red, 1);
 
             spriteBatch.End();
 

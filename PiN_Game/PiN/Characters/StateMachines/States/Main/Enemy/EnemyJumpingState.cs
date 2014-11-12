@@ -16,6 +16,7 @@ namespace PiN
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
             base.Update(gameTime, gameInputs);
+
             if (enemy.IsOnGround)
             {
                 if (Math.Abs(enemy.Velocity.X) - 0.02f > 0)

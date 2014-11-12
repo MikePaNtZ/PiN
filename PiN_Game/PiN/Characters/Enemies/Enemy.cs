@@ -24,12 +24,77 @@ namespace PiN
     /// </summary>
     class Enemy: GameCharacter
     {
+
         /// <summary>
         /// returns line of sight to player
         /// </summary>
-        public Vector2 LineOfSight
+        public Vector2 LineOfSightToHero
         {
             get { return Level.ActiveHero.Position - Position; }
+        }
+
+        public Vector2 Target
+        {
+            get { return target; }
+            set { target = value; }
+        }
+
+        /// <summary>
+        /// if player is within this distance than transition to tracking state from searching state
+        /// </summary>
+        public virtual float MinTrackDistance
+        {
+            get { return 500.0F; }
+        }
+
+        /// <summary>
+        /// if player is within this distance than you can attack
+        /// </summary>
+        public virtual float MaxAttackDistance
+        {
+            get { return 200.0F; }
+        }
+
+        /// <summary>
+        /// if health is less than this percent of max health than kamikaze
+        /// </summary>
+        public virtual float KamikazeThresholdPercent
+        {
+            get { return 0.4F; }
+        }
+
+        /// <summary>
+        /// How long to shoot
+        /// </summary>
+        public float AttackTime
+        {
+            get { return attackTime; }
+            set { attackTime = MathHelper.Clamp(value, 0, MaxAttackTime); }
+        }
+
+        /// <summary>
+        /// How long to wait between shots
+        /// </summary>
+        public virtual float MaxAttackTime
+        {
+            get { return 0.2F; }
+        }
+
+        /// <summary>
+        /// How long this enemy has been waiting to shoot again.
+        /// </summary>
+        public float AttackWaitTime
+        {
+            get { return attackWaitTime; }
+            set { attackWaitTime = MathHelper.Clamp(value, 0, MaxAttackWaitTime); }
+        }
+
+        /// <summary>
+        /// How long to wait between shots
+        /// </summary>
+        public virtual float MaxAttackWaitTime
+        {
+            get { return 1.0f; }
         }
 
         public float WaitTime
@@ -51,11 +116,19 @@ namespace PiN
             }
         }
 
+        public override bool IsAttacking
+        {
+            get
+            {
+                return stateMachine.ShooterState.GetType() == typeof(EnemyFiringState);
+            }
+        }
+
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
         public Enemy(Level level, Vector2 initialPosition): base(level, initialPosition)
-        { 
+        {
             LoadContent();
         }
 
@@ -143,51 +216,7 @@ namespace PiN
         /// </summary>
         protected Animation explosionAnimation;
 
-        /// <summary>
-        /// if player is within this distance than transition to tracking state from searching state
-        /// </summary>
-        protected float minTrackDistance = 500.0F;
-        public float MinTrackDistance
-        {
-            get { return minTrackDistance; }
-        }
-
-        /// <summary>
-        /// if player is within this distance than you can attack
-        /// </summary>
-        protected float maxAttackDistance = 200.0F;
-        public float MaxAttackDistance
-        {
-            get { return maxAttackDistance; }
-        }
-
-        /// <summary>
-        /// if health is less than this percent of max health than kamikaze
-        /// </summary>
-        protected float kamikazeThresholdPercent = 0.4F;
-        public float KamikazeThresholdPercent
-        {
-            get { return kamikazeThresholdPercent; }
-        }
-
-        /// <summary>
-        /// How long to wait between shots
-        /// </summary>
-        protected float maxAttackWaitTime = 1.0f;
-        public float MaxAttackWaitTime
-        {
-            get { return maxAttackWaitTime; }
-        }
-
-        /// <summary>
-        /// How long this enemy has been waiting to shoot again.
-        /// </summary>
-        protected float attackWaitTime;
-        public float AttackWaitTime
-        {
-            get { return attackWaitTime; }
-            set { attackWaitTime = MathHelper.Clamp(value, 0, maxAttackWaitTime); }
-        }
+        protected Vector2 target;
 
         /// <summary>
         /// How long this enemy has been waiting before turning around.
@@ -198,9 +227,8 @@ namespace PiN
         /// How long to wait before turning around.
         /// </summary>
         protected float maxWaitTime = 0.5f;
-        /// <summary>
-        /// The enemy is currently attacking.
-        /// </summary>
-        public bool alreadyAttacking = false;
+
+        private float attackTime;
+        private float attackWaitTime;
     }
 }
