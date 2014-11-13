@@ -20,12 +20,12 @@ namespace PiN
                 character.Health = 0;
                 character.FallSound.Play();
             }
-            character.IsAlive = false;
             character.sprite.LoadAnimation(character.DieAnimation);
             System.Diagnostics.Debug.WriteLine("DeadState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            character.Movement = 0;
             //dead nothing updates
         }
         public override void OnHit(GameObject hitBy)

@@ -19,28 +19,15 @@ namespace PiN
         {
             MainState = new EnemyIdleState(this);
             BehaviorState = new SearchState(this);
-            ShooterState = new State(this);
+            ShooterState = new EnemyAimingState(this);
         }
 
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            
             base.Update(gameTime, gameInputs);
-            BehaviorState.Update(gameTime,gameInputs);
-        }
-
-        public override void OnHit(GameObject hitBy)
-        {
-            base.OnHit(hitBy);
-        }
-
-        public override void OnKilled(GameObject killedBy)
-        {
-            base.OnKilled(killedBy);
-        }
-
-        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        {
-            base.Draw(gameTime, spriteBatch);
+            BehaviorState.Update(gameTime, gameInputs);
+            
         }
 
     }

@@ -11,11 +11,13 @@ namespace PiN
         public KamikazeState(EnemyStateMachine ESM)
             : base(ESM)
         {
-            enemy.Color = Color.Red;
+            esm.ShooterState = new EnemyFiringState(esm);
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            if (enemy.LineOfSight.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
+            enemy.Target = enemy.Level.ActiveHero.Center;
+
+            if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
                 enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;

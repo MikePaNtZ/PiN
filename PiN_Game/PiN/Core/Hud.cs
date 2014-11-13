@@ -10,7 +10,7 @@ namespace PiN
 {
     class Hud
     {
-        private SpriteFont hudFont;
+        public static SpriteFont hudFont;
 
         private Texture2D introOverlay; //so far this is the just team logo. I don't know where to stick it.
         private Texture2D winOverlay;

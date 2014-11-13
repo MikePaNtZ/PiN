@@ -147,13 +147,6 @@ namespace PiN
             stateMachine.MainState = Level.ActiveHero.stateMachine.MainState;
         }
 
-        public override void Update(GameTime gameTime, InputHandler gameInputs)
-        {
-            base.Update(gameTime, gameInputs);
-            if (gameInputs.MouseState.RightButton == ButtonState.Pressed)
-                Level.SpawnEnemy((int)gameInputs.MouseInput.Position.X, (int)gameInputs.MouseInput.Position.Y, "MonsterC");
-        }
-
         /// <summary>
         /// Called when this player reaches the level's exit.
         /// </summary>

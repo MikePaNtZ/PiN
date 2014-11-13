@@ -482,16 +482,19 @@ namespace PiN
             foreach (Enemy enemy in enemies)
             {
                 enemy.Draw(gameTime, spriteBatch);
-                XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 2);
+                XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 1);
+                spriteBatch.DrawString(Hud.hudFont, enemy.Health.ToString(), new Vector2(enemy.BoundingRectangle.X, enemy.BoundingRectangle.Y - 20), Color.Black);
             }
                 
 
             //draw each consumable in the consumables array
             foreach (Consumable consumable in consumables)
                 consumable.Draw(gameTime, spriteBatch);
+
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
-            XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 2);
+            XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
+            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, ActiveHero.Center, 3, Color.Red, 1);
 
             spriteBatch.End();
 

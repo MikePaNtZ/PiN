@@ -11,11 +11,6 @@ namespace PiN
         {
         }
 
-        public virtual void Update(GameTime gameTime, Vector2 target)
-        {
-            //implement in derived class
-        }
-
         public override void OnKilled(GameObject killedBy)
         {
             sm.ShooterState = new HolsterState(sm);
