@@ -22,6 +22,7 @@ namespace PiN
         public InitialEnemy[] Enemies;
         public Graph<Platform> NavMesh;
         public Tile[,] Tiles;
+        public List<Platform> Platforms;
 
         
         private Squared.Tiled.Map map;
@@ -109,6 +110,7 @@ namespace PiN
             Tiles = new Tile[map.Height,map.Width];
             Enemies = new InitialEnemy[map.ObjectGroups["enemies"].Objects.Count];
             NavMesh = new Graph<Platform>();
+            Platforms = new List<Platform>();
 
             LoadContent();
         }
@@ -256,8 +258,8 @@ namespace PiN
             
             TileCollision currentTileCollision;
             TileCollision above, below;
-            List<Tile> platform = new List<Tile>();
             int platformStart = -1;
+            Platform tempPlatform;
             
 
             //This steps through each tile looking for valid walking platforms. A valid walking platforms is two passable tiles on an impassable/platform tile
@@ -287,13 +289,17 @@ namespace PiN
 
                         if (x == Width - 1)//at the end of the map? end the platform
                         {
-                            NavMesh.AddNode(new Platform(platformStart * TileWidth, (x * TileWidth) + TileWidth, (y * TileHeight) + TileHeight));
+                            tempPlatform = new Platform(platformStart * TileWidth, (x * TileWidth) + TileWidth, (y * TileHeight) + TileHeight);
+                            Platforms.Add(tempPlatform);
+                            NavMesh.AddNode(tempPlatform);
                             platformStart = -1;
                         }
                     }
                     else if (platformStart != -1)//end of current platform
                     {
-                        NavMesh.AddNode(new Platform(platformStart*TileWidth, x*TileWidth, (y*TileHeight)+TileHeight));
+                        tempPlatform = new Platform(platformStart*TileWidth, x*TileWidth, (y*TileHeight)+TileHeight);
+                        Platforms.Add(tempPlatform);
+                        NavMesh.AddNode(tempPlatform);
                         platformStart = -1;
                     }
                     
@@ -436,47 +442,51 @@ namespace PiN
         /// <summary>
         /// Draws the entire map
         /// </summary>
-        public void Draw(SpriteBatch spriteBatch, Camera cam)
+        public void Draw(SpriteBatch spriteBatch, Camera cam, bool drawNavMesh)
         {
             map.Draw(spriteBatch, new Rectangle((int)cam.Position.X, (int)cam.Position.Y, (int)(cam.ViewPort.Width), (int)(cam.ViewPort.Height)), cam.Position);
             //map.Draw(spriteBatch, cam.ViewPort.Bounds, cam.Position);
 
-            Vector2 left, right;
-            Vector2 neighborLeft, neighborRight;
-            Color lineColor;
-            foreach (GraphNode<Platform> gNode in NavMesh)
+            if (drawNavMesh)
             {
-                left = new Vector2(gNode.Value.LeftEdgeX, gNode.Value.Y);
-                right = new Vector2(gNode.Value.RightEdgeX, gNode.Value.Y);
-                spriteBatch.DrawLineSegment(left,right, Color.Blue, 5);
-                spriteBatch.DrawCircle(left, 5, Color.Blue, 5);
-                spriteBatch.DrawCircle(right, 5, Color.Blue, 5);
-
-                foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
+                Vector2 left, right;
+                Vector2 neighborLeft, neighborRight;
+                Color lineColor;
+                foreach (GraphNode<Platform> gNode in NavMesh)
                 {
-                    neighborLeft = new Vector2(neighbor.Value.LeftEdgeX, neighbor.Value.Y);
-                    neighborRight = new Vector2(neighbor.Value.RightEdgeX, neighbor.Value.Y);
+                    left = new Vector2(gNode.Value.LeftEdgeX, gNode.Value.Y);
+                    right = new Vector2(gNode.Value.RightEdgeX, gNode.Value.Y);
+                    spriteBatch.DrawLineSegment(left, right, Color.Blue, 5);
+                    spriteBatch.DrawCircle(left, 5, Color.Blue, 5);
+                    spriteBatch.DrawCircle(right, 5, Color.Blue, 5);
+
+                    foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
+                    {
+                        neighborLeft = new Vector2(neighbor.Value.LeftEdgeX, neighbor.Value.Y);
+                        neighborRight = new Vector2(neighbor.Value.RightEdgeX, neighbor.Value.Y);
 
 
-                    if (neighbor.Value.Y > gNode.Value.Y)
-                        lineColor = Color.Orange;
-                    else
-                        lineColor = Color.Aqua;
+                        if (neighbor.Value.Y > gNode.Value.Y)
+                            lineColor = Color.Orange;
+                        else
+                            lineColor = Color.Aqua;
 
-                    //spriteBatch.DrawLineSegment(left, neighborLeft, Color.Aqua, 2);
-                    if (neighborRight.X <= left.X)
-                        spriteBatch.DrawLineSegment(left, neighborRight, lineColor, 2);
-                    else if (neighborRight.X >= left.X && neighborRight.X <= right.X && neighborLeft.X <= left.X)
-                        spriteBatch.DrawLineSegment(left, new Vector2((neighborRight.X + neighborLeft.X) / 2, neighborLeft.Y), lineColor, 2);
-                    else if (neighborRight.X >= right.X && neighborLeft.X <= right.X && neighborLeft.X >= left.X)
-                        spriteBatch.DrawLineSegment(right, new Vector2((neighborRight.X + neighborLeft.X) / 2, neighborLeft.Y), lineColor, 2);
-                    else if (neighborLeft.X >= right.X)
-                        spriteBatch.DrawLineSegment(right, neighborLeft, lineColor, 2);
-                    else
-                        spriteBatch.DrawLineSegment(left, neighborLeft, lineColor, 2);
+                        //spriteBatch.DrawLineSegment(left, neighborLeft, Color.Aqua, 2);
+                        if (neighborRight.X <= left.X)
+                            spriteBatch.DrawLineSegment(left, neighborRight, lineColor, 2);
+                        else if (neighborRight.X >= left.X && neighborRight.X <= right.X && neighborLeft.X <= left.X)
+                            spriteBatch.DrawLineSegment(left, new Vector2((neighborRight.X + neighborLeft.X) / 2, neighborLeft.Y), lineColor, 2);
+                        else if (neighborRight.X >= right.X && neighborLeft.X <= right.X && neighborLeft.X >= left.X)
+                            spriteBatch.DrawLineSegment(right, new Vector2((neighborRight.X + neighborLeft.X) / 2, neighborLeft.Y), lineColor, 2);
+                        else if (neighborLeft.X >= right.X)
+                            spriteBatch.DrawLineSegment(right, neighborLeft, lineColor, 2);
+                        else
+                            spriteBatch.DrawLineSegment(left, neighborLeft, lineColor, 2);
+                    }
+
                 }
-
             }
+            
         }
 
     }

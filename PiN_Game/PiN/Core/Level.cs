@@ -85,6 +85,8 @@ namespace PiN
 
         private SoundEffect exitReachedSound;
 
+        bool drawNavMesh;
+
         #region Loading
 
         /// <summary>
@@ -100,6 +102,8 @@ namespace PiN
             timeRemaining = TimeSpan.FromMinutes(10.0); //changed the time limit to 10 minutes for longer level testing
             
             map = currentMap;
+
+            GlobalSolver.LoadMesh(map.NavMesh);
 
             LoadHero();
 
@@ -251,6 +255,14 @@ namespace PiN
         {
             get { return map.TileHeight; }
         }
+
+        /// <summary>
+        /// list of platforms in this level
+        /// </summary>
+        public List<Platform> Platforms
+        {
+            get { return map.Platforms; }
+        }
         #endregion
 
         #region Update
@@ -328,6 +340,14 @@ namespace PiN
             // Clamp the time remaining at zero.
             if (timeRemaining < TimeSpan.Zero)
                 timeRemaining = TimeSpan.Zero;
+
+            if (gameInputs.KeyboardState.IsKeyDown(Keys.N) && !gameInputs.PreviousKeyboardState.IsKeyDown(Keys.N))
+            {
+                if (drawNavMesh)
+                    drawNavMesh = false;
+                else
+                    drawNavMesh = true;
+            }
         }
 
         /// <summary>
@@ -500,7 +520,7 @@ namespace PiN
                         null,
                         Camera.GetViewMatrix(Vector2.One));
             
-            map.Draw(spriteBatch, Camera);
+            map.Draw(spriteBatch, Camera, drawNavMesh);
             
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)

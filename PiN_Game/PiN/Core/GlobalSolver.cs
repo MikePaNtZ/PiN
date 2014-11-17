@@ -21,8 +21,55 @@ namespace PiN
 
             Graph<Platform> path = new Graph<Platform>();
 
+            Queue<GraphNode<Platform>> frontier = new Queue<GraphNode<Platform>>();
+            Dictionary<GraphNode<Platform>, GraphNode<Platform>> cameFrom = new Dictionary<GraphNode<Platform>,GraphNode<Platform>>();
+            GraphNode<Platform> current, finishNode, startNode;
+
+            startNode = (GraphNode<Platform>)navmesh.Nodes.FindByValue(start);
+            finishNode = (GraphNode<Platform>)navmesh.Nodes.FindByValue(finish);
+
+            if (startNode == null || finishNode == null)
+                throw new ArgumentNullException("Start or finish platform is not in nav mesh");
+
+            frontier.Enqueue(startNode);
+            cameFrom.Add(startNode,null);
+            bool foundIt = false;
+            while (frontier.Count > 0)
+            {
+                current = frontier.Dequeue();
 
 
+                if (current.Equals(finishNode))
+                {
+                    foundIt = true;
+                    break;
+                }
+                    
+
+
+                foreach (GraphNode<Platform> neighbor in current.Neighbors)
+                {
+                    if (!cameFrom.ContainsKey(neighbor))
+                    {
+                        cameFrom.Add(neighbor,current);
+                        frontier.Enqueue(neighbor);
+                    }
+                }
+            }
+
+            if (foundIt == false)
+                return null;
+
+            GraphNode<Platform> previous;
+            current = finishNode;
+            path.AddNode(current.Value);
+            while (current != startNode)
+            {
+                previous = current;
+                current = cameFrom[current];
+                path.AddNode(current.Value);
+                path.AddDirectedEdge((GraphNode<Platform>)path.Nodes.FindByValue(current.Value), (GraphNode<Platform>)path.Nodes.FindByValue(previous.Value),1);
+            }
 
             return path;
         }

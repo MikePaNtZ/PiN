@@ -50,7 +50,11 @@ namespace PiN
             }
         }
 
-        
+        public Platform CurrentPlatform
+        {
+            get { return currentPlatform; }
+        }
+        protected Platform currentPlatform;
 
         /// <summary>
         /// Gets whether or not the character's feet are on the ground.
@@ -185,6 +189,10 @@ namespace PiN
             this.level = level;
             // construct the physics engine.
             this.physEngine = new PhysicsEngine(this);
+
+            
+
+
             Reset(initialPosition);
         }
 
@@ -194,6 +202,7 @@ namespace PiN
         public override void Reset(Vector2 position)
         {
             base.Reset(position);
+            FindCurrentPlatform();
             if (stateMachine != null)
                 stateMachine.Reset();
             Velocity = Vector2.Zero;
@@ -212,6 +221,8 @@ namespace PiN
         public virtual void Update(GameTime gameTime, InputHandler gameInputs)
         {
             physEngine.ApplyPhysics(gameTime);
+
+            FindCurrentPlatform();
 
             stateMachine.Update(gameTime, gameInputs);
 
@@ -247,6 +258,17 @@ namespace PiN
             stateMachine.OnKilled(killedBy);
         }
 
+        protected virtual void FindCurrentPlatform()
+        {
+            if (IsOnGround)
+            {
+                Platform previous = currentPlatform;
+                currentPlatform = Level.Platforms.FirstOrDefault(platform => platform.Y == position.Y && platform.LeftEdgeX <= position.X && platform.RightEdgeX >= position.X);
+                if (currentPlatform.Y == 0 && currentPlatform.LeftEdgeX == 0 && currentPlatform.RightEdgeX == 0) //default values
+                    currentPlatform = previous;
+            }
+        }
+
         public virtual void determineColor(GameTime gameTime)
         {
             if (IsPoweredUp)
@@ -267,6 +289,11 @@ namespace PiN
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             stateMachine.Draw(gameTime, spriteBatch);
+            Vector2 left = new Vector2(currentPlatform.LeftEdgeX, currentPlatform.Y);
+            Vector2 right = new Vector2(currentPlatform.RightEdgeX, currentPlatform.Y);
+            XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, left, right, Color.Green, 5);
+            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, left, 5, Color.Green, 5);
+            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, right, 5, Color.Green, 5);
         }
 
         public void PowerUp()
