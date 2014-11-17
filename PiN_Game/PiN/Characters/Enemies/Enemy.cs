@@ -124,11 +124,14 @@ namespace PiN
             }
         }
 
+        public Graph<Platform> Path;
+
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
         public Enemy(Level level, Vector2 initialPosition): base(level, initialPosition)
         {
+            Path = new Graph<Platform>();
             LoadContent();
         }
 
@@ -168,6 +171,16 @@ namespace PiN
             if (!IsAlive)
                 return;
 
+            try
+            {
+                Path = GlobalSolver.FindPath(currentPlatform, Level.ActiveHero.CurrentPlatform);
+            }
+            catch (ArgumentNullException e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+            
+
             base.Update(gameTime, gameInputs);
         }
 
@@ -182,6 +195,23 @@ namespace PiN
             if (IsAlive)
             {
                 weapon.Draw(gameTime, spriteBatch);
+            }
+
+            if (Path != null)
+            {
+                foreach (GraphNode<Platform> gNode in Path)
+                {
+                    Vector2 center = new Vector2((gNode.Value.RightEdgeX + gNode.Value.LeftEdgeX)/2, gNode.Value.Y);
+                    XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, center, 8, Color.Red, 5);
+
+                    foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
+                    {
+                        Vector2 neighborCenter = new Vector2((neighbor.Value.RightEdgeX + neighbor.Value.LeftEdgeX)/2, neighbor.Value.Y);
+                        XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, neighborCenter, 8, Color.Red, 5);
+                        XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, center, neighborCenter, Color.Red, 5);
+                    }
+
+                }
             }
         }
 

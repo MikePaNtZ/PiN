@@ -85,6 +85,8 @@ namespace PiN
 
         private SoundEffect exitReachedSound;
 
+        bool drawNavMesh;
+
         #region Loading
 
         /// <summary>
@@ -100,6 +102,8 @@ namespace PiN
             timeRemaining = TimeSpan.FromMinutes(10.0); //changed the time limit to 10 minutes for longer level testing
             
             map = currentMap;
+
+            GlobalSolver.LoadMesh(map.NavMesh);
 
             LoadHero();
 
@@ -192,7 +196,14 @@ namespace PiN
         /// </summary>
         public TileCollision GetCollision(int x, int y)
         {
-            return map.GetCollision(x, y);
+            // Prevent escaping past the level ends.
+            if (x < 0 || x >= map.Width)
+                return TileCollision.Impassable;
+            // Allow jumping past the level top and falling through the bottom.
+            if (y < 0 || y >= map.Height)
+                return TileCollision.Passable;
+
+            return map.Tiles[y,x].Collision;
         }
 
         /// <summary>
@@ -244,6 +255,14 @@ namespace PiN
         {
             get { return map.TileHeight; }
         }
+
+        /// <summary>
+        /// list of platforms in this level
+        /// </summary>
+        public List<Platform> Platforms
+        {
+            get { return map.Platforms; }
+        }
         #endregion
 
         #region Update
@@ -256,8 +275,8 @@ namespace PiN
         {
 
             //switching characters in the air screws up the physics sometimes
-            //This is a work around, but I would like to fixthe bug
-            if (activeHero.IsOnGround)
+            //This is a work around, but I would like to fix the bug
+            if (activeHero.IsOnGround && activeHero.IsAlive)
                 SwapHeroes(gameInputs);
 
 
@@ -282,8 +301,21 @@ namespace PiN
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
+
+                if (gameInputs.MouseState.ScrollWheelValue > gameInputs.PreviousMouseState.ScrollWheelValue)
+                    Camera.Zoom += 0.1f;
+                else if (gameInputs.MouseState.ScrollWheelValue < gameInputs.PreviousMouseState.ScrollWheelValue)
+                    Camera.Zoom -= 0.1f;
+
+                if (gameInputs.KeyboardState.IsKeyDown(Keys.E))
+                    Camera.Rotation += 0.1f;
+                else if (gameInputs.KeyboardState.IsKeyDown(Keys.Q))
+                    Camera.Rotation -= 0.1f;
+
                 //follow the activeHero
                 Camera.LookAt(ActiveHero.Position);
+
+                
 
                 // Falling off the bottom of the level kills the activeHero.
                 if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight && ActiveHero.IsAlive)
@@ -308,6 +340,14 @@ namespace PiN
             // Clamp the time remaining at zero.
             if (timeRemaining < TimeSpan.Zero)
                 timeRemaining = TimeSpan.Zero;
+
+            if (gameInputs.KeyboardState.IsKeyDown(Keys.N) && !gameInputs.PreviousKeyboardState.IsKeyDown(Keys.N))
+            {
+                if (drawNavMesh)
+                    drawNavMesh = false;
+                else
+                    drawNavMesh = true;
+            }
         }
 
         /// <summary>
@@ -350,6 +390,10 @@ namespace PiN
                     {
                         OnHeroHit(enemy);
                     }
+                }
+                else if (enemy.BoundingRectangle.Top >= Height * map.TileHeight && enemy.IsAlive)
+                {
+                    OnEnemyKilled(enemy,null);
                 }
             }
         }
@@ -476,7 +520,7 @@ namespace PiN
                         null,
                         Camera.GetViewMatrix(Vector2.One));
             
-            map.Draw(spriteBatch, Camera);
+            map.Draw(spriteBatch, Camera, drawNavMesh);
             
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
