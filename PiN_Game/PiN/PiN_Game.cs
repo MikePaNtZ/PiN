@@ -62,7 +62,11 @@ namespace PiN
         {
             graphics = new GraphicsDeviceManager(this);
 
-            //graphics.ToggleFullScreen();
+            graphics.IsFullScreen = false;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.ApplyChanges();
+
             Content.RootDirectory = "Content";
 
             maps = new List<Map>();
@@ -100,12 +104,15 @@ namespace PiN
                 Exit();
             }
 
-            try 
-           { 
-               MediaPlayer.IsRepeating = true; 
-                MediaPlayer.Play(Content.Load<Song>("Sounds/TheDescent"));             } 
-            catch { } 
-
+            try
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(Content.Load<Song>("Sounds/TheDescent"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
             LoadNextLevel();
         }

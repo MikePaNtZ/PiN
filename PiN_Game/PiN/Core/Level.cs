@@ -192,7 +192,14 @@ namespace PiN
         /// </summary>
         public TileCollision GetCollision(int x, int y)
         {
-            return map.GetCollision(x, y);
+            // Prevent escaping past the level ends.
+            if (x < 0 || x >= map.Width)
+                return TileCollision.Impassable;
+            // Allow jumping past the level top and falling through the bottom.
+            if (y < 0 || y >= map.Height)
+                return TileCollision.Passable;
+
+            return map.Tiles[y,x].Collision;
         }
 
         /// <summary>
@@ -282,8 +289,21 @@ namespace PiN
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
+
+                if (gameInputs.MouseState.ScrollWheelValue > gameInputs.PreviousMouseState.ScrollWheelValue)
+                    Camera.Zoom += 0.1f;
+                else if (gameInputs.MouseState.ScrollWheelValue < gameInputs.PreviousMouseState.ScrollWheelValue)
+                    Camera.Zoom -= 0.1f;
+
+                if (gameInputs.KeyboardState.IsKeyDown(Keys.E))
+                    Camera.Rotation += 0.1f;
+                else if (gameInputs.KeyboardState.IsKeyDown(Keys.Q))
+                    Camera.Rotation -= 0.1f;
+
                 //follow the activeHero
                 Camera.LookAt(ActiveHero.Position);
+
+                
 
                 // Falling off the bottom of the level kills the activeHero.
                 if (ActiveHero.BoundingRectangle.Top >= Height * map.TileHeight && ActiveHero.IsAlive)
@@ -350,6 +370,10 @@ namespace PiN
                     {
                         OnHeroHit(enemy);
                     }
+                }
+                else if (enemy.BoundingRectangle.Top >= Height * map.TileHeight && enemy.IsAlive)
+                {
+                    OnEnemyKilled(enemy,null);
                 }
             }
         }
