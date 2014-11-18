@@ -18,7 +18,8 @@ namespace PiN
             else //fell
             {
                 character.Health = 0;
-                character.FallSound.Play();
+                if (character.FallSound != null)
+                    character.FallSound.Play();
             }
             character.sprite.LoadAnimation(character.DieAnimation);
             System.Diagnostics.Debug.WriteLine("DeadState");

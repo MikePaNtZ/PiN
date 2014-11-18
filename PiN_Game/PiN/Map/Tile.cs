@@ -9,7 +9,6 @@
 
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace PiN
 {
@@ -43,8 +42,8 @@ namespace PiN
     struct Tile
     {
         public TileCollision Collision;
-        public int x;
-        public int y;
+        public int X;
+        public int Y;
         public int Width;
         public int Height;
 
@@ -52,7 +51,7 @@ namespace PiN
         {
             get
             {
-                return new Rectangle(x * Width, y * Height, Width, Height);
+                return new Rectangle(X * Width, Y * Height, Width, Height);
             }
         }
         
@@ -63,8 +62,8 @@ namespace PiN
         public Tile(TileCollision collision, int x, int y, int width, int height)
         {
             Collision = collision;
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
             Width = width;
             Height = height;
         }

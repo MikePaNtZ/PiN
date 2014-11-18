@@ -144,7 +144,8 @@ namespace PiN
             Velocity = Level.ActiveHero.Velocity;
             IsOnGround = Level.ActiveHero.IsOnGround;
             powerUpTime = Level.ActiveHero.powerUpTime;
-            stateMachine.MainState = Level.ActiveHero.stateMachine.MainState;
+
+            ((HeroStateMachine)stateMachine).Swap(((HeroStateMachine)Level.ActiveHero.stateMachine)); //clunky but it works
         }
 
         /// <summary>

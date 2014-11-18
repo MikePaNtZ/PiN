@@ -14,6 +14,18 @@ namespace PiN
         {
         }
 
+        public void Swap(HeroStateMachine otherHSM)
+        {
+            if (otherHSM.Character.IsAlive)
+            {
+                MainState = (State)Activator.CreateInstance(otherHSM.MainState.GetType(), this);
+                ShooterState = (State)Activator.CreateInstance(otherHSM.ShooterState.GetType(), this);
+                ShieldState = (State)Activator.CreateInstance(otherHSM.ShieldState.GetType(), this);
+            }
+            else
+                Reset();
+        }
+
         public override void Reset()
         {
             MainState = new HeroIdleState(this);
