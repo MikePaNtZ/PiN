@@ -98,7 +98,7 @@ namespace PiN
     {
         static void Main()
         {
-            using (GameStateManagementGame game = new GameStateManagementGame())
+            using (PiN_Game game = new PiN_Game())
             {
                 game.Run();
             }
