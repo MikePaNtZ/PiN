@@ -120,6 +120,7 @@
     <Compile Include="Consumables\ConsumableFactory.cs" />
     <Compile Include="Consumables\PowerUps\HealthConsumable.cs" />
     <Compile Include="Consumables\PowerUps\PowerUp.cs" />
+    <Compile Include="Core\Collision.cs" />
     <Compile Include="Core\GlobalSolver.cs" />
     <Compile Include="Core\Hud.cs" />
     <Compile Include="Map\Map.cs" />

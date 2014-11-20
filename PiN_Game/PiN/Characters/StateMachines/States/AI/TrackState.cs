@@ -17,6 +17,14 @@ namespace PiN
         {
             base.Update(gameTime, gameInputs);
 
+            enemy.Target = enemy.Level.ActiveHero.Center;
+
+            if (enemy.Health <= enemy.MaxHealth * enemy.KamikazeThresholdPercent)
+            {
+                esm.BehaviorState = new KamikazeState(esm);
+                return;
+            }
+
             if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
                 enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
 
