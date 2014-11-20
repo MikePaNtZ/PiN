@@ -179,7 +179,7 @@ namespace PiN
         //*************************************************//
 
         /// <summary>
-        /// Game character constructor
+        /// Program character constructor
         /// </summary>
         public GameCharacter(Level level, Vector2 initialPosition)
             : base()

@@ -24,6 +24,7 @@ namespace PiN
         {
             
             bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/HeroStrength/Bullet");
+            shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");
             base.LoadContent();
         }
 
