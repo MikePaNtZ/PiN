@@ -15,6 +15,8 @@ namespace PiN
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            base.Update(gameTime, gameInputs);
+
             if (enemy.Health <= enemy.MaxHealth * enemy.KamikazeThresholdPercent)
             {
                 esm.BehaviorState = new KamikazeState(esm);

@@ -14,7 +14,7 @@ namespace PiN
     /// <summary>
     /// Stores the position of a platform on the map. Used for ai navigation.
     /// </summary>
-    struct Platform
+    class Platform
     {
         public int LeftEdgeX;
         public int RightEdgeX;

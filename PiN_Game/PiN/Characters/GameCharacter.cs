@@ -264,7 +264,7 @@ namespace PiN
             {
                 Platform previous = currentPlatform;
                 currentPlatform = Level.Platforms.FirstOrDefault(platform => platform.Y == position.Y && platform.LeftEdgeX <= position.X && platform.RightEdgeX >= position.X);
-                if (currentPlatform.Y == 0 && currentPlatform.LeftEdgeX == 0 && currentPlatform.RightEdgeX == 0) //default values
+                if (currentPlatform == null) //default values
                     currentPlatform = previous;
             }
         }
@@ -289,11 +289,14 @@ namespace PiN
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             stateMachine.Draw(gameTime, spriteBatch);
-            Vector2 left = new Vector2(currentPlatform.LeftEdgeX, currentPlatform.Y);
-            Vector2 right = new Vector2(currentPlatform.RightEdgeX, currentPlatform.Y);
-            XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, left, right, Color.Green, 5);
-            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, left, 5, Color.Green, 5);
-            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, right, 5, Color.Green, 5);
+            if (currentPlatform != null)
+            {
+                Vector2 left = new Vector2(currentPlatform.LeftEdgeX, currentPlatform.Y);
+                Vector2 right = new Vector2(currentPlatform.RightEdgeX, currentPlatform.Y);
+                XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, left, right, Color.Green, 5);
+                XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, left, 5, Color.Green, 5);
+                XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, right, 5, Color.Green, 5);
+            }
         }
 
         public void PowerUp()

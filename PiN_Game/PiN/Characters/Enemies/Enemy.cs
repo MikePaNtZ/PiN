@@ -30,7 +30,7 @@ namespace PiN
         /// </summary>
         public Vector2 LineOfSightToHero
         {
-            get { return Level.ActiveHero.Position - Position; }
+            get { return Level.ActiveHero.Center - Center; }
         }
 
         public Vector2 Target
@@ -171,14 +171,7 @@ namespace PiN
             if (!IsAlive)
                 return;
 
-            try
-            {
-                Path = GlobalSolver.FindPath(currentPlatform, Level.ActiveHero.CurrentPlatform);
-            }
-            catch (ArgumentNullException e)
-            {
-                System.Diagnostics.Debug.WriteLine(e);
-            }
+            
             
 
             base.Update(gameTime, gameInputs);
