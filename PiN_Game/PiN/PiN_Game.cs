@@ -179,7 +179,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            levelIndex = 0; //index level 2 is MikeBLevel
             level = new Level(Services,maps[levelIndex],cam);
         }
 

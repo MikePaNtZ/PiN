@@ -19,17 +19,19 @@ namespace PiN
             if (navmesh == null)
                 throw new NullReferenceException("No Navigation Mesh Loaded.");
 
+            GraphNode<Platform> startNode = (GraphNode<Platform>)navmesh.Nodes.FindByValue(start);
+            GraphNode<Platform> finishNode = (GraphNode<Platform>)navmesh.Nodes.FindByValue(finish);
+
+            if (startNode == null || finishNode == null)
+                throw new ArgumentNullException("Start or finish platform is not in nav mesh");
+
             Graph<Platform> path = new Graph<Platform>();
 
             Queue<GraphNode<Platform>> frontier = new Queue<GraphNode<Platform>>();
             Dictionary<GraphNode<Platform>, GraphNode<Platform>> cameFrom = new Dictionary<GraphNode<Platform>,GraphNode<Platform>>();
-            GraphNode<Platform> current, finishNode, startNode;
+            GraphNode<Platform> current;
 
-            startNode = (GraphNode<Platform>)navmesh.Nodes.FindByValue(start);
-            finishNode = (GraphNode<Platform>)navmesh.Nodes.FindByValue(finish);
-
-            if (startNode == null || finishNode == null)
-                throw new ArgumentNullException("Start or finish platform is not in nav mesh");
+            
 
             frontier.Enqueue(startNode);
             cameFrom.Add(startNode,null);

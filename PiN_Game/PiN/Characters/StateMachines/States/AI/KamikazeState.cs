@@ -15,6 +15,8 @@ namespace PiN
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
+            base.Update(gameTime, gameInputs);
+
             enemy.Target = enemy.Level.ActiveHero.Center;
 
             if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction

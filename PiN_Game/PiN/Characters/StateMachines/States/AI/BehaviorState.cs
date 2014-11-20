@@ -19,14 +19,16 @@ namespace PiN
 
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            enemy.Target = enemy.Level.ActiveHero.Center;
-
-            if (enemy.Health <= enemy.MaxHealth * enemy.KamikazeThresholdPercent)
+            try
             {
-                esm.BehaviorState = new KamikazeState(esm);
-                return;
+                if (enemy.CurrentPlatform != null && enemy.Level.ActiveHero.CurrentPlatform != null)
+                    enemy.Path = GlobalSolver.FindPath(enemy.CurrentPlatform, enemy.Level.ActiveHero.CurrentPlatform);
             }
-                
+            catch (ArgumentNullException e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+
         }
     }
 }
