@@ -48,7 +48,7 @@ namespace PiN
         }
 
         /// <summary>
-        /// if player is within this distance than you can attack
+        /// if player is within this distance then you can attack
         /// </summary>
         public virtual float MaxAttackDistance
         {
@@ -60,7 +60,7 @@ namespace PiN
         /// </summary>
         public virtual float KamikazeThresholdPercent
         {
-            get { return 0.4F; }
+            get { return 0.3F; }
         }
 
         /// <summary>
