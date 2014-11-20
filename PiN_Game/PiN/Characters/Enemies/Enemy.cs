@@ -44,7 +44,7 @@ namespace PiN
         /// </summary>
         public virtual float MinTrackDistance
         {
-            get { return 350.0F; }
+            get { return 500.0F; }
         }
 
         /// <summary>
