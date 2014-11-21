@@ -21,6 +21,8 @@ namespace PiN
     class HeroGun : Gun
     {
 
+        protected GameObject crosshair;
+
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>

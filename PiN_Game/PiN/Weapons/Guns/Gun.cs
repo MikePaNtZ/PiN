@@ -13,19 +13,11 @@ namespace PiN
     class Gun : Weapon
     {
         protected SoundEffect shootingSound;
-        protected GameObject gunObj;
-        protected GameObject crosshair;
         protected Texture2D bulletTexture;
         protected GameObject[] bullets;
         protected int MAX_BULLETS = 12;
+        protected float bulletSpeed = 15.0f;
         protected Vector2 target;
-        //protected float theWeaponCos;
-        //protected float theWeaponSin;
-
-        //protected Vector2 muzzle
-        //{
-        //    get { return new Vector2(position.X* -theWeaponCos, (position.Y - rectangle.Height/2)* -theWeaponCos); }
-        //}
 
         /// <summary>
         /// Gun constructor
@@ -33,6 +25,12 @@ namespace PiN
         public Gun(GameCharacter theShooter)
             : base(theShooter)
         {
+        }
+
+        protected virtual float BulletSpeed {
+            get {
+                return bulletSpeed;
+            }
         }
 
         /// <summary>
@@ -57,7 +55,7 @@ namespace PiN
         {
             // Shooting related updates
             target = crosshairPosition;
-            position = weaponWielder.Arm;
+            position = weaponWielder.ArmPosition;
 
             // Updates the state of all bullets
             updateShooting();
@@ -67,9 +65,7 @@ namespace PiN
 
         public override void PerformNormalAttack()
         {
-            
             FireBullet();
-
         }
 
         public override void PerformSpecialAttack()
@@ -79,17 +75,16 @@ namespace PiN
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            //ystem.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
-            spriteBatch.Draw(
-                texture,
-                position,
-                null,
-                Color.White,
-                rotation,
-                Center,
-                1.0f,
-                weaponWielder.Flip,
-                0);
+//            spriteBatch.Draw(
+//                texture,
+//                position,
+//                null,
+//                Color.White,
+//                rotation,
+//                Center,
+//                1.0f,
+//                weaponWielder.Flip,
+//                0);
 
             //Draw the bullets
             foreach (GameObject bullet in bullets)
@@ -109,68 +104,32 @@ namespace PiN
         private void updateShooting()
         {
             Vector2 aimDirection = position - target;
-            rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) -(float)Math.PI / 2; //this will return the mouse angle(in radians).
-            //theWeaponCos =  (float)Math.Cos(rotation - ((int)weaponWielder.FaceDirection * MathHelper.PiOver2));
-            //theWeaponSin = (float)Math.Sin(rotation - ((int)weaponWielder.FaceDirection * MathHelper.PiOver2));
-
-            //If we aren't rotating our gun then set it to the
-            //default position. Aiming in front of us.
-            if (rotation == 0)
-                rotation = (int)weaponWielder.FaceDirection * MathHelper.PiOver2;
+            aimDirection.Y *= -1.0f;
+            aimDirection.Normalize();
+            rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) + (float)Math.PI;
         }
 
         private void FireBullet()
         {
             foreach (GameObject bullet in bullets)
             {
-                //Find a bullet that isn't alive
                 if (!bullet.IsAlive)
                 {
 
                     if (shootingSound != null)
                         shootingSound.Play();
 
-
-                    //And set it to alive.
                     bullet.IsAlive = true;
+                    float theWeaponCos = (float)Math.Cos(rotation);
+                    float theWeaponSin = (float)Math.Sin(rotation);
 
-                    if (weaponWielder.Flip == SpriteEffects.FlipHorizontally) //Facing right
-                    {
-                        float theWeaponCos = (float)Math.Cos(rotation - MathHelper.PiOver2);
-                        float theWeaponSin = (float)Math.Sin(rotation - MathHelper.PiOver2);
+                    bullet.Position = new Vector2(
+                        position.X,
+                        position.Y);
 
-                        //Set the initial position of our bullet at the end of our gun
-                        //42 is obtained be taking the width of the Arm_Gun texture / 2
-                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
-                        bullet.Position = new Vector2(
-                            position.X + 42 * theWeaponCos,
-                            position.Y + 42 * theWeaponSin);
-
-                        //And give it a velocity of the direction we're aiming.
-                        //Increase/decrease speed by changing 15.0f
-                        bullet.Velocity = new Vector2(
-                            (float)Math.Cos(rotation - MathHelper.PiOver2),
-                            (float)Math.Sin(rotation - MathHelper.PiOver2)) * 15.0f;
-                    }
-                    else //Facing left
-                    {
-                        float theWeaponCos = (float)Math.Cos(rotation + MathHelper.PiOver2);
-                        float theWeaponSin = (float)Math.Sin(rotation + MathHelper.PiOver2);
-
-                        //Set the initial position of our bullet at the end of our gun
-                        //42 is obtained be taking the width of the Arm_Gun texture / 2
-                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
-                        bullet.Position = new Vector2(
-                            position.X - 42 * theWeaponCos,
-                            position.Y - 42 * theWeaponSin);
-
-                        //And give it a velocity of the direction we're aiming.
-                        //Increase/decrease speed by changing 15.0f
-                        bullet.Velocity = new Vector2(
-                           -theWeaponCos,
-                           -theWeaponSin) * 15.0f;
-                    }
-                    return;
+                    bullet.Velocity = new Vector2(
+                        (float)Math.Cos(rotation),
+                        -(float)Math.Sin(rotation)) * BulletSpeed;
                 }
             }
         }

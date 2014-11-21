@@ -33,7 +33,7 @@ namespace PiN
             moveSpeed = 0.3F;
         }
 
-        public override Vector2 Arm
+        public override Vector2 ArmPosition
         {
             get
             {
