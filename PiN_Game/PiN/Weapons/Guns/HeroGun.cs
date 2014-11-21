@@ -58,20 +58,7 @@ namespace PiN
 
             base.Draw(gameTime, spriteBatch);
         }
-        protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
-        {
-            //Check for collisions with the enemies
-            foreach (Enemy enemy in weaponWielder.Level.enemies)
-            {
-                if (bulletRect.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
-                {
-                    //We're going to want to put some enemy health reduction code here
-                    //Enemy class needs a health member variable too
-                    enemy.OnHit(weaponWielder);
-                    bullet.IsAlive = false;
-                }
-            }
-        }
+
 
 
 

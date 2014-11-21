@@ -13,6 +13,14 @@ namespace PiN
     {
         protected GameCharacter weaponWielder;
 
+        public GameCharacter WeaponWielder
+        {
+            get
+            {
+                return weaponWielder;
+            }
+        }
+
         /// <summary>
         /// Weapon constructor
         /// </summary>

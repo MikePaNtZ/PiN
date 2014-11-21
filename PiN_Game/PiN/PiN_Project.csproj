@@ -161,6 +161,8 @@
     <Compile Include="Weapons\Guns\EnemyGun.cs" />
     <Compile Include="Weapons\Guns\HeroSpeedGun.cs" />
     <Compile Include="Weapons\Guns\HeroStrengthGun.cs" />
+    <Compile Include="Weapons\Projectiles\Bullet.cs" />
+    <Compile Include="Weapons\Projectiles\EnemyBullet.cs" />
     <Compile Include="Weapons\Weapon.cs" />
     <Compile Include="Weapons\Guns\Gun.cs" />
     <Compile Include="Core\GameObject.cs" />
@@ -245,7 +247,6 @@
     <Folder Include="GameMechanics\Collision\" />
     <Folder Include="GameMechanics\Physics\" />
     <Folder Include="Weapons\Blades\" />
-    <Folder Include="Weapons\Projectiles\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
