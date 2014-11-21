@@ -18,7 +18,6 @@ namespace PiN
         float pauseAlpha;
 
         // Resources for drawing.
-        private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
         // Global content.
@@ -54,6 +53,8 @@ namespace PiN
         {
             TransitionOnTime = TimeSpan.FromSeconds(1.5);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
+
+            maps = new List<Map>();
         }
 
         public override void LoadContent()
@@ -61,7 +62,44 @@ namespace PiN
             if (content == null)
                 content = new ContentManager(ScreenManager.Game.Services, "Content");
 
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(ScreenManager.GraphicsDevice);
+
+            XnaDebugDrawer.DebugDrawer.LoadContent(ScreenManager.GraphicsDevice);
+
+            hud = new Hud(content);
+
+            cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
+
+            try //This is where the maps are added
+            {
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeBLevel.tmx"), content));
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine("Map file not found " + e);
+                ScreenManager.Game.Exit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ScreenManager.Game.Exit();
+            }
+
+            try
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(content.Load<Song>("Sounds/TheDescent"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
             LoadNextLevel();
+
 
             // once the load has finished, we use ResetElapsedTime to tell the game's
             // timing mechanism that we have just finished a very long frame, and that
@@ -77,6 +115,7 @@ namespace PiN
         public override void Update(GameTime gameTime, bool otherScreenHasFocus,
                                                        bool coveredByOtherScreen)
         {
+            HandlePlayerControls();
             base.Update(gameTime, otherScreenHasFocus, false);
 
             // Gradually fade in or out depending on whether we are covered by the pause screen.
@@ -87,10 +126,20 @@ namespace PiN
 
             if (IsActive)
             {
-
                 // update our level, passing down the GameTime along with all of our input states
                 level.Update(gameTime, gameInputHandler);
             }
+        }
+
+        protected void HandlePlayerControls()
+        {
+            // get all of our input states
+            previousKeyboardState = keyboardState;
+            keyboardState = Keyboard.GetState();
+
+            previousMouseState = mouseState;
+            mouseState = Mouse.GetState();
+            gameInputHandler = new InputHandler(cam, mouseState, previousMouseState, keyboardState, previousKeyboardState);
         }
 
         public override void HandleInput(InputState input)
@@ -103,28 +152,12 @@ namespace PiN
 
             keyboardState = input.CurrentKeyboardStates[playerIndex];
 
-
             if (input.IsPauseGame(ControllingPlayer))
             {
                 ScreenManager.AddScreen(new PauseMenuScreen(), ControllingPlayer);
             }
             else
             {
-
-                // get all of our input states
-                previousKeyboardState = keyboardState;
-                keyboardState = Keyboard.GetState();
-
-                previousMouseState = mouseState;
-                mouseState = Mouse.GetState();
-                gameInputHandler = new InputHandler(cam, mouseState, previousMouseState, keyboardState, previousKeyboardState);
-
-
-                // Exit the game when back is pressed.
-                //if (gameInputHandler.KeyboardState.IsKeyDown(Keys.Escape))
-                //    Program.Exit();
-
-
                 bool continuePressed = gameInputHandler.KeyboardState.IsKeyDown(Keys.Space);
                 // Perform the appropriate action to advance the game and
                 // to get the activeHero back to playing.
@@ -180,7 +213,7 @@ namespace PiN
                                                Color.RoyalBlue, 0, 0);
 
             // Our player and enemy are both actually just text strings.
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+            spriteBatch = ScreenManager.SpriteBatch;
 
             level.Draw(gameTime, spriteBatch);
             hud.Draw(spriteBatch, level, WarningTime);

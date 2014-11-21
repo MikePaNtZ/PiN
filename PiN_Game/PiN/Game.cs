@@ -46,6 +46,10 @@ namespace PiN
 
             graphics = new GraphicsDeviceManager(this);
 
+            graphics.IsFullScreen = false;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.ApplyChanges();
 
             // Create the screen manager component.
             screenManager = new ScreenManager(this);
