@@ -27,6 +27,9 @@ namespace PiN
         /// </summary>
         public EnemyGun(GameCharacter theShooter) : base(theShooter)
         {
+
+            // set enemy's gun to fire bullets at 1 per sec
+            attackRate = 1;
         }
 
         protected override void LoadContent()

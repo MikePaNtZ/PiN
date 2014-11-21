@@ -12,12 +12,27 @@ namespace PiN
     class Weapon : GameObject
     {
         protected GameCharacter weaponWielder;
+        protected int attackRate = 3;
 
         public GameCharacter WeaponWielder
         {
             get
             {
                 return weaponWielder;
+            }
+        }
+        /// <summary>
+        /// Attacks per second
+        /// </summary>
+        public int AttackRate
+        {
+            get
+            {
+                return attackRate;
+            }
+            set
+            {
+                attackRate = value;
             }
         }
 

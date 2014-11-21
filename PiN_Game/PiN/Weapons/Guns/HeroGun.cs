@@ -28,6 +28,8 @@ namespace PiN
         /// </summary>
         public HeroGun(GameCharacter theShooter) : base(theShooter)
         {
+            // Set this hero gun to 5 bullets per s in automatic mode.
+            attackRate = 5;
         }
 
         protected override void LoadContent()
