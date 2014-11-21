@@ -135,7 +135,6 @@
     <Compile Include="Layer.cs" />
     <Compile Include="Core\Level.cs" />
     <Compile Include="Map\Platform.cs" />
-    <Compile Include="Screens\PiN_Game.cs" />
     <Compile Include="Characters\Heroes\Hero.cs" />
     <Compile Include="Libraries\DebugDrawer.cs" />
     <Compile Include="Libraries\Graph.cs" />
