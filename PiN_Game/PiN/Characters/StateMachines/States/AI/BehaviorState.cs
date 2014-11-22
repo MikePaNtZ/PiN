@@ -19,15 +19,15 @@ namespace PiN
 
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            try
-            {
-                if (enemy.CurrentPlatform != null && enemy.Level.ActiveHero.CurrentPlatform != null)
-                    enemy.Path = GlobalSolver.FindPath(enemy.CurrentPlatform, enemy.Level.ActiveHero.CurrentPlatform);
-            }
-            catch (ArgumentNullException e)
-            {
-                System.Diagnostics.Debug.WriteLine(e);
-            }
+            //try
+            //{
+            //    if (enemy.CurrentPlatform != null && enemy.Level.ActiveHero.CurrentPlatform != null)
+            //        enemy.Path = GlobalSolver.FindPath(enemy.CurrentPlatform, enemy.Level.ActiveHero.CurrentPlatform);
+            //}
+            //catch (ArgumentNullException e)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(e);
+            //}
 
             enemy.Target = enemy.Level.ActiveHero.Center;
             enemy.lineIntersectDistance = Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Target);
