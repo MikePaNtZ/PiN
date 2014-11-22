@@ -541,8 +541,37 @@ namespace PiN
             foreach (Enemy enemy in enemies)
             {
                 enemy.Draw(gameTime, spriteBatch);
-                XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 1);
-                spriteBatch.DrawString(Hud.hudFont, enemy.Health.ToString(), new Vector2(enemy.BoundingRectangle.X, enemy.BoundingRectangle.Y - 20), Color.Black);
+                if (enemy.IsAlive)
+                {
+                    XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 1);
+                    spriteBatch.DrawString(Hud.hudFont, enemy.Health.ToString(), new Vector2(enemy.BoundingRectangle.X, enemy.BoundingRectangle.Y - 20), Color.Black);
+
+                    if (enemy.lineIntersectDistance != null)
+                    {
+                        Vector2 direction = enemy.Target - enemy.Center;
+                        direction.Normalize();
+                        XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, enemy.Center,
+                            new Vector2(enemy.Center.X + direction.X * (float)enemy.lineIntersectDistance, enemy.Center.Y + direction.Y * (float)enemy.lineIntersectDistance), Color.Red, 3);
+                    }
+
+                    if (enemy.Path != null)
+                    {
+                        foreach (GraphNode<Platform> gNode in enemy.Path)
+                        {
+                            Vector2 center = new Vector2((gNode.Value.RightEdgeX + gNode.Value.LeftEdgeX) / 2, gNode.Value.Y);
+                            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, center, 8, Color.Red, 5);
+
+                            foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
+                            {
+                                Vector2 neighborCenter = new Vector2((neighbor.Value.RightEdgeX + neighbor.Value.LeftEdgeX) / 2, neighbor.Value.Y);
+                                XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, neighborCenter, 8, Color.Red, 5);
+                                XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, center, neighborCenter, Color.Red, 5);
+                            }
+
+                        }
+                    }
+                }
+                
             }
                 
 

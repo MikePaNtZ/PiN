@@ -14,12 +14,12 @@ namespace PiN
             esm.ShooterState = new EnemyFiringState(esm);
             enemy.AttackTime = enemy.MaxAttackTime;
             enemy.AttackWaitTime = enemy.MaxAttackWaitTime;
+            
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            base.Update(gameTime, gameInputs);
-
             enemy.Target = enemy.Level.ActiveHero.Center;
+            enemy.lineIntersectDistance = Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Target);
 
             if (enemy.Health <= enemy.MaxHealth * enemy.KamikazeThresholdPercent)
             {
@@ -27,30 +27,36 @@ namespace PiN
                 return;
             }
 
-            if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
-                enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
-
-            if (enemy.IsAttacking)
+            if (enemy.CanSeeTarget && Math.Abs(enemy.LineOfSightToTarget.X) <= enemy.MaxAttackDistance)
             {
-                enemy.AttackTime = Math.Max(0.0f, enemy.AttackTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
-                if (enemy.AttackTime <= 0.0f)
+                //if (enemy.LineOfSightToTarget.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
+                    //enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
+
+                if (enemy.IsAttacking)
                 {
-                    esm.ShooterState = new EnemyAimingState(esm);
-                    enemy.AttackWaitTime = enemy.MaxAttackWaitTime;
+                    enemy.AttackTime = Math.Max(0.0f, enemy.AttackTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    if (enemy.AttackTime <= 0.0f)
+                    {
+                        esm.ShooterState = new EnemyAimingState(esm);
+                        enemy.AttackWaitTime = enemy.MaxAttackWaitTime;
+                    }
+
                 }
-                
+                else
+                {
+                    enemy.AttackWaitTime = Math.Max(0.0f, enemy.AttackWaitTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    if (enemy.AttackWaitTime <= 0.0f)
+                    {
+                        esm.ShooterState = new EnemyFiringState(esm);
+                        enemy.AttackTime = enemy.MaxAttackTime;
+                    }
+                }
             }
             else
-            {
-                enemy.AttackWaitTime = Math.Max(0.0f, enemy.AttackWaitTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
-                if (enemy.AttackWaitTime <= 0.0f)
-                {
-                    esm.ShooterState = new EnemyFiringState(esm);
-                    enemy.AttackTime = enemy.MaxAttackTime;
-                }
-            }
-            if (Math.Abs(enemy.LineOfSightToHero.X) > enemy.MaxAttackDistance)// player moved outside of attacking range then track
                 esm.BehaviorState = new TrackState(esm);
+            
+            //if (Math.Abs(enemy.LineOfSightToHero.X) > enemy.MaxAttackDistance || Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Target) != null)// player moved outside of attacking range then track
+                //esm.BehaviorState = new TrackState(esm);
         }
     }
 }

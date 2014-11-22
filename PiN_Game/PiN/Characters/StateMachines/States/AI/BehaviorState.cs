@@ -29,6 +29,9 @@ namespace PiN
                 System.Diagnostics.Debug.WriteLine(e);
             }
 
+            enemy.Target = enemy.Level.ActiveHero.Center;
+            enemy.lineIntersectDistance = Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Target);
+
         }
     }
 }
