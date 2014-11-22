@@ -46,6 +46,10 @@ namespace PiN
 
             graphics = new GraphicsDeviceManager(this);
 
+            graphics.IsFullScreen = false;
+//            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+//            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.ApplyChanges();
 
             // Create the screen manager component.
             screenManager = new ScreenManager(this);
@@ -98,7 +102,7 @@ namespace PiN
     {
         static void Main()
         {
-            using (PiN_Game game = new PiN_Game())
+            using (GameStateManagementGame game = new GameStateManagementGame())
             {
                 game.Run();
             }

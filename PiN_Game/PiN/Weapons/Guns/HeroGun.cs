@@ -21,11 +21,15 @@ namespace PiN
     class HeroGun : Gun
     {
 
+        protected GameObject crosshair;
+
         /// <summary>
         /// Constructs a new Enemy.
         /// </summary>
         public HeroGun(GameCharacter theShooter) : base(theShooter)
         {
+            // Set this hero gun to 5 bullets per s in automatic mode.
+            attackRate = 5;
         }
 
         protected override void LoadContent()
@@ -56,20 +60,7 @@ namespace PiN
 
             base.Draw(gameTime, spriteBatch);
         }
-        protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
-        {
-            //Check for collisions with the enemies
-            foreach (Enemy enemy in weaponWielder.Level.enemies)
-            {
-                if (bulletRect.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
-                {
-                    //We're going to want to put some enemy health reduction code here
-                    //Enemy class needs a health member variable too
-                    enemy.OnHit(weaponWielder);
-                    bullet.IsAlive = false;
-                }
-            }
-        }
+
 
 
 

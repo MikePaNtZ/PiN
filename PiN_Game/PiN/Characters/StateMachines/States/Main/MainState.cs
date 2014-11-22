@@ -28,10 +28,12 @@ namespace PiN
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            float deadBand = MathHelper.ToRadians(0.0f);
-            if (character.Weapon.Rotation < deadBand)
+            bool aimingRight = character.Weapon.Rotation <= Math.PI / 2.0f || character.Weapon.Rotation >= 3.0f * Math.PI / 2.0f; 
+            bool aimingLeft  = character.Weapon.Rotation >= Math.PI / 2.0f || character.Weapon.Rotation <= 3.0f*Math.PI / 2.0f; 
+
+            if (aimingLeft)
                 character.FaceDirection = FaceDirection.Left;
-            if (character.Weapon.Rotation > -deadBand)
+            if (aimingRight)
                 character.FaceDirection = FaceDirection.Right;
 
             character.determineColor(gameTime);

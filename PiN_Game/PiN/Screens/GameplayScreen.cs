@@ -15,12 +15,16 @@ namespace PiN
         ContentManager content;
         SpriteFont gameFont;
 
+        int screenWidth;
+        int screenHeight;
+
         float pauseAlpha;
 
         // Resources for drawing.
-        private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-
+        Texture2D background1;
+        Texture2D background2;
+        Texture2D middleground;
         // Global content.
         private Hud hud;
 
@@ -54,6 +58,8 @@ namespace PiN
         {
             TransitionOnTime = TimeSpan.FromSeconds(1.5);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
+
+            maps = new List<Map>();
         }
 
         public override void LoadContent()
@@ -61,7 +67,49 @@ namespace PiN
             if (content == null)
                 content = new ContentManager(ScreenManager.Game.Services, "Content");
 
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(ScreenManager.GraphicsDevice);
+
+            XnaDebugDrawer.DebugDrawer.LoadContent(ScreenManager.GraphicsDevice);
+
+            hud = new Hud(content);
+
+            cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
+            background1 = content.Load<Texture2D>("Backgrounds/Layer0_0");
+            background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
+            middleground = content.Load<Texture2D>("Backgrounds/middleground");
+
+            try //This is where the maps are added
+            {
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeBLevel.tmx"), content));
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine("Map file not found " + e);
+                ScreenManager.Game.Exit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ScreenManager.Game.Exit();
+            }
+
+            try
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(content.Load<Song>("Sounds/TheDescent"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            screenWidth = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            screenHeight = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
             LoadNextLevel();
+
 
             // once the load has finished, we use ResetElapsedTime to tell the game's
             // timing mechanism that we have just finished a very long frame, and that
@@ -77,6 +125,7 @@ namespace PiN
         public override void Update(GameTime gameTime, bool otherScreenHasFocus,
                                                        bool coveredByOtherScreen)
         {
+            HandlePlayerControls();
             base.Update(gameTime, otherScreenHasFocus, false);
 
             // Gradually fade in or out depending on whether we are covered by the pause screen.
@@ -87,10 +136,20 @@ namespace PiN
 
             if (IsActive)
             {
-
                 // update our level, passing down the GameTime along with all of our input states
                 level.Update(gameTime, gameInputHandler);
             }
+        }
+
+        protected void HandlePlayerControls()
+        {
+            // get all of our input states
+            previousKeyboardState = keyboardState;
+            keyboardState = Keyboard.GetState();
+
+            previousMouseState = mouseState;
+            mouseState = Mouse.GetState();
+            gameInputHandler = new InputHandler(cam, mouseState, previousMouseState, keyboardState, previousKeyboardState);
         }
 
         public override void HandleInput(InputState input)
@@ -103,28 +162,12 @@ namespace PiN
 
             keyboardState = input.CurrentKeyboardStates[playerIndex];
 
-
             if (input.IsPauseGame(ControllingPlayer))
             {
                 ScreenManager.AddScreen(new PauseMenuScreen(), ControllingPlayer);
             }
             else
             {
-
-                // get all of our input states
-                previousKeyboardState = keyboardState;
-                keyboardState = Keyboard.GetState();
-
-                previousMouseState = mouseState;
-                mouseState = Mouse.GetState();
-                gameInputHandler = new InputHandler(cam, mouseState, previousMouseState, keyboardState, previousKeyboardState);
-
-
-                // Exit the game when back is pressed.
-                //if (gameInputHandler.KeyboardState.IsKeyDown(Keys.Escape))
-                //    Program.Exit();
-
-
                 bool continuePressed = gameInputHandler.KeyboardState.IsKeyDown(Keys.Space);
                 // Perform the appropriate action to advance the game and
                 // to get the activeHero back to playing.
@@ -158,7 +201,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 0; //index level 2 is MikeBLevel
+            levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
 
             // Load the level.
@@ -173,14 +216,42 @@ namespace PiN
             LoadNextLevel();
         }
 
+        private void DrawScenery()
+        {
+            Rectangle screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
+
+            if (levelIndex == 2)
+            {
+                spriteBatch.Draw(background1, screenRectangle, Color.White);
+                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+            }
+            else if (levelIndex == 0)
+            {
+                spriteBatch.Draw(background1, screenRectangle, Color.White);
+                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+            }
+            else if (levelIndex == 1)
+            {
+                spriteBatch.Draw(background1, screenRectangle, Color.White);
+                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+            }
+        }
+
         public override void Draw(GameTime gameTime)
         {
             // This game has a blue background. Why? Because!
             ScreenManager.GraphicsDevice.Clear(ClearOptions.Target,
                                                Color.RoyalBlue, 0, 0);
+            
 
             // Our player and enemy are both actually just text strings.
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+            spriteBatch = ScreenManager.SpriteBatch;
+            spriteBatch.Begin();
+            DrawScenery();
+            spriteBatch.End();
 
             level.Draw(gameTime, spriteBatch);
             hud.Draw(spriteBatch, level, WarningTime);

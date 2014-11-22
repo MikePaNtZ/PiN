@@ -27,37 +27,27 @@ namespace PiN
         /// </summary>
         public EnemyGun(GameCharacter theShooter) : base(theShooter)
         {
+
+            // set enemy's gun to fire bullets at 1 per sec
+            attackRate = 1;
         }
 
         protected override void LoadContent()
         {
+
             bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet");
             shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/SilencerShot");
-            base.LoadContent();
-        }
 
-        protected override void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
-        {
-            Hero theTarget = weaponWielder.Level.ActiveHero;
-            if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsPoweredUp)
+            // load all bullets
+            bullets = new EnemyBullet[MAX_BULLETS];
+            // Slow down enemy bullets a bit.
+            bulletSpeed = 10.0f;
+            for (int i = 0; i < MAX_BULLETS; i++)
             {
-                //bullet is deflected
-                //bullet.Velocity = -0.7f*bullet.Velocity;
-                bullet.IsAlive = false;
+                bullets[i] = new EnemyBullet(this);
+                bullets[i].Texture = bulletTexture; 
+                bullets[i].BulletSpeed = bulletSpeed;
             }
-
-            else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsBlocking)
-            {
-                //hero doesn't take damage when blocking with shield
-                bullet.Velocity = -0.7f*bullet.Velocity;
-            }
-            else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive)
-            {
-                theTarget.OnHit(weaponWielder);
-
-                bullet.IsAlive = false;
-            }
-
 
         }
 
