@@ -85,8 +85,10 @@ namespace PiN
 
         private SoundEffect exitReachedSound;
 
+        //for debugging
         bool drawNavMesh;
-        Color ASIGNCOLOR;
+        Vector2 playersTarget;
+        float? rayIntersectDistance;
 
         #region Loading
 
@@ -311,13 +313,9 @@ namespace PiN
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
-                if (Collision.RayCastCollidesWithLevel(ActiveHero.Center, new Vector2(gameInputs.MouseState.X, gameInputs.MouseState.Y)))
-                {
-                    ASIGNCOLOR = Color.Red;
-                }
-                else
-                    ASIGNCOLOR = Color.Transparent;
-                    
+
+                playersTarget = gameInputs.MouseInput.Position;
+                rayIntersectDistance = Collision.RayCastCollidesWithLevel(ActiveHero.Center, playersTarget);
 
                 if (gameInputs.MouseState.ScrollWheelValue > gameInputs.PreviousMouseState.ScrollWheelValue)
                     Camera.Zoom += 0.1f;
@@ -538,25 +536,6 @@ namespace PiN
                         Camera.GetViewMatrix(Vector2.One));
             
             map.Draw(spriteBatch, Camera, drawNavMesh);
-            BoundingBox tempBounds;
-            Rectangle tile;
-            Vector3[] points;
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    if (Tiles[y, x].Collision != TileCollision.Passable)
-                    {
-                        tempBounds = new BoundingBox(new Vector3(Tiles[y, x].Rectangle.X, Tiles[y, x].Rectangle.Y + TileHeight, 0),
-                                                 new Vector3(Tiles[y, x].Rectangle.X + TileWidth, Tiles[y, x].Rectangle.Y, 0));
-                        points = tempBounds.GetCorners();
-                        tile = new Rectangle((int)points[0].X,(int)points[0].Y, (int)(points[1].X - points[0].X), (int)(points[3].Y - points[0].Y));
-                        
-                        XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, tile, Color.DarkViolet, 2);
-                    }
-
-                }
-            }
             
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
@@ -574,7 +553,16 @@ namespace PiN
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
             XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
-            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, ActiveHero.Center, 32, ASIGNCOLOR, 10);
+            
+            
+            if (rayIntersectDistance != null)
+            {
+                Vector2 direction = playersTarget - ActiveHero.Center;
+                direction.Normalize();
+                XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, ActiveHero.Center, 
+                    new Vector2(ActiveHero.Center.X + direction.X * (float)rayIntersectDistance, ActiveHero.Center.Y + direction.Y * (float)rayIntersectDistance), Color.Red, 3);
+            }
+                
 
             spriteBatch.End();
 
