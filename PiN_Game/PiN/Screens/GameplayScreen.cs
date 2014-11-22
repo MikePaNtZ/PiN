@@ -193,11 +193,6 @@ namespace PiN
             // Load the level.
             levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
-
-            // Load the level.
-            //string levelPath = string.Format("Content/Levels/{0}.txt", levelIndex);
-            //using (Stream fileStream = TitleContainer.OpenStream(levelPath))
-            //    level = new Level(ScreenManager.Program.Services, fileStream, levelIndex);
         }
 
         private void ReloadCurrentLevel()
