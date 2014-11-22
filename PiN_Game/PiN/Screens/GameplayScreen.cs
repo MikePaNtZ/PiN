@@ -15,11 +15,16 @@ namespace PiN
         ContentManager content;
         SpriteFont gameFont;
 
+        int screenWidth;
+        int screenHeight;
+
         float pauseAlpha;
 
         // Resources for drawing.
         private SpriteBatch spriteBatch;
-
+        Texture2D background1;
+        Texture2D background2;
+        Texture2D middleground;
         // Global content.
         private Hud hud;
 
@@ -71,6 +76,10 @@ namespace PiN
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
 
+            background1 = content.Load<Texture2D>("Backgrounds/Layer0_0");
+            background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
+            middleground = content.Load<Texture2D>("Backgrounds/middleground");
+
             try //This is where the maps are added
             {
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
@@ -97,6 +106,9 @@ namespace PiN
             {
                 Console.WriteLine(e);
             }
+
+            screenWidth = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            screenHeight = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             LoadNextLevel();
 
@@ -201,14 +213,43 @@ namespace PiN
             LoadNextLevel();
         }
 
+        private void DrawScenery()
+        {
+            Rectangle screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
+
+            if (levelIndex == 2)
+            {
+                spriteBatch.Draw(background1, screenRectangle, Color.White);
+                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+            }
+            else if (levelIndex == 0)
+            {
+                spriteBatch.Draw(background1, screenRectangle, Color.White);
+                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+            }
+            else if (levelIndex == 1)
+            {
+                spriteBatch.Draw(background1, screenRectangle, Color.White);
+                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+            }
+        }
+
         public override void Draw(GameTime gameTime)
         {
             // This game has a blue background. Why? Because!
             ScreenManager.GraphicsDevice.Clear(ClearOptions.Target,
                                                Color.RoyalBlue, 0, 0);
+            
 
             // Our player and enemy are both actually just text strings.
             spriteBatch = ScreenManager.SpriteBatch;
+
+            spriteBatch.Begin();
+            DrawScenery();
+            spriteBatch.End();
 
             level.Draw(gameTime, spriteBatch);
             hud.Draw(spriteBatch, level, WarningTime);
