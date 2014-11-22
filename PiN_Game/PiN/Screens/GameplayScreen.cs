@@ -13,12 +13,24 @@ namespace PiN
     class GameplayScreen : GameScreen
     {
         ContentManager content;
-        SpriteFont gameFont;
+       
 
         int screenWidth;
         int screenHeight;
 
         float pauseAlpha;
+
+        //MikeM level backgrounds (levelIndex 1)
+        Texture2D lvl2bg0;
+        Texture2D lvl2bg1;
+        Texture2D lvl2bg2;
+        Texture2D lvl2Foreground;
+        Texture2D lvl2Gradient;
+        Texture2D lvl2Middleground;
+        Texture2D lvl2Middleplus;
+        Texture2D lvl2Sky1;
+        Texture2D lvl2Sky2;
+        Texture2D lvl2TreeSunsetMain;
 
         // Resources for drawing.
         private SpriteBatch spriteBatch;
@@ -79,6 +91,18 @@ namespace PiN
             background1 = content.Load<Texture2D>("Backgrounds/Layer0_0");
             background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
             middleground = content.Load<Texture2D>("Backgrounds/middleground");
+
+            //MikeM level content (levelIndex 1)
+            lvl2bg0 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
+            lvl2bg1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
+            lvl2bg2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
+            lvl2Foreground = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
+            lvl2Gradient = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
+            lvl2Middleground = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
+            lvl2Middleplus = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
+            lvl2Sky1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
+            lvl2Sky2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
+            lvl2TreeSunsetMain = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
 
             try //This is where the maps are added
             {
@@ -203,7 +227,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            levelIndex = 1; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 
@@ -231,9 +255,21 @@ namespace PiN
             }
             else if (levelIndex == 1)
             {
-                spriteBatch.Draw(background1, screenRectangle, Color.White);
-                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
-                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+
+                //MikeM level content (levelIndex 1)
+                spriteBatch.Draw(lvl2TreeSunsetMain, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
+                spriteBatch.Draw(lvl2Gradient, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
+                spriteBatch.Draw(lvl2Sky2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
+                spriteBatch.Draw(lvl2Sky1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
+                spriteBatch.Draw(lvl2bg2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
+                spriteBatch.Draw(lvl2bg1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
+                spriteBatch.Draw(lvl2bg0, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
+                
+                spriteBatch.Draw(lvl2Middleground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
+                spriteBatch.Draw(lvl2Middleplus, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
+                
+                spriteBatch.Draw(lvl2Foreground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
+                
             }
         }
 
