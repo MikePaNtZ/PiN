@@ -13,19 +13,11 @@ namespace PiN
     class Gun : Weapon
     {
         protected SoundEffect shootingSound;
-        protected GameObject gunObj;
-        protected GameObject crosshair;
         protected Texture2D bulletTexture;
-        protected GameObject[] bullets;
         protected int MAX_BULLETS = 12;
+        protected Bullet[] bullets;
+        protected float bulletSpeed = 15.0f;
         protected Vector2 target;
-        //protected float theWeaponCos;
-        //protected float theWeaponSin;
-
-        //protected Vector2 muzzle
-        //{
-        //    get { return new Vector2(position.X* -theWeaponCos, (position.Y - rectangle.Height/2)* -theWeaponCos); }
-        //}
 
         /// <summary>
         /// Gun constructor
@@ -33,6 +25,18 @@ namespace PiN
         public Gun(GameCharacter theShooter)
             : base(theShooter)
         {
+        }
+
+        protected virtual float BulletSpeed {
+            get {
+                return bulletSpeed;
+            }
+        }
+
+        public SoundEffect GunShotSound {
+            get {
+                return shootingSound;
+            }
         }
 
         /// <summary>
@@ -43,12 +47,13 @@ namespace PiN
             shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/QuickLaser");
             texture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Arm_Gun");
             // load all bullets
-            bullets = new GameObject[MAX_BULLETS];
+            bullets = new Bullet[MAX_BULLETS];
 
             for (int i = 0; i < MAX_BULLETS; i++)
             {
-                bullets[i] = new GameObject();
-                bullets[i].Texture = bulletTexture; 
+                bullets[i] = new Bullet(this);
+                bullets[i].Texture = bulletTexture;
+                bullets[i].BulletSpeed = bulletSpeed;
             }
             
         }
@@ -57,7 +62,7 @@ namespace PiN
         {
             // Shooting related updates
             target = crosshairPosition;
-            position = weaponWielder.Arm;
+            position = weaponWielder.ArmPosition;
 
             // Updates the state of all bullets
             updateShooting();
@@ -67,9 +72,7 @@ namespace PiN
 
         public override void PerformNormalAttack()
         {
-            
             FireBullet();
-
         }
 
         public override void PerformSpecialAttack()
@@ -79,26 +82,21 @@ namespace PiN
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            //ystem.Diagnostics.Debug.WriteLine("X-Hair Pos: " + crosshair.Position);
-            spriteBatch.Draw(
-                texture,
-                position,
-                null,
-                Color.White,
-                rotation,
-                Center,
-                1.0f,
-                weaponWielder.Flip,
-                0);
+//            spriteBatch.Draw(
+//                texture,
+//                position,
+//                null,
+//                Color.White,
+//                rotation,
+//                Center,
+//                1.0f,
+//                weaponWielder.Flip,
+//                0);
 
             //Draw the bullets
             foreach (GameObject bullet in bullets)
             {
-                if (bullet.IsAlive)
-                {
-                    spriteBatch.Draw(bullet.Texture,
-                        bullet.Position, Color.White);
-                }
+                bullet.Draw(gameTime, spriteBatch);
             }
 
             XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, position, target, Color.Blue, 1);
@@ -109,145 +107,31 @@ namespace PiN
         private void updateShooting()
         {
             Vector2 aimDirection = position - target;
-            rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) -(float)Math.PI / 2; //this will return the mouse angle(in radians).
-            //theWeaponCos =  (float)Math.Cos(rotation - ((int)weaponWielder.FaceDirection * MathHelper.PiOver2));
-            //theWeaponSin = (float)Math.Sin(rotation - ((int)weaponWielder.FaceDirection * MathHelper.PiOver2));
-
-            //If we aren't rotating our gun then set it to the
-            //default position. Aiming in front of us.
-            if (rotation == 0)
-                rotation = (int)weaponWielder.FaceDirection * MathHelper.PiOver2;
+            aimDirection.Y *= -1.0f;
+            aimDirection.Normalize();
+            rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) + (float)Math.PI;
         }
 
         private void FireBullet()
         {
-            foreach (GameObject bullet in bullets)
+            foreach (Bullet bullet in bullets)
             {
-                //Find a bullet that isn't alive
                 if (!bullet.IsAlive)
                 {
-
-                    if (shootingSound != null)
-                        shootingSound.Play();
-
-
-                    //And set it to alive.
-                    bullet.IsAlive = true;
-
-                    if (weaponWielder.Flip == SpriteEffects.FlipHorizontally) //Facing right
-                    {
-                        float theWeaponCos = (float)Math.Cos(rotation - MathHelper.PiOver2);
-                        float theWeaponSin = (float)Math.Sin(rotation - MathHelper.PiOver2);
-
-                        //Set the initial position of our bullet at the end of our gun
-                        //42 is obtained be taking the width of the Arm_Gun texture / 2
-                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
-                        bullet.Position = new Vector2(
-                            position.X + 42 * theWeaponCos,
-                            position.Y + 42 * theWeaponSin);
-
-                        //And give it a velocity of the direction we're aiming.
-                        //Increase/decrease speed by changing 15.0f
-                        bullet.Velocity = new Vector2(
-                            (float)Math.Cos(rotation - MathHelper.PiOver2),
-                            (float)Math.Sin(rotation - MathHelper.PiOver2)) * 15.0f;
-                    }
-                    else //Facing left
-                    {
-                        float theWeaponCos = (float)Math.Cos(rotation + MathHelper.PiOver2);
-                        float theWeaponSin = (float)Math.Sin(rotation + MathHelper.PiOver2);
-
-                        //Set the initial position of our bullet at the end of our gun
-                        //42 is obtained be taking the width of the Arm_Gun texture / 2
-                        //and subtracting the width of the Bullet texture / 2. ((96/2)-(12/2))
-                        bullet.Position = new Vector2(
-                            position.X - 42 * theWeaponCos,
-                            position.Y - 42 * theWeaponSin);
-
-                        //And give it a velocity of the direction we're aiming.
-                        //Increase/decrease speed by changing 15.0f
-                        bullet.Velocity = new Vector2(
-                           -theWeaponCos,
-                           -theWeaponSin) * 15.0f;
-                    }
+                    bullet.FireBullet();
                     return;
                 }
+
             }
         }
 
         private void UpdateBullets()
         {
-            //Check all of our bullets
-            foreach (GameObject bullet in bullets)
+            foreach (Bullet bullet in bullets)
             {
-                //Only update them if they're alive
-                if (bullet.IsAlive)
-                {
-                    //Move our bullet based on it's velocity
-                    bullet.Position += bullet.Velocity;
-
-                    //Rectangle the size of the screen so bullets that
-                    //fly off screen are deleted.
-                    Rectangle screenRect = new Rectangle(0, 0, (int)weaponWielder.Level.Camera.Position.X + weaponWielder.Level.Camera.ViewPort.Width, (int)weaponWielder.Level.Camera.Position.Y + weaponWielder.Level.Camera.ViewPort.Height * 2);
-                    if (!screenRect.Contains(new Point(
-                        (int)bullet.Position.X,
-                        (int)bullet.Position.Y)))
-                    {
-                        bullet.IsAlive = false;
-                        continue;
-                    }
-
-                    //Collision rectangle for each bullet -Will also be
-                    //used for collisions with enemies.
-                    Rectangle bulletRect = new Rectangle(
-                        (int)bullet.Position.X - bullet.Texture.Width * 2,
-                        (int)bullet.Position.Y - bullet.Texture.Height * 2,
-                        bullet.Texture.Width * 4,
-                        bullet.Texture.Height * 4);
-
-                    checkBulletCollision(bullet, bulletRect);
-
-                    //Everything below here can be deleted if you want
-                    //your bullets to shoot through all tiles.
-
-                    //Look for adjacent tiles to the bullet
-                    Rectangle bounds = new Rectangle(
-                        bulletRect.Center.X - 6,
-                        bulletRect.Center.Y - 6,
-                        bulletRect.Width / 4,
-                        bulletRect.Height / 4);
-                    int leftTile = (int)Math.Floor((float)bounds.Left / weaponWielder.Level.TileWidth);
-                    int rightTile = (int)Math.Ceiling(((float)bounds.Right / weaponWielder.Level.TileWidth)) - 1;
-                    int topTile = (int)Math.Floor((float)bounds.Top / weaponWielder.Level.TileHeight);
-                    int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / weaponWielder.Level.TileHeight)) - 1;
-
-                    // For each potentially colliding tile
-                    for (int y = topTile; y <= bottomTile; ++y)
-                    {
-                        for (int x = leftTile; x <= rightTile; ++x)
-                        {
-                            TileCollision collision = weaponWielder.Level.GetCollision(x, y);
-
-                            //If we collide with an Impassable or Platform tile
-                            //then delete our bullet.
-                            if (collision == TileCollision.Impassable ||
-                                collision == TileCollision.Platform)
-                            {
-                                if (bulletRect.Intersects(bounds))
-                                    bullet.IsAlive = false;
-                            }
-                        }
-                    }
-                }
+                bullet.Update();
             }
         }
-
-        protected virtual void checkBulletCollision(GameObject bullet, Rectangle bulletRect)
-        {
-            // No implementation in Gun Base class. It's up to derived gun classes 
-            // to implement their own bullet collision.
-        }
-
 
     }
 }

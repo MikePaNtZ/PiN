@@ -122,11 +122,11 @@ namespace PiN
             }
         }
 
-        public virtual Vector2 Arm
+        public virtual Vector2 ArmPosition
         {
             get
             {
-                return new Vector2(rectangle.X + rectangle.Width / 2 + ((int)FaceDirection * rectangle.Width/8), 
+                return new Vector2(rectangle.X + rectangle.Width / 2, 
                                    rectangle.Y + rectangle.Height / 2);
             }
         }
@@ -147,7 +147,6 @@ namespace PiN
             get { return powerUpTime; }
             set { powerUpTime = value; }
         }
-
         
 
         public SoundEffect KilledSound { get { return killedSound; } }
@@ -179,7 +178,7 @@ namespace PiN
         //*************************************************//
 
         /// <summary>
-        /// Game character constructor
+        /// Program character constructor
         /// </summary>
         public GameCharacter(Level level, Vector2 initialPosition)
             : base()
@@ -189,9 +188,6 @@ namespace PiN
             this.level = level;
             // construct the physics engine.
             this.physEngine = new PhysicsEngine(this);
-
-            
-
 
             Reset(initialPosition);
         }

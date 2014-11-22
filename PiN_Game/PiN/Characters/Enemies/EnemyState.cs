@@ -3,7 +3,7 @@
 // EnemyState.cs
 // Enumeration for the enemy finite state machine
 //
-// Microsoft XNA Community Game Platform
+// Microsoft XNA Community Program Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
 //-----------------------------------------------------------------------------
 #endregion

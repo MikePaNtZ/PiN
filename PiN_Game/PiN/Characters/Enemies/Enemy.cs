@@ -2,7 +2,7 @@
 //-----------------------------------------------------------------------------
 // Enemy.cs
 //
-// Microsoft XNA Community Game Platform
+// Microsoft XNA Community Program Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
 //-----------------------------------------------------------------------------
 #endregion
@@ -48,7 +48,7 @@ namespace PiN
         }
 
         /// <summary>
-        /// if player is within this distance than you can attack
+        /// if player is within this distance then you can attack
         /// </summary>
         public virtual float MaxAttackDistance
         {
@@ -60,7 +60,7 @@ namespace PiN
         /// </summary>
         public virtual float KamikazeThresholdPercent
         {
-            get { return 0.4F; }
+            get { return 0.3F; }
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace PiN
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/Dying");
             // Temporary hurt sound. We probably want to use something different in the future.
-            hurtSound = Level.Content.Load<SoundEffect>("Sounds/MonsterKilled");
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/MaleHurt");
 
             // Calculate bounds within texture size.            
             // TODO It needs to be more clear what this is doing, and why it is done here. It is for collision detection.
