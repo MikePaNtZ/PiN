@@ -15,7 +15,7 @@ namespace PiN
             level = lvl;
         }
 
-        public static bool RayCastCollidesWithLevel(Vector2 source, Vector2 destination)
+        public static float? RayCastCollidesWithLevel(Vector2 source, Vector2 destination)
         {
             BoundingBox tempBounds;
             Vector3 direction = new Vector3(destination - source, 0);
@@ -33,18 +33,15 @@ namespace PiN
                                                  new Vector3(level.Tiles[y, x].Rectangle.X + level.TileWidth, level.Tiles[y, x].Rectangle.Y, 0));
 
                         intersectDistance = ray.Intersects(tempBounds);
-                        if (intersectDistance != null && intersectDistance <= (destination - source).Length())
-                            return true;
+                        if (intersectDistance != null && intersectDistance * intersectDistance <= (destination - source).LengthSquared())
+                            return intersectDistance;
                     }
+                    else
+                        intersectDistance = null;
                     
                 }
             }
-            return false;
-        }
-
-        public static void Draw(SpriteBatch spriteBatch)
-        {
-            //XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, new Vector2(), 5, Color.Red, 10);
+            return null;
         }
     }
 }

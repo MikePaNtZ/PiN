@@ -285,14 +285,6 @@ namespace PiN
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             stateMachine.Draw(gameTime, spriteBatch);
-            if (currentPlatform != null)
-            {
-                Vector2 left = new Vector2(currentPlatform.LeftEdgeX, currentPlatform.Y);
-                Vector2 right = new Vector2(currentPlatform.RightEdgeX, currentPlatform.Y);
-                XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, left, right, Color.Green, 5);
-                XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, left, 5, Color.Green, 5);
-                XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, right, 5, Color.Green, 5);
-            }
         }
 
         public void PowerUp()

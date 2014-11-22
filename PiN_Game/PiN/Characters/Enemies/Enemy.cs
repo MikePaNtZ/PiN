@@ -33,6 +33,15 @@ namespace PiN
             get { return Level.ActiveHero.Center - Center; }
         }
 
+        public Vector2 LineOfSightToTarget
+        {
+            get { return Target - Center; }
+        }
+
+        public bool CanSeeTarget { get { return lineIntersectDistance == null; } }
+
+        public float? lineIntersectDistance;
+
         public Vector2 Target
         {
             get { return target; }
@@ -40,7 +49,7 @@ namespace PiN
         }
 
         /// <summary>
-        /// if player is within this distance than transition to tracking state from searching state
+        /// if target is within this distance than transition to tracking state from searching state
         /// </summary>
         public virtual float MinTrackDistance
         {
@@ -48,7 +57,7 @@ namespace PiN
         }
 
         /// <summary>
-        /// if player is within this distance then you can attack
+        /// if target is within this distance then you can attack
         /// </summary>
         public virtual float MaxAttackDistance
         {
@@ -190,22 +199,7 @@ namespace PiN
                 weapon.Draw(gameTime, spriteBatch);
             }
 
-            if (Path != null)
-            {
-                foreach (GraphNode<Platform> gNode in Path)
-                {
-                    Vector2 center = new Vector2((gNode.Value.RightEdgeX + gNode.Value.LeftEdgeX)/2, gNode.Value.Y);
-                    XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, center, 8, Color.Red, 5);
-
-                    foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
-                    {
-                        Vector2 neighborCenter = new Vector2((neighbor.Value.RightEdgeX + neighbor.Value.LeftEdgeX)/2, neighbor.Value.Y);
-                        XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, neighborCenter, 8, Color.Red, 5);
-                        XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, center, neighborCenter, Color.Red, 5);
-                    }
-
-                }
-            }
+            
         }
 
         /// <summary>

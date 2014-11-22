@@ -12,15 +12,16 @@ namespace PiN
             : base(ESM)
         {
             esm.ShooterState = new EnemyFiringState(esm);
+            
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
             base.Update(gameTime, gameInputs);
 
-            enemy.Target = enemy.Level.ActiveHero.Center;
+            
 
-            if (enemy.LineOfSightToHero.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
-                enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
+            //if (enemy.LineOfSightToTarget.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction
+                //enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             float posX = enemy.Position.X + enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
