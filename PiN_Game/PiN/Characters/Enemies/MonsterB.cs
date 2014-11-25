@@ -40,7 +40,7 @@ namespace PiN
             idleAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterB/Idle"), 0.15f, true);
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterB/Die"), 0.07f, false);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterB/Idle"), 0.15f, true); //placeholder
-            killedSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
+            killedSound = Level.Content.Load<SoundEffect>("Sounds/WomanFall");
             
             base.LoadContent();
         }

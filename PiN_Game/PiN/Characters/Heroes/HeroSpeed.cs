@@ -40,9 +40,9 @@ namespace PiN
             localBounds = new Rectangle(left, top, width, height);
 
             // Load sounds.            
-            killedSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
-            jumpSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
-            fallSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
+            killedSound = Level.Content.Load<SoundEffect>("Sounds/WomanDie");
+            jumpSound = Level.Content.Load<SoundEffect>("Sounds/WomanJump");
+            fallSound = Level.Content.Load<SoundEffect>("Sounds/WomanFall");
             hurtSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");//placeholder
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
