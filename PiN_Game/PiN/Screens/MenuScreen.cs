@@ -1,12 +1,3 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// MenuScreen.cs
-//
-// XNA Community Program Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
 #region Using Statements
 using System;
 using System.Collections.Generic;

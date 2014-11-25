@@ -14,7 +14,6 @@ namespace PiN
     {
         ContentManager content;
        
-
         int screenWidth;
         int screenHeight;
 
@@ -31,6 +30,14 @@ namespace PiN
         Texture2D lvl2Sky1;
         Texture2D lvl2Sky2;
         Texture2D lvl2TreeSunsetMain;
+
+        //Tom level backgrounds (levelIndex 0)
+        Texture2D lvl1Gradient;
+        Texture2D lvl1Sky;
+        Texture2D lvl1bg2;
+        Texture2D lvl1bg1;
+        Texture2D lvl1Middleground;
+        Texture2D lvl1Main;
 
         // Resources for drawing.
         private SpriteBatch spriteBatch;
@@ -104,6 +111,14 @@ namespace PiN
             lvl2Sky2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
             lvl2TreeSunsetMain = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
 
+            //Tom level backgrounds (levelIndex 0)
+            lvl1Gradient = content.Load<Texture2D>("Backgrounds/TomLevel/Gradient(z-6)");
+            lvl1Sky = content.Load<Texture2D>("Backgrounds/TomLevel/sky(z-4)");
+            lvl1bg2 = content.Load<Texture2D>("Backgrounds/TomLevel/bg2(z-3)");
+            lvl1bg1 = content.Load<Texture2D>("Backgrounds/TomLevel/bg1(z-2)");
+            lvl1Middleground = content.Load<Texture2D>("Backgrounds/TomLevel/assetmiddleground(z-1)");
+            lvl1Main = content.Load<Texture2D>("Backgrounds/TomLevel/lvl1Main");
+
             try //This is where the maps are added
             {
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
@@ -121,21 +136,50 @@ namespace PiN
                 ScreenManager.Game.Exit();
             }
 
-            try
-            {
-                MediaPlayer.IsRepeating = true;
-                MediaPlayer.Play(content.Load<Song>("Sounds/TheDescent"));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            
 
             screenWidth = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth;
             screenHeight = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             LoadNextLevel();
+            if (levelIndex == 0)
+            {
+                try
+                {
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(content.Load<Song>("Sounds/Scattershot"));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
 
+            if (levelIndex == 1)
+            {
+                try
+                {
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(content.Load<Song>("Sounds/TheDescent"));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
+            if (levelIndex == 2)
+            {
+                try
+                {
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(content.Load<Song>("Sounds/TheComplex"));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
 
             // once the load has finished, we use ResetElapsedTime to tell the game's
             // timing mechanism that we have just finished a very long frame, and that
@@ -227,7 +271,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 1; //index level 2 is MikeBLevel
+            levelIndex = 0; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 
@@ -249,9 +293,19 @@ namespace PiN
             }
             else if (levelIndex == 0)
             {
-                spriteBatch.Draw(background1, screenRectangle, Color.White);
-                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
-                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+                //spriteBatch.Draw(background1, screenRectangle, Color.White);
+                //spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                //spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+
+                //spriteBatch.Draw(lvl1Main, screenRectangle, Color.White);
+                spriteBatch.Draw(lvl1Gradient, screenRectangle, Color.White);
+                spriteBatch.Draw(lvl1Sky, screenRectangle, Color.White);
+                spriteBatch.Draw(lvl1bg2, screenRectangle, Color.White);
+                spriteBatch.Draw(lvl1bg1, screenRectangle, Color.White);
+                spriteBatch.Draw(lvl1Middleground, screenRectangle, Color.White);
+                
+                
+
             }
             else if (levelIndex == 1)
             {
