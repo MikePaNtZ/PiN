@@ -21,6 +21,7 @@ namespace PiN
     class EnemyGun : Gun
     {
         protected int MAX_BULLETS = 1;
+        protected Texture2D shootingTexture;
 
         /// <summary>
         /// Constructs a new Enemy.
@@ -34,9 +35,9 @@ namespace PiN
 
         protected override void LoadContent()
         {
-
             bulletTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/Player/Bullet");
             shootingSound = weaponWielder.Level.Content.Load<SoundEffect>("Sounds/SilencerShot");
+            shootingTexture = weaponWielder.Level.Content.Load<Texture2D>("Sprites/MonsterB/Shoot");
 
             // load all bullets
             bullets = new EnemyBullet[MAX_BULLETS];

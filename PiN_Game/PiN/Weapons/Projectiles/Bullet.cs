@@ -40,7 +40,7 @@ namespace PiN
             //Only update them if they're alive
             if (IsAlive)
             {
-                //Move our bullet based on it's velocity
+                //Move our bullet based on its velocity
                 Position += Velocity;
 
                 //Rectangle the size of the screen so bullets that
@@ -68,33 +68,37 @@ namespace PiN
                 //your bullets to shoot through all tiles.
 
                 //Look for adjacent tiles to the bullet
-                Rectangle bounds = new Rectangle(
-                    bulletRect.Center.X - 6,
-                    bulletRect.Center.Y - 6,
-                    bulletRect.Width / 4,
-                    bulletRect.Height / 4);
-                int leftTile = (int)Math.Floor((float)bounds.Left / gun.WeaponWielder.Level.TileWidth);
-                int rightTile = (int)Math.Ceiling(((float)bounds.Right / gun.WeaponWielder.Level.TileWidth)) - 1;
-                int topTile = (int)Math.Floor((float)bounds.Top / gun.WeaponWielder.Level.TileHeight);
-                int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / gun.WeaponWielder.Level.TileHeight)) - 1;
 
-                // For each potentially colliding tile
-                for (int y = topTile; y <= bottomTile; ++y)
-                {
-                    for (int x = leftTile; x <= rightTile; ++x)
-                    {
-                        TileCollision collision = gun.WeaponWielder.Level.GetCollision(x, y);
+                /*Removed bullet collisions with tiles*/
+                /*No more heinous noises when the enemy is shooting adjacent to a tile*/
 
-                        //If we collide with an Impassable or Platform tile
-                        //then delete our bullet.
-                        if (collision == TileCollision.Impassable ||
-                            collision == TileCollision.Platform)
-                        {
-                            if (bulletRect.Intersects(bounds))
-                                IsAlive = false;
-                        }
-                    }
-                }
+                //Rectangle bounds = new Rectangle(
+                //    bulletRect.Center.X - 6,
+                //    bulletRect.Center.Y - 6,
+                //    bulletRect.Width / 4,
+                //    bulletRect.Height / 4);
+                //int leftTile = (int)Math.Floor((float)bounds.Left / gun.WeaponWielder.Level.TileWidth);
+                //int rightTile = (int)Math.Ceiling(((float)bounds.Right / gun.WeaponWielder.Level.TileWidth)) - 1;
+                //int topTile = (int)Math.Floor((float)bounds.Top / gun.WeaponWielder.Level.TileHeight);
+                //int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / gun.WeaponWielder.Level.TileHeight)) - 1;
+
+                //// For each potentially colliding tile
+                //for (int y = topTile; y <= bottomTile; ++y)
+                //{
+                //    for (int x = leftTile; x <= rightTile; ++x)
+                //    {
+                //        TileCollision collision = gun.WeaponWielder.Level.GetCollision(x, y);
+
+                //        //If we collide with an Impassable or Platform tile
+                //        //then delete our bullet.
+                //        if (collision == TileCollision.Impassable ||
+                //            collision == TileCollision.Platform)
+                //        {
+                //            if (bulletRect.Intersects(bounds))
+                //                IsAlive = false;
+                //        }
+                //    }
+                //}
             }
         }
 

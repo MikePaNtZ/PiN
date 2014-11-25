@@ -41,9 +41,9 @@ namespace PiN
 
             // Load sounds.            
             killedSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
-            jumpSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");
-            fallSound = Level.Content.Load<SoundEffect>("Sounds/PlayerFall");
-            hurtSound = Level.Content.Load<SoundEffect>("Sounds/PlayerJump");//placeholder
+            jumpSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
+            fallSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");//placeholder
             powerUpSound = Level.Content.Load<SoundEffect>("Sounds/Powerup");
 
             // Load character's default weapon
