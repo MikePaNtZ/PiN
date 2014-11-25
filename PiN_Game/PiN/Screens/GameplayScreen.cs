@@ -41,8 +41,9 @@ namespace PiN
 
         // Resources for drawing.
         private SpriteBatch spriteBatch;
-        Texture2D background1;
-        Texture2D background2;
+        //Texture2D background1;
+        //Texture2D background2;
+        Texture2D lvl3Main;
         Texture2D middleground;
         // Global content.
         private Hud hud;
@@ -95,9 +96,8 @@ namespace PiN
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
 
-            background1 = content.Load<Texture2D>("Backgrounds/Layer0_0");
-            background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
-            middleground = content.Load<Texture2D>("Backgrounds/middleground");
+            //background1 = content.Load<Texture2D>("Backgrounds/Layer0_0");
+            //background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
 
             //MikeM level content (levelIndex 1)
             lvl2bg0 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
@@ -112,12 +112,13 @@ namespace PiN
             lvl2TreeSunsetMain = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
 
             //Tom level backgrounds (levelIndex 0)
-            lvl1Gradient = content.Load<Texture2D>("Backgrounds/TomLevel/Gradient(z-6)");
-            lvl1Sky = content.Load<Texture2D>("Backgrounds/TomLevel/sky(z-4)");
-            lvl1bg2 = content.Load<Texture2D>("Backgrounds/TomLevel/bg2(z-3)");
-            lvl1bg1 = content.Load<Texture2D>("Backgrounds/TomLevel/bg1(z-2)");
-            lvl1Middleground = content.Load<Texture2D>("Backgrounds/TomLevel/assetmiddleground(z-1)");
+            //lvl1Gradient = content.Load<Texture2D>("Backgrounds/TomLevel/Gradient(z-6)");
+            //lvl1Sky = content.Load<Texture2D>("Backgrounds/TomLevel/sky(z-4)");
+            //lvl1bg2 = content.Load<Texture2D>("Backgrounds/TomLevel/bg2(z-3)");
+            //lvl1bg1 = content.Load<Texture2D>("Backgrounds/TomLevel/bg1(z-2)");
+            //lvl1Middleground = content.Load<Texture2D>("Backgrounds/TomLevel/assetmiddleground(z-1)");
             lvl1Main = content.Load<Texture2D>("Backgrounds/TomLevel/lvl1Main");
+            lvl3Main = content.Load<Texture2D>("Backgrounds/MikeBLevel/Cool");
 
             try //This is where the maps are added
             {
@@ -271,7 +272,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 0; //index level 2 is MikeBLevel
+            levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 
@@ -287,8 +288,9 @@ namespace PiN
 
             if (levelIndex == 2)
             {
-                spriteBatch.Draw(background1, screenRectangle, Color.White);
-                spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(lvl3Main, screenRectangle, Color.White);
+                //spriteBatch.Draw(background1, screenRectangle, Color.White);
+                //spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
                 //spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
             }
             else if (levelIndex == 0)
@@ -297,12 +299,12 @@ namespace PiN
                 //spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
                 //spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
 
-                //spriteBatch.Draw(lvl1Main, screenRectangle, Color.White);
-                spriteBatch.Draw(lvl1Gradient, screenRectangle, Color.White);
-                spriteBatch.Draw(lvl1Sky, screenRectangle, Color.White);
-                spriteBatch.Draw(lvl1bg2, screenRectangle, Color.White);
-                spriteBatch.Draw(lvl1bg1, screenRectangle, Color.White);
-                spriteBatch.Draw(lvl1Middleground, screenRectangle, Color.White);
+                spriteBatch.Draw(lvl1Main, screenRectangle, Color.White);
+                //spriteBatch.Draw(lvl1Gradient, screenRectangle, Color.White);
+                //spriteBatch.Draw(lvl1Sky, screenRectangle, Color.White);
+                //spriteBatch.Draw(lvl1bg2, screenRectangle, Color.White);
+                //spriteBatch.Draw(lvl1bg1, screenRectangle, Color.White);
+                //spriteBatch.Draw(lvl1Middleground, screenRectangle, Color.White);
                 
                 
 
@@ -312,17 +314,17 @@ namespace PiN
 
                 //MikeM level content (levelIndex 1)
                 spriteBatch.Draw(lvl2TreeSunsetMain, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
-                spriteBatch.Draw(lvl2Gradient, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
-                spriteBatch.Draw(lvl2Sky2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
-                spriteBatch.Draw(lvl2Sky1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
-                spriteBatch.Draw(lvl2bg2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
-                spriteBatch.Draw(lvl2bg1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
-                spriteBatch.Draw(lvl2bg0, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
+                //spriteBatch.Draw(lvl2Gradient, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
+                //spriteBatch.Draw(lvl2Sky2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
+                //spriteBatch.Draw(lvl2Sky1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
+                //spriteBatch.Draw(lvl2bg2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
+                //spriteBatch.Draw(lvl2bg1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
+                //spriteBatch.Draw(lvl2bg0, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
                 
-                spriteBatch.Draw(lvl2Middleground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
-                spriteBatch.Draw(lvl2Middleplus, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
+                //spriteBatch.Draw(lvl2Middleground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
+                //spriteBatch.Draw(lvl2Middleplus, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
                 
-                spriteBatch.Draw(lvl2Foreground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
+                //spriteBatch.Draw(lvl2Foreground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
                 
             }
         }
