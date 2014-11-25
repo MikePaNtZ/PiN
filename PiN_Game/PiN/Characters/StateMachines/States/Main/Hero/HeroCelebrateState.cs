@@ -12,7 +12,6 @@ namespace PiN
         {
             hero.sprite.LoadAnimation(hero.CelebrateAnimation);
             hero.InvincibilityFrames = 0;
-            System.Diagnostics.Debug.WriteLine("CelebrateState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {

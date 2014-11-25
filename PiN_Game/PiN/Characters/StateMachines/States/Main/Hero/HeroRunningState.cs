@@ -12,7 +12,6 @@ namespace PiN
         {
 
             hero.sprite.LoadAnimation(hero.RunAnimation);
-            System.Diagnostics.Debug.WriteLine("RunningState");
 
             //only do the run animation if velocity is above a threshold
             //to eliminate errors from sensitive keyboards or something

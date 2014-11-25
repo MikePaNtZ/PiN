@@ -11,7 +11,6 @@ namespace PiN
         public HeroIdleState(HeroStateMachine HSM) : base(HSM)
         {
             hero.sprite.LoadAnimation(hero.IdleAnimation);
-            System.Diagnostics.Debug.WriteLine("IdleState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {

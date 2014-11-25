@@ -22,7 +22,6 @@ namespace PiN
                     character.FallSound.Play();
             }
             character.sprite.LoadAnimation(character.DieAnimation);
-            System.Diagnostics.Debug.WriteLine("DeadState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {

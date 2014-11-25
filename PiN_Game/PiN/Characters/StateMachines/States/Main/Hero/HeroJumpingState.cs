@@ -12,7 +12,6 @@ namespace PiN
         {
             hero.sprite.LoadAnimation(hero.JumpAnimation);
             character.JumpSound.Play();
-            System.Diagnostics.Debug.WriteLine("JumpingState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
