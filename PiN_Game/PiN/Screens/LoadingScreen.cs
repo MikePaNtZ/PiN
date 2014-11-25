@@ -1,12 +1,3 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// LoadingScreen.cs
-//
-// Microsoft XNA Community Program Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
 #region Using Statements
 using System;
 using Microsoft.Xna.Framework;
@@ -139,7 +130,7 @@ namespace PiN
                 SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                 SpriteFont font = ScreenManager.Font;
 
-                const string message = "Loading...";
+                const string message = "Loading Level...";
 
                 // Center the text in the viewport.
                 Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
@@ -147,7 +138,7 @@ namespace PiN
                 Vector2 textSize = font.MeasureString(message);
                 Vector2 textPosition = (viewportSize - textSize) / 2;
 
-                Color color = Color.White * TransitionAlpha;
+                Color color = Color.Yellow * TransitionAlpha;
 
                 // Draw the text.
                 spriteBatch.Begin();

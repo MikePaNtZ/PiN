@@ -112,7 +112,7 @@ namespace PiN
             rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) + (float)Math.PI;
         }
 
-        private void FireBullet()
+        protected virtual void FireBullet()
         {
             foreach (Bullet bullet in bullets)
             {

@@ -32,6 +32,11 @@ namespace PiN
             attackRate = 5;
         }
 
+        protected override void FireBullet()
+        {
+            base.FireBullet();
+        }
+
         protected override void LoadContent()
         {
             crosshair = new GameObject();
@@ -60,9 +65,6 @@ namespace PiN
 
             base.Draw(gameTime, spriteBatch);
         }
-
-
-
 
     }
 }
