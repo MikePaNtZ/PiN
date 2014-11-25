@@ -53,7 +53,7 @@ namespace PiN
 
         }
 
-        public virtual void UpdateWeaponState(Vector2 attackTarget)
+        public virtual void UpdateWeaponState(Vector2 attackTarget, GameTime gameTime)
         {
             // base weapon class has no implementation for this. implement in a derived class
         }

@@ -21,13 +21,7 @@ namespace PiN
                 hero.DepletedShieldTime -= gameTime.ElapsedGameTime.Milliseconds / 1000F;
                 if (hero.DepletedShieldTime <= 0.0F)
                 {
-                    if (gameInputs.MouseState.RightButton == ButtonState.Pressed && 
-                        gameInputs.PreviousMouseState.RightButton == ButtonState.Pressed && hero.IsAttacking == false)
-                    {
-                        hsm.ShieldState = new BlockingState(hsm);
-                    }
-                    else
-                        hsm.ShieldState = new NotBlockingState(hsm);
+                    hsm.ShieldState = new NotBlockingState(hsm);
                 }
             }
         }

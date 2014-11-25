@@ -10,7 +10,7 @@ namespace PiN
     {
         public HeroAimingState(HeroStateMachine HSM) : base(HSM)
         {
-            //System.Diagnostics.Debug.WriteLine("AimingState");
+            System.Diagnostics.Debug.WriteLine("AimingState");
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
