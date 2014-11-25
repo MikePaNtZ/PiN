@@ -227,7 +227,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 1; //index level 2 is MikeBLevel
+            levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 
@@ -245,7 +245,7 @@ namespace PiN
             {
                 spriteBatch.Draw(background1, screenRectangle, Color.White);
                 spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
-                spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+                //spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
             }
             else if (levelIndex == 0)
             {
