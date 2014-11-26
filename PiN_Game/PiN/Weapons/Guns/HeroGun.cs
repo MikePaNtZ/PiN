@@ -44,10 +44,10 @@ namespace PiN
             base.LoadContent();
         }
 
-        public override void UpdateWeaponState(Vector2 crosshairPosition)
+        public override void UpdateWeaponState(Vector2 crosshairPosition, GameTime gameTime)
         {
             crosshair.Position = crosshairPosition;
-            base.UpdateWeaponState(crosshairPosition);
+            base.UpdateWeaponState(crosshairPosition, gameTime);
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)

@@ -54,51 +54,40 @@ namespace PiN
                     return;
                 }
 
-                //Collision rectangle for each bullet -Will also be
-                //used for collisions with enemies.
-                Rectangle bulletRect = new Rectangle(
-                    (int)Position.X - Texture.Width * 2,
-                    (int)Position.Y - Texture.Height * 2,
-                    Texture.Width * 4,
-                    Texture.Height * 4);
-
-                checkBulletCollision(bulletRect);
+                checkBulletCollision();
 
                 //Everything below here can be deleted if you want
                 //your bullets to shoot through all tiles.
 
                 //Look for adjacent tiles to the bullet
 
-                /*Removed bullet collisions with tiles*/
-                /*No more heinous noises when the enemy is shooting adjacent to a tile*/
+                Rectangle bounds = new Rectangle(
+                    rectangle.Center.X - 6,
+                    rectangle.Center.Y - 6,
+                    rectangle.Width / 4,
+                    rectangle.Height / 4);
+                int leftTile = (int)Math.Floor((float)rectangle.Left / gun.WeaponWielder.Level.TileWidth);
+                int rightTile = (int)Math.Ceiling(((float)bounds.Right / gun.WeaponWielder.Level.TileWidth)) - 1;
+                int topTile = (int)Math.Floor((float)bounds.Top / gun.WeaponWielder.Level.TileHeight);
+                int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / gun.WeaponWielder.Level.TileHeight)) - 1;
 
-                //Rectangle bounds = new Rectangle(
-                //    bulletRect.Center.X - 6,
-                //    bulletRect.Center.Y - 6,
-                //    bulletRect.Width / 4,
-                //    bulletRect.Height / 4);
-                //int leftTile = (int)Math.Floor((float)bounds.Left / gun.WeaponWielder.Level.TileWidth);
-                //int rightTile = (int)Math.Ceiling(((float)bounds.Right / gun.WeaponWielder.Level.TileWidth)) - 1;
-                //int topTile = (int)Math.Floor((float)bounds.Top / gun.WeaponWielder.Level.TileHeight);
-                //int bottomTile = (int)Math.Ceiling(((float)bounds.Bottom / gun.WeaponWielder.Level.TileHeight)) - 1;
+                // For each potentially colliding tile
+                for (int y = topTile; y <= bottomTile; ++y)
+                {
+                    for (int x = leftTile; x <= rightTile; ++x)
+                    {
+                        TileCollision collision = gun.WeaponWielder.Level.GetCollision(x, y);
 
-                //// For each potentially colliding tile
-                //for (int y = topTile; y <= bottomTile; ++y)
-                //{
-                //    for (int x = leftTile; x <= rightTile; ++x)
-                //    {
-                //        TileCollision collision = gun.WeaponWielder.Level.GetCollision(x, y);
-
-                //        //If we collide with an Impassable or Platform tile
-                //        //then delete our bullet.
-                //        if (collision == TileCollision.Impassable ||
-                //            collision == TileCollision.Platform)
-                //        {
-                //            if (bulletRect.Intersects(bounds))
-                //                IsAlive = false;
-                //        }
-                //    }
-                //}
+                        //If we collide with an Impassable or Platform tile
+                        //then delete our bullet.
+                        if (collision == TileCollision.Impassable ||
+                            collision == TileCollision.Platform)
+                        {
+                            if (rectangle.Intersects(bounds))
+                                IsAlive = false;
+                        }
+                    }
+                }
             }
         }
 
@@ -113,8 +102,7 @@ namespace PiN
 
         public virtual void FireBullet()
         {
-            if (gun.GunShotSound != null)
-                gun.GunShotSound.Play();
+            
 
             IsAlive = true;
             float theWeaponCos = (float)Math.Cos(rotation);
@@ -127,16 +115,16 @@ namespace PiN
                 -(float)Math.Sin(gun.Rotation)) * BulletSpeed;
         }
 
-        protected virtual void checkBulletCollision(Rectangle bulletRect)
+        protected virtual void checkBulletCollision()
         {
             //Check for collisions with the enemies
             foreach (Enemy enemy in gun.WeaponWielder.Level.enemies)
             {
-                if (bulletRect.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
+                if (rectangle.Intersects(enemy.BoundingRectangle) && enemy.IsAlive)
                 {
                     //We're going to want to put some enemy health reduction code here
                     //Enemy class needs a health member variable too
-                    enemy.OnHit(gun.WeaponWielder);
+                    enemy.OnHit(this);
                     IsAlive = false;
                 }
             }

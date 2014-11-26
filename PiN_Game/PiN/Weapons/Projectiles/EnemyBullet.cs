@@ -28,26 +28,12 @@ namespace PiN
         {
         }
 
-        protected override void checkBulletCollision(Rectangle bulletRect)
+        protected override void checkBulletCollision()
         {
             Hero theTarget = gun.WeaponWielder.Level.ActiveHero;
-            if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsPoweredUp)
+            if (rectangle.Intersects(theTarget.BoundingRectangle))
             {
-                //bullet is deflected
-                //bullet.Velocity = -0.7f*bullet.Velocity;
-                IsAlive = false;
-            }
-
-            else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive & theTarget.IsBlocking)
-            {
-                //hero doesn't take damage when blocking with shield
-                Velocity = -0.7f*Velocity;
-            }
-            else if (bulletRect.Intersects(theTarget.BoundingRectangle) & theTarget.IsAlive)
-            {
-                theTarget.OnHit(gun.WeaponWielder);
-
-                IsAlive = false;
+                theTarget.OnHit(this);
             }
 
 

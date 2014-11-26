@@ -14,10 +14,12 @@ namespace PiN
     {
         protected SoundEffect shootingSound;
         protected Texture2D bulletTexture;
-        protected int MAX_BULLETS = 12;
+        protected int MAX_BULLETS = 20;
         protected Bullet[] bullets;
         protected float bulletSpeed = 15.0f;
         protected Vector2 target;
+        protected int countToFire;
+        protected bool CanFire;
 
         /// <summary>
         /// Gun constructor
@@ -25,6 +27,7 @@ namespace PiN
         public Gun(GameCharacter theShooter)
             : base(theShooter)
         {
+            CanFire = true;
         }
 
         protected virtual float BulletSpeed {
@@ -58,21 +61,29 @@ namespace PiN
             
         }
 
-        public override void UpdateWeaponState(Vector2 crosshairPosition)
+        public override void UpdateWeaponState(Vector2 crosshairPosition, GameTime gameTime)
         {
             // Shooting related updates
             target = crosshairPosition;
             position = weaponWielder.ArmPosition;
 
             // Updates the state of all bullets
-            updateShooting();
+            updateShooting(gameTime);
             UpdateBullets();
             
         }
 
         public override void PerformNormalAttack()
         {
-            FireBullet();
+            if (CanFire)
+            {
+                CanFire = false;
+                countToFire = 0;
+                if (GunShotSound != null)
+                    GunShotSound.Play();
+                FireBullet();
+            }
+                
         }
 
         public override void PerformSpecialAttack()
@@ -104,12 +115,28 @@ namespace PiN
         }
 
 
-        private void updateShooting()
+        private void updateShooting(GameTime gameTime)
         {
             Vector2 aimDirection = position - target;
             aimDirection.Y *= -1.0f;
             aimDirection.Normalize();
             rotation = (float)Math.Atan2(aimDirection.Y, aimDirection.X) + (float)Math.PI;
+
+            if (CanFire == false)
+            {
+                float gameUpdateRateSecs = (1.0f / (1000.0f / (float)gameTime.ElapsedGameTime.Milliseconds));
+                int numOfUpdatesToWait = (int)((float)(1.0f / AttackRate) / gameUpdateRateSecs);
+                if (countToFire >= numOfUpdatesToWait)
+                {
+                    CanFire = true;
+                }
+                else
+                {
+                    countToFire++;
+                }
+            }
+            
+        
         }
 
         protected virtual void FireBullet()

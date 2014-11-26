@@ -26,7 +26,7 @@ namespace PiN
 
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            enemy.Weapon.UpdateWeaponState(enemy.Target);
+            enemy.Weapon.UpdateWeaponState(enemy.Target, gameTime);
         }
     }
 }

@@ -34,9 +34,11 @@ namespace PiN
                     hero.ShieldCharge -= 20;
                     //shield getting hit sound effect
                 }
-                else if (hitBy is GameObject) //ideally hit by bullet, but really anything for now
+                else if (hitBy is Bullet) //ideally hit by bullet, but really anything for now
                 {
-                    hero.ShieldCharge -= 20;
+                    hero.ShieldCharge -= 10;
+                    hitBy.Velocity *= -0.7F;
+                    hitBy.Position += hitBy.rectangle.GetIntersectionDepth(hero.rectangle);//needs some tweaking
                 }
                 else if (hitBy == null) //by hazard
                 {
