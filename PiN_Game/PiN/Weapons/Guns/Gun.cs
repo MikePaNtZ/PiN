@@ -110,7 +110,7 @@ namespace PiN
                 bullet.Draw(gameTime, spriteBatch);
             }
 
-            XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, position, target, Color.Blue, 1);
+            //XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, position, target, Color.Blue, 1);
             
         }
 
