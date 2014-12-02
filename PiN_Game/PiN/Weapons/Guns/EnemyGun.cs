@@ -30,7 +30,7 @@ namespace PiN
         {
 
             // set enemy's gun to fire bullets at 1 per sec
-            attackRate = 1;
+            attackRate = 2;
         }
 
         protected override void LoadContent()

@@ -11,6 +11,7 @@ namespace PiN
         public AttackState(EnemyStateMachine ESM)
             : base(ESM)
         {
+            enemy.Target = enemy.Level.ActiveHero.Center;
             esm.ShooterState = new EnemyFiringState(esm);
             enemy.AttackTime = enemy.MaxAttackTime;
             enemy.AttackWaitTime = enemy.MaxAttackWaitTime;

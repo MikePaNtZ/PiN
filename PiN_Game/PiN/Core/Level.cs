@@ -95,6 +95,8 @@ namespace PiN
 
         //for debugging
         bool drawNavMesh;
+        //Vector2 playersTarget;
+        //float? rayIntersectDistance;
 
         #region Loading
 
@@ -320,6 +322,9 @@ namespace PiN
                 timeRemaining -= gameTime.ElapsedGameTime;
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
+
+                //playersTarget = gameInputs.MouseInput.Position;
+                //rayIntersectDistance = Collision.RayCastCollidesWithLevel(ActiveHero.Center, playersTarget);
 
 
                 if (gameInputs.MouseState.ScrollWheelValue > gameInputs.PreviousMouseState.ScrollWheelValue)
@@ -598,13 +603,13 @@ namespace PiN
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
             //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
-            
-            
+
+            //Collision.Draw(spriteBatch);
             //if (rayIntersectDistance != null)
             //{
             //    Vector2 direction = playersTarget - ActiveHero.Center;
             //    direction.Normalize();
-            //    XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, ActiveHero.Center, 
+            //    XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, ActiveHero.Center,
             //        new Vector2(ActiveHero.Center.X + direction.X * (float)rayIntersectDistance, ActiveHero.Center.Y + direction.Y * (float)rayIntersectDistance), Color.Red, 3);
             //}
                 

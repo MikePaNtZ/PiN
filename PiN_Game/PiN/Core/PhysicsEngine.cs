@@ -42,6 +42,9 @@ namespace PiN
             // Prevent the player from running faster than his top speed.            
             characterVelocity.X = MathHelper.Clamp(characterVelocity.X, -MaxMoveSpeed, MaxMoveSpeed);
 
+            if (character is Enemy && ((Enemy)character).IsKamikaze)
+                characterVelocity.X *= 1.2f;
+
             // Apply Velocity.
             character.Position += characterVelocity * elapsed;
             character.Position = new Vector2((float)Math.Round(character.Position.X), (float)Math.Round(character.Position.Y));
