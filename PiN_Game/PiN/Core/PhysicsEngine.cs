@@ -94,6 +94,8 @@ namespace PiN
                 {
                     // Fully override the vertical velocity with a power curve that gives players more control over the top of the jump
                     velocityY = JumpLaunchVelocity * (1.0f - (float)Math.Pow(jumpTime / MaxJumpTime, JumpControlPower));
+                    if (character is HeroFlight)
+                        velocityY -= 200;
                 }
                 else
                 {
@@ -181,7 +183,7 @@ namespace PiN
 
         // Constants for controling horizontal movement. Can be overriden
         protected const float MoveAcceleration = 13000.0f;
-        protected const float MaxMoveSpeed = 1750.0f;
+        protected const float MaxMoveSpeed = 2000.0f;
         protected const float GroundDragFactor = 0.48f;
         protected const float AirDragFactor = 0.58f;
         // Constants for controlling vertical movement. Can be overriden. Could also be made a property of the game character class for

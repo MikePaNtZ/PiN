@@ -30,7 +30,7 @@ namespace PiN
         /// </summary>
         public MonsterA(Level level, Vector2 position) : base(level, position)
         {
-            moveSpeed = 0.3F;
+            moveSpeed = 0.5F;
         }
 
         public override Vector2 ArmPosition

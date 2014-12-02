@@ -208,13 +208,12 @@ namespace PiN
         public override void OnKilled(GameObject killedBy)
         {
             base.OnKilled(killedBy);
-            SpawnRandomConsumable();
         }
 
         /// <summary>
         /// spawns a random consumable at the place the enemy dies
         /// </summary>
-        protected void SpawnRandomConsumable()
+        public void SpawnRandomConsumable()
         {
             Point point;
             point.Y = BoundingRectangle.Top + BoundingRectangle.Height / 3;
@@ -222,9 +221,9 @@ namespace PiN
 
             Random random = new Random();
             int rand = random.Next(100);
-            if (rand < 30)
+            if (rand < 50)
                 Level.SpawnConsumable(point.X, point.Y, "HealthConsumable");
-            else if (rand > 90)
+            else if (rand > 80)
                 Level.SpawnConsumable(point.X, point.Y, "PowerUp");
         }
 
