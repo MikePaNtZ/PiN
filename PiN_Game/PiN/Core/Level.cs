@@ -110,7 +110,7 @@ namespace PiN
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
-            timeRemaining = TimeSpan.FromMinutes(10.0); //changed the time limit to 10 minutes for longer level testing
+            timeRemaining = TimeSpan.FromMinutes(15.0); //changed the time limit to 15 minutes for longer level testing
             
             map = currentMap;
 
