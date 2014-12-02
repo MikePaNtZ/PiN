@@ -58636,7 +58636,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="532"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -60139,7 +60139,7 @@
  </layer>
  <objectgroup name="events">
   <object name="player" x="7" y="274" width="65" height="72"/>
-  <object name="exit" x="22" y="2914" width="54" height="50"/>
+  <object name="exit" x="94" y="2944" width="54" height="50"/>
  </objectgroup>
  <objectgroup name="enemies">
   <object name="enemy" x="1073" y="191" width="46" height="42">
@@ -60149,7 +60149,7 @@
   </object>
   <object name="enemy" x="1346" y="793">
    <properties>
-    <property name="enemyType" value="MonsterD"/>
+    <property name="enemyType" value="MonsterB"/>
    </properties>
    <ellipse/>
   </object>
@@ -60201,6 +60201,158 @@
   <object name="enemy" x="1727" y="2656" width="46" height="42">
    <properties>
     <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="3821" y="653">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="8364" y="751">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="9185" y="1903">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="5357" y="2686" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="5642" y="928" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4475" y="317" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="1646" y="1617">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="3746" y="1904">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="678" y="279">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="3825" y="341">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="588" y="2675">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="499" y="2422">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="4661" y="1816">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="4936" y="759">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="855" y="1094" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="5418" y="354" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterA"/>
+   </properties>
+  </object>
+  <object name="enemy" x="9219" y="130" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="8132" y="351" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="6562" y="192" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4888" y="125" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="5157" y="1859" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="1495" y="2387">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="4524" y="1793" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4737" y="2852" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="3435" y="2727" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="2492" y="2816" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="1958" y="2366" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
+   </properties>
+  </object>
+  <object name="enemy" x="2353" y="1763" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterC"/>
    </properties>
   </object>
  </objectgroup>

@@ -71,7 +71,6 @@
   <ItemGroup>
     <Compile Include="Animation\Animation.cs" />
     <Compile Include="Animation\AnimationLoader.cs" />
-    <Compile Include="Characters\Enemies\EnemyState.cs" />
     <Compile Include="Characters\Enemies\MonsterD.cs" />
     <Compile Include="Characters\Enemies\MonsterC.cs" />
     <Compile Include="Characters\Enemies\MonsterB.cs" />
@@ -147,7 +146,6 @@
     <Compile Include="ScreenManager\ScreenManager.cs" />
     <Compile Include="Screens\BackgroundScreen.cs" />
     <Compile Include="Screens\GameplayScreen.cs" />
-    <Compile Include="Screens\GameTitleScreen.cs" />
     <Compile Include="Screens\LoadingScreen.cs" />
     <Compile Include="Screens\MainMenuScreen.cs" />
     <Compile Include="Screens\MenuEntry.cs" />

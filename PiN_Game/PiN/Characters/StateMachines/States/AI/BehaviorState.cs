@@ -30,7 +30,11 @@ namespace PiN
             //}
 
             enemy.Target = enemy.Level.ActiveHero.Center;
-            enemy.lineIntersectDistance = Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Target);
+            Rectangle viewBounds = new Rectangle((int)enemy.Level.Camera.Position.X, (int)enemy.Level.Camera.Position.Y, enemy.Level.Camera.ViewPort.Bounds.Width, enemy.Level.Camera.ViewPort.Bounds.Height);
+            if (viewBounds.Intersects(enemy.BoundingRectangle))
+                enemy.lineIntersectDistance = Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Target);
+            else
+                enemy.lineIntersectDistance = 0;
 
         }
     }

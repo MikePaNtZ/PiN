@@ -56,7 +56,7 @@ namespace PiN
             {
                 bullets[i] = new Bullet(this);
                 bullets[i].Texture = bulletTexture;
-                bullets[i].BulletSpeed = bulletSpeed;
+                bullets[i].BulletSpeed = BulletSpeed;
             }
             
         }

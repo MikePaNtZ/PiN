@@ -20,23 +20,23 @@ namespace PiN
         float pauseAlpha;
 
         //MikeM level backgrounds (levelIndex 1)
-        Texture2D lvl2bg0;
-        Texture2D lvl2bg1;
-        Texture2D lvl2bg2;
-        Texture2D lvl2Foreground;
-        Texture2D lvl2Gradient;
-        Texture2D lvl2Middleground;
-        Texture2D lvl2Middleplus;
-        Texture2D lvl2Sky1;
-        Texture2D lvl2Sky2;
+        //Texture2D lvl2bg0;
+        //Texture2D lvl2bg1;
+        //Texture2D lvl2bg2;
+        //Texture2D lvl2Foreground;
+        //Texture2D lvl2Gradient;
+        //Texture2D lvl2Middleground;
+        //Texture2D lvl2Middleplus;
+        //Texture2D lvl2Sky1;
+        //Texture2D lvl2Sky2;
         Texture2D lvl2TreeSunsetMain;
 
         //Tom level backgrounds (levelIndex 0)
-        Texture2D lvl1Gradient;
-        Texture2D lvl1Sky;
-        Texture2D lvl1bg2;
-        Texture2D lvl1bg1;
-        Texture2D lvl1Middleground;
+        //Texture2D lvl1Gradient;
+        //Texture2D lvl1Sky;
+        //Texture2D lvl1bg2;
+        //Texture2D lvl1bg1;
+        //Texture2D lvl1Middleground;
         Texture2D lvl1Main;
 
         // Resources for drawing.
@@ -44,11 +44,18 @@ namespace PiN
         //Texture2D background1;
         //Texture2D background2;
         Texture2D lvl3Main;
-        Texture2D middleground;
+        //Texture2D middleground;
         // Global content.
         private Hud hud;
 
         // Meta-level game state.
+
+        //public int LevelIndex
+        //{
+        //    get { return levelIndex; }
+        //    set { LevelIndex = value; }
+        //}
+
         private int levelIndex = -1;
         private Level level;
         private List<Map> maps;
@@ -67,12 +74,6 @@ namespace PiN
 
         // Program camera
         private Camera cam;
-
-        // The number of levels in the Levels directory of our content. We assume that
-        // levels in our content are 0-based and that all numbers under this constant
-        // have a level file present. This allows us to not need to check for the file
-        // or handle exceptions, both of which can add unnecessary time to level loading.
-        private const int numberOfLevels = 1;
 
         public GameplayScreen()
         {
@@ -100,15 +101,15 @@ namespace PiN
             //background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
 
             //MikeM level content (levelIndex 1)
-            lvl2bg0 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
-            lvl2bg1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
-            lvl2bg2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
-            lvl2Foreground = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
-            lvl2Gradient = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
-            lvl2Middleground = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
-            lvl2Middleplus = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
-            lvl2Sky1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
-            lvl2Sky2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
+            //lvl2bg0 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
+            //lvl2bg1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
+            //lvl2bg2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
+            //lvl2Foreground = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
+            //lvl2Gradient = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
+            //lvl2Middleground = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
+            //lvl2Middleplus = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
+            //lvl2Sky1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
+            //lvl2Sky2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
             lvl2TreeSunsetMain = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
 
             //Tom level backgrounds (levelIndex 0)
@@ -123,8 +124,8 @@ namespace PiN
             try //This is where the maps are added
             {
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
-                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeBLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
             }
             catch (FileNotFoundException e)
             {
@@ -252,9 +253,15 @@ namespace PiN
                     {
                         if (level.ReachedExit)
                             LoadNextLevel();
-                        else
-                            ReloadCurrentLevel();
                     }
+
+                    if (level.GameOver)
+                    {
+                        ExitScreen();
+                        ScreenManager.AddScreen(new BackgroundScreen(), ControllingPlayer);
+                        ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
+                    }
+                        
                 }
 
                 wasContinuePressed = continuePressed;
@@ -267,19 +274,20 @@ namespace PiN
             // move to the next level
             levelIndex = (levelIndex + 1) % maps.Count;
 
+            if (levelIndex == maps.Count)
+            {
+                ExitScreen();
+                ScreenManager.AddScreen(new BackgroundScreen(), ControllingPlayer);
+                ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
+                return;
+            }
             // Unloads the content for the current level before loading the next one.
             if (level != null)
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            //levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
-        }
-
-        private void ReloadCurrentLevel()
-        {
-            --levelIndex;
-            LoadNextLevel();
         }
 
         private void DrawScenery()

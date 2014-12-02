@@ -43,6 +43,8 @@ namespace PiN
 
             if (Math.Abs(enemy.LineOfSightToTarget.X) <= enemy.MaxAttackDistance && enemy.CanSeeTarget)// player is in attacking distance then attack
                 esm.BehaviorState = new AttackState(esm);
+            else if (Math.Abs(enemy.LineOfSightToTarget.X) > enemy.MinTrackDistance + 100)
+                esm.BehaviorState = new SearchState(esm);
         }
     }
 }

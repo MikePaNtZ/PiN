@@ -11,7 +11,6 @@ namespace PiN
     {
         #region Initialization
 
-
         /// <summary>
         /// Constructor fills in the menu contents.
         /// </summary>
@@ -58,7 +57,6 @@ namespace PiN
             ScreenManager.AddScreen(new OptionsMenuScreen(), e.PlayerIndex);
         }
 
-
         /// <summary>
         /// When the user cancels the main menu, ask if they want to exit the sample.
         /// </summary>
@@ -82,7 +80,6 @@ namespace PiN
         {
             ScreenManager.Game.Exit();
         }
-
 
         #endregion
     }

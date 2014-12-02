@@ -8,6 +8,8 @@ namespace PiN
 {
     class SearchState : BehaviorState
     {
+        
+
         public SearchState(EnemyStateMachine ESM)
             : base(ESM)
         {
@@ -30,18 +32,19 @@ namespace PiN
             
 
             // Calculate tile position based on the side we are walking towards.
-            float posX = enemy.Position.X + enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
-            int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth) - (int)enemy.FaceDirection;
+            float posX = enemy.Position.X;// +enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
+            int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth);// -(int)enemy.FaceDirection;
             int tileY = (int)Math.Floor(enemy.Position.Y / enemy.Level.TileHeight);
 
             if (enemy.WaitTime > 0)
             {
                 // Wait for some amount of time.
                 enemy.WaitTime = Math.Max(0.0f, enemy.WaitTime - (float)gameTime.ElapsedGameTime.TotalSeconds);
-                if (enemy.WaitTime <= 0.0f)
+                if (enemy.WaitTime <= 0f)
                 {
                     // Then turn around.
                     enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection);
+                    enemy.Target = new Vector2(enemy.Center.X + ((int)enemy.FaceDirection * enemy.MinTrackDistance), enemy.Center.Y - ((int)enemy.FaceDirection * enemy.WaitTime * 100));
                 }
             }
             else
@@ -54,7 +57,6 @@ namespace PiN
                 }
                 else
                 {
-                    // Move in the current direction.
                     enemy.Move(enemy.FaceDirection);
                 }
             }
@@ -66,14 +68,22 @@ namespace PiN
                 if (Math.Abs(enemy.LineOfSightToHero.X) <= enemy.MaxAttackDistance &&
                     Math.Abs(enemy.LineOfSightToHero.Y) <= enemy.MaxAttackDistance)// player is in attacking distance then attack
                 {
-                    if (Collision.RayCastCollidesWithLevel(enemy.Center,enemy.Level.ActiveHero.Center) == null)
+                    if (Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Level.ActiveHero.Center) == null)
+                    {
+                        enemy.WaitTime = 0;
                         esm.BehaviorState = new AttackState(esm);
+                    }
+                        
                 }
                 else if (Math.Abs(enemy.LineOfSightToHero.X) <= enemy.MinTrackDistance &&
                          Math.Abs(enemy.LineOfSightToHero.Y) <= enemy.MinTrackDistance)//or at least in tracking distance then track
                 {
                     if (Collision.RayCastCollidesWithLevel(enemy.Center, enemy.Level.ActiveHero.Center) == null)
+                    {
+                        enemy.WaitTime = 0;
                         esm.BehaviorState = new TrackState(esm);
+                    }
+                        
                 }
             }
             

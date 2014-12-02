@@ -22,7 +22,7 @@ namespace PiN
     {
         public override int MaxHealth
         {
-            get { return 6; }
+            get { return 15; }
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace PiN
         /// </summary>
         public MonsterC(Level level, Vector2 position) : base(level, position)
         {
-            moveSpeed = 0.6F;
+            moveSpeed = 0.9F;
         }
 
         protected override void LoadContent()

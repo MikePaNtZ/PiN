@@ -1,13 +1,4 @@
-﻿#region File Description
-//-----------------------------------------------------------------------------
-// Enemy.cs
-//
-// Microsoft XNA Community Program Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
@@ -71,6 +62,8 @@ namespace PiN
         {
             get { return 0.3F; }
         }
+
+        public bool IsKamikaze { get { return ((EnemyStateMachine)stateMachine).BehaviorState is KamikazeState; } }
 
         /// <summary>
         /// How long to shoot
@@ -149,7 +142,6 @@ namespace PiN
         /// </summary>
         protected virtual void LoadContent()
         {
-            explosionAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/explosion"), 0.1f, false); //false means the animation is not going to loop
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/Dying");
             // Temporary hurt sound. We probably want to use something different in the future.
@@ -179,10 +171,6 @@ namespace PiN
         {
             if (!IsAlive)
                 return;
-
-            
-            
-
             base.Update(gameTime, gameInputs);
         }
 
@@ -208,13 +196,12 @@ namespace PiN
         public override void OnKilled(GameObject killedBy)
         {
             base.OnKilled(killedBy);
-            SpawnRandomConsumable();
         }
 
         /// <summary>
         /// spawns a random consumable at the place the enemy dies
         /// </summary>
-        protected void SpawnRandomConsumable()
+        public void SpawnRandomConsumable()
         {
             Point point;
             point.Y = BoundingRectangle.Top + BoundingRectangle.Height / 3;
@@ -222,16 +209,11 @@ namespace PiN
 
             Random random = new Random();
             int rand = random.Next(100);
-            if (rand < 30)
+            if (rand < 50)
                 Level.SpawnConsumable(point.X, point.Y, "HealthConsumable");
-            else if (rand > 90)
+            else if (rand > 80)
                 Level.SpawnConsumable(point.X, point.Y, "PowerUp");
         }
-
-        /// <summary>
-        /// Enemy explosion animation.
-        /// </summary>
-        protected Animation explosionAnimation;
 
         protected Vector2 target;
 

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using PiN.Screens;
+//using PiN.Screens;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,7 +20,7 @@ namespace PiN
     {
         #region Fields
 
-        GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager graphics;
         ScreenManager screenManager;
 
 
@@ -47,8 +47,8 @@ namespace PiN
             graphics = new GraphicsDeviceManager(this);
 
             graphics.IsFullScreen = false;
-//            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-//            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 480;
             graphics.ApplyChanges();
 
             // Create the screen manager component.

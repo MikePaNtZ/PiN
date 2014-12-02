@@ -23,9 +23,19 @@ namespace PiN
             {
                 //ideally we could check exactly what hit us, bullet, enemy, bomb w/e
                 //and take different actions, maybe this should be a state
-                if (hitBy is Hero)
+                if (hitBy is HeroStrength)
+                {
+                    enemy.Health -= 10;
+                    enemy.HurtSound.Play();
+                }
+                else if (hitBy is HeroSpeed) //ideally hit by bullet, but really anything for now
                 {
                     enemy.Health -= 1;
+                    enemy.HurtSound.Play();
+                }
+                else if (hitBy is HeroFlight) //ideally hit by bullet, but really anything for now
+                {
+                    enemy.Health -= 2;
                     enemy.HurtSound.Play();
                 }
                 else if (hitBy is GameObject) //ideally hit by bullet, but really anything for now
@@ -45,6 +55,12 @@ namespace PiN
             {
                 OnKilled(hitBy);
             }
+        }
+
+        public override void OnKilled(GameObject killedBy)
+        {
+            base.OnKilled(killedBy);
+            enemy.SpawnRandomConsumable();
         }
     }
 }

@@ -52,6 +52,8 @@ namespace PiN
         private Vector2 start;
         private Point exit = InvalidPosition;
         private static readonly Point InvalidPosition = new Point(-1, -1);
+        private AnimationLoader exitSprite;
+        private Rectangle exitRectangle;
 
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
@@ -67,6 +69,12 @@ namespace PiN
             get { return reachedExit; }
         }
         bool reachedExit;
+
+        public bool GameOver
+        {
+            get { return gameOver; }
+        }
+        bool gameOver;
 
         public TimeSpan TimeRemaining
         {
@@ -87,8 +95,8 @@ namespace PiN
 
         //for debugging
         bool drawNavMesh;
-        Vector2 playersTarget;
-        float? rayIntersectDistance;
+        //Vector2 playersTarget;
+        //float? rayIntersectDistance;
 
         #region Loading
 
@@ -150,6 +158,8 @@ namespace PiN
                 throw new NotSupportedException("A level may only have one exit.");
 
             exit = GetBounds(map.ExitTile.X,map.ExitTile.Y).Center;
+            exitSprite.LoadAnimation(new Animation(Content.Load<Texture2D>("Sprites/Player/ExitPortal"), 0.1f, true));
+            exitRectangle = new Rectangle(exit.X - exitSprite.Animation.FrameWidth / 2 + 20, exit.Y - exitSprite.Animation.FrameHeight + 20, exitSprite.Animation.FrameWidth - 40, exitSprite.Animation.FrameHeight - 40);
         }
 
         /// <summary>
@@ -313,19 +323,15 @@ namespace PiN
                 ActiveHero.Update(gameTime, gameInputs);
                 UpdateConsumables(gameTime);
 
+                //playersTarget = gameInputs.MouseInput.Position;
+                //rayIntersectDistance = Collision.RayCastCollidesWithLevel(ActiveHero.Center, playersTarget);
 
-                playersTarget = gameInputs.MouseInput.Position;
-                rayIntersectDistance = Collision.RayCastCollidesWithLevel(ActiveHero.Center, playersTarget);
 
                 if (gameInputs.MouseState.ScrollWheelValue > gameInputs.PreviousMouseState.ScrollWheelValue)
                     Camera.Zoom += 0.1f;
                 else if (gameInputs.MouseState.ScrollWheelValue < gameInputs.PreviousMouseState.ScrollWheelValue)
                     Camera.Zoom -= 0.1f;
 
-                if (gameInputs.KeyboardState.IsKeyDown(Keys.E))
-                    Camera.Rotation += 0.1f;
-                else if (gameInputs.KeyboardState.IsKeyDown(Keys.Q))
-                    Camera.Rotation -= 0.1f;
 
                 //follow the activeHero
                 Camera.LookAt(ActiveHero.Position);
@@ -347,7 +353,7 @@ namespace PiN
 
                 if (ActiveHero.IsAlive &&
                     ActiveHero.IsOnGround &&
-                    ActiveHero.BoundingRectangle.Contains(exit))
+                    ActiveHero.BoundingRectangle.Intersects(exitRectangle))
                 {
                     OnExitReached();
                 }
@@ -392,6 +398,12 @@ namespace PiN
         {
             foreach (Enemy enemy in enemies)
             {
+                if ((!enemy.IsAlive || TimeRemaining == TimeSpan.Zero) && enemy.BoundingRectangle.Top <= Height * TileHeight)
+                {
+                    // Still want to perform physics on the enemy.
+                    enemy.PhysicsEngine.ApplyPhysics(gameTime);
+
+                }
                 enemy.Update(gameTime, gameInputs);
                 // Touching an enemy decreases health of the activeHero
 
@@ -410,6 +422,7 @@ namespace PiN
                 {
                     OnEnemyKilled(enemy,null);
                 }
+                
             }
         }
 
@@ -517,6 +530,12 @@ namespace PiN
                 Heroes[2].SwapIn();
                 activeHero = (Hero)Heroes[2];
             }
+            else
+            {
+                gameOver = true;
+                return;
+            }
+            
             ActiveHero.Reset(start);
         }
 
@@ -536,7 +555,9 @@ namespace PiN
                         Camera.GetViewMatrix(Vector2.One));
             
             map.Draw(spriteBatch, Camera, drawNavMesh);
-            
+
+            exitSprite.Draw(gameTime, spriteBatch, new Vector2(exit.X,exit.Y), SpriteEffects.None, Color.White);
+
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
             {
@@ -546,30 +567,30 @@ namespace PiN
                     //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 1);
                     spriteBatch.DrawString(Hud.hudFont, enemy.Health.ToString(), new Vector2(enemy.BoundingRectangle.X, enemy.BoundingRectangle.Y - 20), Color.Black);
 
-                    if (enemy.lineIntersectDistance != null)
-                    {
-                        Vector2 direction = enemy.Target - enemy.Center;
-                        direction.Normalize();
-                        //XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, enemy.Center,
-                            //new Vector2(enemy.Center.X + direction.X * (float)enemy.lineIntersectDistance, enemy.Center.Y + direction.Y * (float)enemy.lineIntersectDistance), Color.Red, 3);
-                    }
+                    //if (enemy.lineIntersectDistance != null)
+                    //{
+                    //    Vector2 direction = enemy.Target - enemy.Center;
+                    //    direction.Normalize();
+                    //    XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, enemy.Center,
+                    //        new Vector2(enemy.Center.X + direction.X * (float)enemy.lineIntersectDistance, enemy.Center.Y + direction.Y * (float)enemy.lineIntersectDistance), Color.Red, 3);
+                    //}
 
-                    if (enemy.Path != null)
-                    {
-                        foreach (GraphNode<Platform> gNode in enemy.Path)
-                        {
-                            Vector2 center = new Vector2((gNode.Value.RightEdgeX + gNode.Value.LeftEdgeX) / 2, gNode.Value.Y);
-                            //XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, center, 8, Color.Red, 5);
+                    //if (enemy.Path != null)
+                    //{
+                    //    foreach (GraphNode<Platform> gNode in enemy.Path)
+                    //    {
+                    //        Vector2 center = new Vector2((gNode.Value.RightEdgeX + gNode.Value.LeftEdgeX) / 2, gNode.Value.Y);
+                    //        XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, center, 8, Color.Red, 5);
 
-                            foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
-                            {
-                                Vector2 neighborCenter = new Vector2((neighbor.Value.RightEdgeX + neighbor.Value.LeftEdgeX) / 2, neighbor.Value.Y);
-                                //XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, neighborCenter, 8, Color.Red, 5);
-                                //XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, center, neighborCenter, Color.Red, 5);
-                            }
+                    //        foreach (GraphNode<Platform> neighbor in gNode.Neighbors)
+                    //        {
+                    //            Vector2 neighborCenter = new Vector2((neighbor.Value.RightEdgeX + neighbor.Value.LeftEdgeX) / 2, neighbor.Value.Y);
+                    //            XnaDebugDrawer.DebugDrawer.DrawCircle(spriteBatch, neighborCenter, 8, Color.Red, 5);
+                    //            XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, center, neighborCenter, Color.Red, 5);
+                    //        }
 
-                        }
-                    }
+                    //    }
+                    //}
                 }
                 
             }
@@ -582,15 +603,15 @@ namespace PiN
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
             //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
-            
-            
-            if (rayIntersectDistance != null)
-            {
-                Vector2 direction = playersTarget - ActiveHero.Center;
-                direction.Normalize();
-                //XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, ActiveHero.Center, 
-                    //new Vector2(ActiveHero.Center.X + direction.X * (float)rayIntersectDistance, ActiveHero.Center.Y + direction.Y * (float)rayIntersectDistance), Color.Red, 3);
-            }
+
+            //Collision.Draw(spriteBatch);
+            //if (rayIntersectDistance != null)
+            //{
+            //    Vector2 direction = playersTarget - ActiveHero.Center;
+            //    direction.Normalize();
+            //    XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, ActiveHero.Center,
+            //        new Vector2(ActiveHero.Center.X + direction.X * (float)rayIntersectDistance, ActiveHero.Center.Y + direction.Y * (float)rayIntersectDistance), Color.Red, 3);
+            //}
                 
 
             spriteBatch.End();

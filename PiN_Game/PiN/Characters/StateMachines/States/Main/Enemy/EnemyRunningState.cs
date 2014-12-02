@@ -16,7 +16,7 @@ namespace PiN
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
             base.Update(gameTime, gameInputs);
-            if (Math.Abs(enemy.Velocity.X) - 0.02f <= 0)
+            if (Math.Abs(enemy.Velocity.X) - 0.5f <= 0)
             {
                 esm.MainState = new EnemyIdleState(esm);
             }

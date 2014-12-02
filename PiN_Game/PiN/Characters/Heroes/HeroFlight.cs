@@ -10,10 +10,15 @@ namespace PiN
 {
     class HeroFlight: Hero
     {
+        public override int MaxHealth
+        {
+            get { return 110; }
+        }
+
               public HeroFlight(Level level, Vector2 initialPosition)
             : base(level, initialPosition)
         {
-            moveSpeed = 1.0F;
+            moveSpeed = 1.2F;
         }
 
         protected override void LoadContent()
