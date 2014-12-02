@@ -52,9 +52,9 @@ namespace PiN
         void SetMenuEntryText()
         {
             if (GameStateManagementGame.graphics.IsFullScreen)
-                toggleFullscreenMenuEntry.Text = "Make Game Windowed";
+                toggleFullscreenMenuEntry.Text = "Game Windowed";
             else
-                toggleFullscreenMenuEntry.Text = "Make Game Fullscreen";
+                toggleFullscreenMenuEntry.Text = "Game Fullscreen";
         }
 
 
