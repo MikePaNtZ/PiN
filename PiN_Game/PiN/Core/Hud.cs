@@ -113,7 +113,6 @@ namespace PiN
                 }
                 else
                 {
-
                     status = loseOverlay;
                 }
             }
