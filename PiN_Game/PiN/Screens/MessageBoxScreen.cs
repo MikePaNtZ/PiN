@@ -31,7 +31,7 @@ namespace PiN
 
 
         /// <summary>
-        /// Constructor automatically includes the standard "A=ok, B=cancel"
+        /// Constructor automatically includes the standard "space, Enter = ok, Esc = cancel"
         /// usage text prompt.
         /// </summary>
         public MessageBoxScreen(string message)
@@ -41,12 +41,12 @@ namespace PiN
 
         /// <summary>
         /// Constructor lets the caller specify whether to include the standard
-        /// "A=ok, B=cancel" usage text prompt.
+        /// "space, Enter = ok, Esc = cancel" usage text prompt.
         /// </summary>
         public MessageBoxScreen(string message, bool includeUsageText)
         {
-            const string usageText = "\nA button, Space, Enter = ok" +
-                                     "\nB button, Esc = cancel"; 
+            const string usageText = "\nSpace, Enter = OK" +
+                                     "\nEsc = CANCEL"; 
             
             if (includeUsageText)
                 this.message = message + usageText;
@@ -58,7 +58,6 @@ namespace PiN
             TransitionOnTime = TimeSpan.FromSeconds(0.2);
             TransitionOffTime = TimeSpan.FromSeconds(0.2);
         }
-
 
         /// <summary>
         /// Loads graphics content for this screen. This uses the shared ContentManager
@@ -72,7 +71,6 @@ namespace PiN
 
             gradientTexture = content.Load<Texture2D>("gradient");
         }
-
 
         #endregion
 
@@ -108,12 +106,9 @@ namespace PiN
                 ExitScreen();
             }
         }
-
-
         #endregion
 
         #region Draw
-
 
         /// <summary>
         /// Draws the message box.
@@ -154,7 +149,6 @@ namespace PiN
 
             spriteBatch.End();
         }
-
 
         #endregion
     }
