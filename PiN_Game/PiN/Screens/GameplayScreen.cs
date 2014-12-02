@@ -49,6 +49,13 @@ namespace PiN
         private Hud hud;
 
         // Meta-level game state.
+
+        //public int LevelIndex
+        //{
+        //    get { return levelIndex; }
+        //    set { LevelIndex = value; }
+        //}
+
         private int levelIndex = -1;
         private Level level;
         private List<Map> maps;
@@ -277,7 +284,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            //levelIndex = 0; //index level 2 is MikeBLevel
+            levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 

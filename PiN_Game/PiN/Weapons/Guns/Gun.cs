@@ -14,7 +14,7 @@ namespace PiN
     {
         protected SoundEffect shootingSound;
         protected Texture2D bulletTexture;
-        protected int MAX_BULLETS = 10;
+        protected int MAX_BULLETS = 20;
         protected Bullet[] bullets;
         protected float bulletSpeed = 15.0f;
         protected Vector2 target;

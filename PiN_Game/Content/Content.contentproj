@@ -765,8 +765,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Overlays\GameOverWin.png">
-      <Name>GameOverWin</Name>
+    <Compile Include="Overlays\GameOver.png">
+      <Name>GameOver</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -816,6 +816,23 @@
   <ItemGroup>
     <Compile Include="Sprites\Player\ExitPortal.png">
       <Name>ExitPortal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sprites\Player\healthbarHero1.png">
+      <Name>healthbarHero1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Sprites\Player\healthbarHero2.png">
+      <Name>healthbarHero2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Sprites\Player\healthbarHero3.png">
+      <Name>healthbarHero3</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
