@@ -124,8 +124,8 @@ namespace PiN
             try //This is where the maps are added
             {
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
-                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeBLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
             }
             catch (FileNotFoundException e)
             {
@@ -276,7 +276,9 @@ namespace PiN
 
             if (levelIndex == maps.Count)
             {
-                //Victry
+                ExitScreen();
+                ScreenManager.AddScreen(new BackgroundScreen(), ControllingPlayer);
+                ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
                 return;
             }
             // Unloads the content for the current level before loading the next one.
@@ -284,7 +286,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            //levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 
