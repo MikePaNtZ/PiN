@@ -20,7 +20,7 @@ namespace PiN
     /// </summary>
     class EnemyGun : Gun
     {
-        protected int MAX_BULLETS = 10;
+        //protected int MAX_BULLETS = 10;
         protected Texture2D shootingTexture;
 
         /// <summary>
