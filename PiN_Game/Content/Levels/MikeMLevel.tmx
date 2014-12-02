@@ -58636,7 +58636,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="532"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -60139,7 +60139,7 @@
  </layer>
  <objectgroup name="events">
   <object name="player" x="7" y="274" width="65" height="72"/>
-  <object name="exit" x="22" y="2914" width="54" height="50"/>
+  <object name="exit" x="94" y="2944" width="54" height="50"/>
  </objectgroup>
  <objectgroup name="enemies">
   <object name="enemy" x="1073" y="191" width="46" height="42">

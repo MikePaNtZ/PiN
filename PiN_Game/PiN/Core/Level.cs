@@ -52,6 +52,8 @@ namespace PiN
         private Vector2 start;
         private Point exit = InvalidPosition;
         private static readonly Point InvalidPosition = new Point(-1, -1);
+        private AnimationLoader exitSprite;
+        private Rectangle exitRectangle;
 
         // Level game state.
         private Random random = new Random(354668); // Arbitrary, but constant seed
@@ -67,6 +69,12 @@ namespace PiN
             get { return reachedExit; }
         }
         bool reachedExit;
+
+        public bool GameOver
+        {
+            get { return gameOver; }
+        }
+        bool gameOver;
 
         public TimeSpan TimeRemaining
         {
@@ -150,6 +158,8 @@ namespace PiN
                 throw new NotSupportedException("A level may only have one exit.");
 
             exit = GetBounds(map.ExitTile.X,map.ExitTile.Y).Center;
+            exitSprite.LoadAnimation(new Animation(Content.Load<Texture2D>("Sprites/Player/ExitPortal"), 0.1f, true));
+            exitRectangle = new Rectangle(exit.X - exitSprite.Animation.FrameWidth / 2 + 20, exit.Y - exitSprite.Animation.FrameHeight + 20, exitSprite.Animation.FrameWidth - 40, exitSprite.Animation.FrameHeight - 40);
         }
 
         /// <summary>
@@ -347,7 +357,7 @@ namespace PiN
 
                 if (ActiveHero.IsAlive &&
                     ActiveHero.IsOnGround &&
-                    ActiveHero.BoundingRectangle.Contains(exit))
+                    ActiveHero.BoundingRectangle.Intersects(exitRectangle))
                 {
                     OnExitReached();
                 }
@@ -517,6 +527,12 @@ namespace PiN
                 Heroes[2].SwapIn();
                 activeHero = (Hero)Heroes[2];
             }
+            else
+            {
+                gameOver = true;
+                return;
+            }
+            
             ActiveHero.Reset(start);
         }
 
@@ -536,7 +552,8 @@ namespace PiN
                         Camera.GetViewMatrix(Vector2.One));
             
             map.Draw(spriteBatch, Camera, drawNavMesh);
-            
+            exitSprite.Draw(gameTime, spriteBatch, new Vector2(exit.X,exit.Y), SpriteEffects.None, Color.White);
+            XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, exitRectangle, Color.Red, 1);
             //draw each of the enemies in the enemies list
             foreach (Enemy enemy in enemies)
             {
