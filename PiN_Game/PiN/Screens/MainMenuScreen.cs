@@ -17,7 +17,6 @@ namespace PiN
         public MainMenuScreen()
             : base("Main Menu")
         {
-
             // Create our menu entries.
             MenuEntry playGameMenuEntry = new MenuEntry("Play Game");
             MenuEntry optionsMenuEntry = new MenuEntry("Options");
@@ -58,7 +57,6 @@ namespace PiN
             ScreenManager.AddScreen(new OptionsMenuScreen(), e.PlayerIndex);
         }
 
-
         /// <summary>
         /// When the user cancels the main menu, ask if they want to exit the sample.
         /// </summary>
@@ -82,7 +80,6 @@ namespace PiN
         {
             ScreenManager.Game.Exit();
         }
-
 
         #endregion
     }
