@@ -20,23 +20,23 @@ namespace PiN
         float pauseAlpha;
 
         //MikeM level backgrounds (levelIndex 1)
-        Texture2D lvl2bg0;
-        Texture2D lvl2bg1;
-        Texture2D lvl2bg2;
-        Texture2D lvl2Foreground;
-        Texture2D lvl2Gradient;
-        Texture2D lvl2Middleground;
-        Texture2D lvl2Middleplus;
-        Texture2D lvl2Sky1;
-        Texture2D lvl2Sky2;
+        //Texture2D lvl2bg0;
+        //Texture2D lvl2bg1;
+        //Texture2D lvl2bg2;
+        //Texture2D lvl2Foreground;
+        //Texture2D lvl2Gradient;
+        //Texture2D lvl2Middleground;
+        //Texture2D lvl2Middleplus;
+        //Texture2D lvl2Sky1;
+        //Texture2D lvl2Sky2;
         Texture2D lvl2TreeSunsetMain;
 
         //Tom level backgrounds (levelIndex 0)
-        Texture2D lvl1Gradient;
-        Texture2D lvl1Sky;
-        Texture2D lvl1bg2;
-        Texture2D lvl1bg1;
-        Texture2D lvl1Middleground;
+        //Texture2D lvl1Gradient;
+        //Texture2D lvl1Sky;
+        //Texture2D lvl1bg2;
+        //Texture2D lvl1bg1;
+        //Texture2D lvl1Middleground;
         Texture2D lvl1Main;
 
         // Resources for drawing.
@@ -44,7 +44,7 @@ namespace PiN
         //Texture2D background1;
         //Texture2D background2;
         Texture2D lvl3Main;
-        Texture2D middleground;
+        //Texture2D middleground;
         // Global content.
         private Hud hud;
 
@@ -94,15 +94,15 @@ namespace PiN
             //background2 = content.Load<Texture2D>("Backgrounds/Layer0_1");
 
             //MikeM level content (levelIndex 1)
-            lvl2bg0 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
-            lvl2bg1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
-            lvl2bg2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
-            lvl2Foreground = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
-            lvl2Gradient = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
-            lvl2Middleground = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
-            lvl2Middleplus = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
-            lvl2Sky1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
-            lvl2Sky2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
+            //lvl2bg0 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
+            //lvl2bg1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
+            //lvl2bg2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
+            //lvl2Foreground = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
+            //lvl2Gradient = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
+            //lvl2Middleground = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
+            //lvl2Middleplus = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
+            //lvl2Sky1 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
+            //lvl2Sky2 = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
             lvl2TreeSunsetMain = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
 
             //Tom level backgrounds (levelIndex 0)
