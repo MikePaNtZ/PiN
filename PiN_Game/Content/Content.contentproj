@@ -248,6 +248,7 @@
       <Name>gamefont</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
+      <SubType>Designer</SubType>
     </Compile>
     <None Include="Levels\MikeMLevel.tmx">
       <SubType>Designer</SubType>

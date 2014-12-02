@@ -284,7 +284,7 @@ namespace PiN
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            levelIndex = 1; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
         }
 
