@@ -124,7 +124,7 @@ namespace PiN
                 {
                     //We're going to want to put some enemy health reduction code here
                     //Enemy class needs a health member variable too
-                    enemy.OnHit(this);
+                    enemy.OnHit(gun.WeaponWielder);
                     IsAlive = false;
                 }
             }

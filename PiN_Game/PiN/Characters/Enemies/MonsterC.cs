@@ -22,7 +22,7 @@ namespace PiN
     {
         public override int MaxHealth
         {
-            get { return 6; }
+            get { return 15; }
         }
 
         /// <summary>

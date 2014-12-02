@@ -18,6 +18,8 @@ namespace PiN
         public HeroStrengthGun(GameCharacter theShooter)
             : base(theShooter)
         {
+            bulletSpeed = 5.0f;
+            attackRate = 2;
         }
 
         protected override void LoadContent()
