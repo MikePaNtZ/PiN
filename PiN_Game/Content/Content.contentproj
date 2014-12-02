@@ -816,7 +816,13 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Overlays\GameOverWin.png">
+      <Name>GameOverWin</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Sounds\TheComplex.mp3">
       <Name>TheComplex</Name>
@@ -855,6 +861,13 @@
   <ItemGroup>
     <Compile Include="Backgrounds\MikeBLevel\Cool.png">
       <Name>Cool</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sprites\Player\ExitPortal.png">
+      <Name>ExitPortal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

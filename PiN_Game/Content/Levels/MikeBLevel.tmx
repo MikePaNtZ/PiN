@@ -1691,7 +1691,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="93"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -26120,7 +26120,7 @@
     <property name="TileCollision" value="1"/>
    </properties>
   </object>
-  <object name="exit" x="12246" y="56" width="53" height="47">
+  <object name="exit" x="12260" y="98" width="53" height="47">
    <properties>
     <property name="TileCollision" value="1"/>
    </properties>

@@ -7181,7 +7181,7 @@
  </layer>
  <objectgroup name="events">
   <object name="player" x="4" y="2109" width="64" height="64"/>
-  <object name="exit" x="1520" y="110">
+  <object name="exit" x="1520" y="140">
    <ellipse/>
   </object>
  </objectgroup>

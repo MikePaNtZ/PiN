@@ -68,12 +68,6 @@ namespace PiN
         // Program camera
         private Camera cam;
 
-        // The number of levels in the Levels directory of our content. We assume that
-        // levels in our content are 0-based and that all numbers under this constant
-        // have a level file present. This allows us to not need to check for the file
-        // or handle exceptions, both of which can add unnecessary time to level loading.
-        private const int numberOfLevels = 1;
-
         public GameplayScreen()
         {
             TransitionOnTime = TimeSpan.FromSeconds(1.5);
@@ -252,9 +246,10 @@ namespace PiN
                     {
                         if (level.ReachedExit)
                             LoadNextLevel();
-                        else
-                            ReloadCurrentLevel();
                     }
+
+                    if (level.GameOver)
+                        ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
                 }
 
                 wasContinuePressed = continuePressed;
@@ -267,19 +262,18 @@ namespace PiN
             // move to the next level
             levelIndex = (levelIndex + 1) % maps.Count;
 
+            if (levelIndex == 2)
+            {
+                //Victry
+                return;
+            }
             // Unloads the content for the current level before loading the next one.
             if (level != null)
                 level.Dispose();
 
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
+            //levelIndex = 2; //index level 2 is MikeBLevel
             level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
-        }
-
-        private void ReloadCurrentLevel()
-        {
-            --levelIndex;
-            LoadNextLevel();
         }
 
         private void DrawScenery()
