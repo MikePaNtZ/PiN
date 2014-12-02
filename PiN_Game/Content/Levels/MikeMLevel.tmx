@@ -60149,7 +60149,7 @@
   </object>
   <object name="enemy" x="1346" y="793">
    <properties>
-    <property name="enemyType" value="MonsterD"/>
+    <property name="enemyType" value="MonsterB"/>
    </properties>
    <ellipse/>
   </object>
@@ -60202,6 +60202,51 @@
    <properties>
     <property name="enemyType" value="MonsterD"/>
    </properties>
+  </object>
+  <object name="enemy" x="3821" y="653">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="8364" y="751">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="9185" y="1903">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="5357" y="2686" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="5642" y="928" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="4475" y="317" width="46" height="42">
+   <properties>
+    <property name="enemyType" value="MonsterD"/>
+   </properties>
+  </object>
+  <object name="enemy" x="1646" y="1617">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="enemy" x="3746" y="1904">
+   <properties>
+    <property name="enemyType" value="MonsterB"/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
 </map>
