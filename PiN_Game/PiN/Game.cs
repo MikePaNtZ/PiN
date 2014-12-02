@@ -20,7 +20,7 @@ namespace PiN
     {
         #region Fields
 
-        GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager graphics;
         ScreenManager screenManager;
 
 
@@ -47,8 +47,8 @@ namespace PiN
             graphics = new GraphicsDeviceManager(this);
 
             graphics.IsFullScreen = false;
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 480;
             graphics.ApplyChanges();
 
             // Create the screen manager component.

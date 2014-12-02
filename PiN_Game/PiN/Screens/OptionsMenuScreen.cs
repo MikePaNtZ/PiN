@@ -15,7 +15,6 @@ namespace PiN
 
         MenuEntry toggleFullscreenMenuEntry;
 
-        public static bool IsFullscreen = false;
 
         #endregion
 
@@ -41,7 +40,6 @@ namespace PiN
             toggleFullscreenMenuEntry.Selected += ToggleFullScreenMenuEntrySelected;
             
             back.Selected += OnCancel;
-            
             // Add entries to the menu.
             MenuEntries.Add(toggleFullscreenMenuEntry);
             MenuEntries.Add(back);
@@ -53,7 +51,7 @@ namespace PiN
         /// </summary>
         void SetMenuEntryText()
         {
-            if (IsFullscreen)
+            if (GameStateManagementGame.graphics.IsFullScreen)
                 toggleFullscreenMenuEntry.Text = "Make Game Windowed";
             else
                 toggleFullscreenMenuEntry.Text = "Make Game Fullscreen";
@@ -70,22 +68,20 @@ namespace PiN
         /// </summary>
         void ToggleFullScreenMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            //if (IsFullscreen)
-            //{
-            //    Game.graphics.IsFullScreen = false;
-            //    graphics.PreferredBackBufferWidth = 800;//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //    graphics.PreferredBackBufferHeight = 600;//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            //    graphics.ApplyChanges();
-            //    IsFullscreen = false;
-            //}
-            //else
-            //{
-            //    graphics.IsFullScreen = true;
-            //    graphics.PreferredBackBufferWidth = graphics.GraphicsDevice.DisplayMode.Width;
-            //    graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
-            //    graphics.ApplyChanges();
-            //    IsFullscreen = true;
-            //}
+            if (GameStateManagementGame.graphics.IsFullScreen)
+            {
+                GameStateManagementGame.graphics.IsFullScreen = false;
+                GameStateManagementGame.graphics.PreferredBackBufferWidth = 800;
+                GameStateManagementGame.graphics.PreferredBackBufferHeight = 480;
+                GameStateManagementGame.graphics.ApplyChanges();
+            }
+            else
+            {
+                GameStateManagementGame.graphics.IsFullScreen = true;
+                GameStateManagementGame.graphics.PreferredBackBufferWidth = GameStateManagementGame.graphics.GraphicsDevice.DisplayMode.Width;
+                GameStateManagementGame.graphics.PreferredBackBufferHeight = GameStateManagementGame.graphics.GraphicsDevice.DisplayMode.Height;
+                GameStateManagementGame.graphics.ApplyChanges();
+            }
 
             SetMenuEntryText();
         }
