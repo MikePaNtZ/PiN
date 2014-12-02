@@ -267,7 +267,7 @@ namespace PiN
             // move to the next level
             levelIndex = (levelIndex + 1) % maps.Count;
 
-            if (levelIndex == maps.Count - 1)
+            if (levelIndex == maps.Count)
             {
                 //Victry
                 return;
