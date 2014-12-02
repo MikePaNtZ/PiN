@@ -41,8 +41,20 @@ namespace PiN
             dieAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterB/Die"), 0.07f, false);
             jumpAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/MonsterB/Idle"), 0.15f, true); //placeholder
             killedSound = Level.Content.Load<SoundEffect>("Sounds/WomanFall");
-            
-            base.LoadContent();
+            hurtSound = Level.Content.Load<SoundEffect>("Sounds/WomanDying");
+            jumpSound = Level.Content.Load<SoundEffect>("Sounds/WomanJump");
+
+            // Calculate bounds within texture size.            
+            // TODO It needs to be more clear what this is doing, and why it is done here. It is for collision detection.
+            int width = (int)(idleAnimation.FrameWidth * 0.4);
+            int left = (idleAnimation.FrameWidth - width) / 2;
+            int height = (int)(idleAnimation.FrameWidth * 0.8);
+            int top = idleAnimation.FrameHeight - height;
+            localBounds = new Rectangle(left, top, width, height);
+
+            // Load enemy default weapon
+            weapon = new EnemyGun(this);
+            stateMachine = new EnemyStateMachine(this);
         }
 
     }

@@ -1,13 +1,4 @@
-﻿#region File Description
-//-----------------------------------------------------------------------------
-// Enemy.cs
-//
-// Microsoft XNA Community Program Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
@@ -149,7 +140,6 @@ namespace PiN
         /// </summary>
         protected virtual void LoadContent()
         {
-            explosionAnimation = new Animation(Level.Content.Load<Texture2D>("Sprites/Player/explosion"), 0.1f, false); //false means the animation is not going to loop
             // Load sounds.
             killedSound = Level.Content.Load<SoundEffect>("Sounds/Dying");
             // Temporary hurt sound. We probably want to use something different in the future.
@@ -179,10 +169,6 @@ namespace PiN
         {
             if (!IsAlive)
                 return;
-
-            
-            
-
             base.Update(gameTime, gameInputs);
         }
 
@@ -226,11 +212,6 @@ namespace PiN
             else if (rand > 80)
                 Level.SpawnConsumable(point.X, point.Y, "PowerUp");
         }
-
-        /// <summary>
-        /// Enemy explosion animation.
-        /// </summary>
-        protected Animation explosionAnimation;
 
         protected Vector2 target;
 

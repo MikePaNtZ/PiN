@@ -16,9 +16,12 @@ namespace PiN
         private Texture2D winOverlay;
         private Texture2D loseOverlay;
         private Texture2D diedOverlay;
+        private Texture2D gameEndOverlay;
 
         //health bar
-        private Texture2D healthBar;
+        private Texture2D healthBar1;
+        private Texture2D healthBar2;
+        private Texture2D healthBar3;
         private Texture2D healthTexture;
 
         public Hud(ContentManager content)
@@ -31,9 +34,12 @@ namespace PiN
             winOverlay = content.Load<Texture2D>("Overlays/you_win");
             loseOverlay = content.Load<Texture2D>("Overlays/you_lose");
             diedOverlay = content.Load<Texture2D>("Overlays/you_died");
+            gameEndOverlay = content.Load<Texture2D>("Overlays/GameOver");
 
             //health bar
-            healthBar = content.Load<Texture2D>("Sprites/Player/healthbar");
+            healthBar1 = content.Load<Texture2D>("Sprites/Player/healthbarHero1");
+            healthBar2 = content.Load<Texture2D>("Sprites/Player/healthbarHero2");
+            healthBar3 = content.Load<Texture2D>("Sprites/Player/healthbarHero3");
             healthTexture = content.Load<Texture2D>("Sprites/Player/health");
         }
 
@@ -69,8 +75,8 @@ namespace PiN
 
                 //define the health bar positions
                 Vector2 Hero1HealthBarLocation = new Vector2(hudLocation.X + 3, hudLocation.Y + timeHeight * 1.2f);
-                Vector2 Hero2HealthBarLocation = new Vector2(hudLocation.X + 3, hudLocation.Y + Hero1HealthBarLocation.Y + healthBar.Height + 2); //the 2 is the distance between bars
-                Vector2 Hero3HealthBarLocation = new Vector2(hudLocation.X + 3, hudLocation.Y + Hero2HealthBarLocation.Y + healthBar.Height + 2);
+                Vector2 Hero2HealthBarLocation = new Vector2(hudLocation.X + 3, hudLocation.Y + Hero1HealthBarLocation.Y + healthBar1.Height + 2); //the 2 is the distance between bars
+                Vector2 Hero3HealthBarLocation = new Vector2(hudLocation.X + 3, hudLocation.Y + Hero2HealthBarLocation.Y + healthBar2.Height + 2);
 
                 //hero names
                 string Hero1Name = "Kaeden ";
@@ -87,15 +93,15 @@ namespace PiN
                 Hero2HealthBarLocation.X = Hero1HealthBarLocation.X;
                 Hero3HealthBarLocation.X = Hero1HealthBarLocation.X;
 
-                //draw health bars; The +1s are to compensate for the little offset of the green bar on the background
-                spriteBatch.Draw(healthBar, Hero1HealthBarLocation, Color.White * hudOpacity);
-                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero1HealthBarLocation.X + 1, (int)Hero1HealthBarLocation.Y + 1, level.Heroes[0].Health * 2 - 2, 20), Color.White * hudOpacity);
+                //draw health bars; The +1s are to compensate for the little offset of the red bar on the background
+                spriteBatch.Draw(healthBar1, Hero1HealthBarLocation, Color.White * hudOpacity);
+                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero1HealthBarLocation.X + 1, (int)Hero1HealthBarLocation.Y + 1, level.Heroes[0].Health - 2, 20), Color.White * hudOpacity);
 
-                spriteBatch.Draw(healthBar, Hero2HealthBarLocation, Color.White * hudOpacity);
-                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero2HealthBarLocation.X + 1, (int)Hero2HealthBarLocation.Y + 1, level.Heroes[1].Health * 2 - 2, 20), Color.White * hudOpacity);
+                spriteBatch.Draw(healthBar2, Hero2HealthBarLocation, Color.White * hudOpacity);
+                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero2HealthBarLocation.X + 1, (int)Hero2HealthBarLocation.Y + 1, level.Heroes[1].Health - 2, 20), Color.White * hudOpacity);
 
-                spriteBatch.Draw(healthBar, Hero3HealthBarLocation, Color.White * hudOpacity);
-                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero3HealthBarLocation.X + 1, (int)Hero3HealthBarLocation.Y + 1, level.Heroes[2].Health * 2 - 2, 20), Color.White * hudOpacity);
+                spriteBatch.Draw(healthBar3, Hero3HealthBarLocation, Color.White * hudOpacity);
+                spriteBatch.Draw(healthTexture, new Rectangle((int)Hero3HealthBarLocation.X + 1, (int)Hero3HealthBarLocation.Y + 1, level.Heroes[2].Health - 2, 20), Color.White * hudOpacity);
             }
 
             if (level.ActiveHero != null)
