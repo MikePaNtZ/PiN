@@ -63,6 +63,8 @@ namespace PiN
             get { return 0.3F; }
         }
 
+        public bool IsKamikaze { get { return ((EnemyStateMachine)stateMachine).BehaviorState is KamikazeState; } }
+
         /// <summary>
         /// How long to shoot
         /// </summary>
