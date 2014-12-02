@@ -10,6 +10,11 @@ namespace PiN
     {
         private static Level level;
 
+        static int top;
+        static int bottom;
+        static int left;
+        static int right;
+
         public static void LoadLevel(Level lvl)
         {
             level = lvl;
@@ -23,9 +28,25 @@ namespace PiN
             Ray ray = new Ray(new Vector3(source,0), direction);
             float? intersectDistance;
 
-            for (int y = 0; y < level.Height; y++)
+            
+
+            top = (int)Math.Floor((float)Math.Min(destination.Y,source.Y) / level.TileHeight) - 1;
+            bottom = (int)Math.Floor((float)Math.Max(destination.Y,source.Y) / level.TileHeight) + 1;
+            left = (int)Math.Floor((float)Math.Min(destination.X,source.X) / level.TileWidth) - 1;
+            right = (int)Math.Floor((float)Math.Max(destination.X,source.X) / level.TileWidth) + 1;
+
+            if (top < 0)
+                top = 0;
+            if (bottom > level.Height)
+                bottom = level.Height;
+            if (left < 0)
+                left = 0;
+            if (right > level.Width)
+                right = level.Width;
+
+            for (int y = top; y < bottom; y++)
             {
-                for (int x = 0; x < level.Width; x++)
+                for (int x = left; x < right; x++)
                 {
                     if (level.Tiles[y, x].Collision != TileCollision.Passable)
                     {
@@ -42,6 +63,12 @@ namespace PiN
                 }
             }
             return null;
+        }
+
+        public static void Draw(SpriteBatch spriteBatch)
+        {
+            Rectangle bounds = new Rectangle(left * level.TileWidth, top * level.TileHeight, (right - left) * level.TileWidth, (bottom - top) * level.TileHeight);
+            XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, bounds, Color.Red, 2);
         }
     }
 }
