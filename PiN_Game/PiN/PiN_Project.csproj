@@ -71,7 +71,6 @@
   <ItemGroup>
     <Compile Include="Animation\Animation.cs" />
     <Compile Include="Animation\AnimationLoader.cs" />
-    <Compile Include="Characters\Enemies\EnemyState.cs" />
     <Compile Include="Characters\Enemies\MonsterD.cs" />
     <Compile Include="Characters\Enemies\MonsterC.cs" />
     <Compile Include="Characters\Enemies\MonsterB.cs" />

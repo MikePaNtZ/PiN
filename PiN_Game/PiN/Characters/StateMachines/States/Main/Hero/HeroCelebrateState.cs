@@ -12,6 +12,8 @@ namespace PiN
         {
             hero.sprite.LoadAnimation(hero.CelebrateAnimation);
             hero.InvincibilityFrames = 0;
+            hero.Movement = 0;
+            hero.Velocity = new Vector2(0, hero.Velocity.Y);
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {

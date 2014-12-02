@@ -46,6 +46,12 @@ namespace PiN
                 OnKilled(hitBy);
             }
         }
+
+        public override void OnKilled(GameObject killedBy)
+        {
+            base.OnKilled(killedBy);
+            enemy.SpawnRandomConsumable();
+        }
     }
 }
 

@@ -21,11 +21,11 @@ namespace PiN
                 if (character.FallSound != null)
                     character.FallSound.Play();
             }
+            character.Movement = 0;
             character.sprite.LoadAnimation(character.DieAnimation);
         }
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            character.Movement = 0;
             //dead nothing updates
         }
         public override void OnHit(GameObject hitBy)

@@ -30,7 +30,7 @@ namespace PiN
         /// </summary>
         public MonsterB(Level level, Vector2 position) : base(level, position)
         {
-            moveSpeed = 0.5F;
+            moveSpeed = 0.8F;
         }
 
         protected override void LoadContent()

@@ -249,7 +249,12 @@ namespace PiN
                     }
 
                     if (level.GameOver)
+                    {
+                        ExitScreen();
+                        ScreenManager.AddScreen(new BackgroundScreen(), ControllingPlayer);
                         ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
+                    }
+                        
                 }
 
                 wasContinuePressed = continuePressed;
@@ -262,7 +267,7 @@ namespace PiN
             // move to the next level
             levelIndex = (levelIndex + 1) % maps.Count;
 
-            if (levelIndex == 2)
+            if (levelIndex == maps.Count)
             {
                 //Victry
                 return;
