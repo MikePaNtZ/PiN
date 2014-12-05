@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Content;
 #endregion
 
 namespace PiN
@@ -20,6 +22,7 @@ namespace PiN
         List<MenuEntry> menuEntries = new List<MenuEntry>();
         int selectedEntry = 0;
         string menuTitle;
+        ContentManager content;
 
         #endregion
 
@@ -138,13 +141,17 @@ namespace PiN
         /// </summary>
         protected virtual void UpdateMenuEntryLocations()
         {
+            Vector2 menuOffset;
+            menuOffset.X = 0f;
+            menuOffset.Y = ScreenManager.GraphicsDevice.Viewport.Height / 3 + 68;
             // Make the menu slide into place during transitions, using a
             // power curve to make things look more interesting (this makes
             // the movement slow down as it nears the end).
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
 
-            // start at Y = 175; each X value is generated per entry
-            Vector2 position = new Vector2(0f, 311f);
+
+            // start at Y = 311; each X value is generated per entry
+            Vector2 position = new Vector2(0f, menuOffset.Y);
 
             // update each menu entry's location in turn
             for (int i = 0; i < menuEntries.Count; i++)
@@ -165,6 +172,21 @@ namespace PiN
                 // move down for the next entry the size of this entry
                 position.Y += menuEntry.GetHeight(this);
             }
+        }
+
+        public override void LoadContent()
+        {
+            content = new ContentManager(ScreenManager.Game.Services, "Content");
+            try
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(content.Load<Song>("Sounds/MainMenuMusic"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            //base.LoadContent();
         }
 
 
@@ -216,9 +238,9 @@ namespace PiN
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
 
             // Draw the menu title centered on the screen
-            Vector2 titlePosition = new Vector2(graphics.Viewport.Width / 2, 100);
+            Vector2 titlePosition = new Vector2(graphics.Viewport.Width / 2, graphics.Viewport.Height/4);
             Vector2 titleOrigin = font.MeasureString(menuTitle) / 2;
-            Color titleColor = new Color(255, 0, 0) * TransitionAlpha;
+            Color titleColor = new Color(204, 204, 255) * TransitionAlpha;
             float titleScale = 1.25f;
 
             titlePosition.Y -= transitionOffset * 100;
