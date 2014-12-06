@@ -143,14 +143,14 @@ namespace PiN
         {
             Vector2 menuOffset;
             menuOffset.X = 0f;
-            menuOffset.Y = ScreenManager.GraphicsDevice.Viewport.Height / 3 + 68;
+            menuOffset.Y = ScreenManager.GraphicsDevice.Viewport.Height / 3 + 61;
             // Make the menu slide into place during transitions, using a
             // power curve to make things look more interesting (this makes
             // the movement slow down as it nears the end).
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
 
 
-            // start at Y = 311; each X value is generated per entry
+            // start at Y = menuOffset.Y each X value is generated per entry
             Vector2 position = new Vector2(0f, menuOffset.Y);
 
             // update each menu entry's location in turn
