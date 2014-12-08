@@ -20,7 +20,7 @@ namespace PiN
         protected int healthGain;
         public HealthConsumable(Level level, Vector2 position): base(level, position)
         {
-            healthGain = 15;
+            healthGain = 20;
             color = Color.White;
             LoadContent();
         }

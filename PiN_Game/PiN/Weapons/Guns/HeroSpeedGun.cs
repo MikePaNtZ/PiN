@@ -19,7 +19,7 @@ namespace PiN
             : base(theShooter)
         {
             bulletSpeed = 20.0f;
-            attackRate = 8;
+            attackRate = 12;
         }
 
         protected override void LoadContent()
