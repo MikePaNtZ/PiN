@@ -549,6 +549,25 @@ namespace PiN
             ActiveHero.Reset(start);
         }
 
+        /// <summary>
+        /// Restores a hero to full health
+        /// </summary>
+        public void HealOneHero()
+        {
+            if (!Heroes[0].IsAlive)
+                Heroes[0].Reset(Heroes[0].Position);
+            else if (!Heroes[1].IsAlive)
+                Heroes[1].Reset(Heroes[1].Position);
+            else if (!Heroes[2].IsAlive)
+                Heroes[2].Reset(Heroes[2].Position);
+            else
+            {
+                int rand = random.Next(0,Heroes.Count());
+                rand = (int)MathHelper.Clamp(rand, 0, Heroes.Count()-1);
+                Heroes[rand].Health = Heroes[rand].MaxHealth;
+            }
+        }
+
         #endregion
 
         #region Draw

@@ -118,6 +118,7 @@
     <Compile Include="Characters\StateMachines\States\Shooting\ShooterState.cs" />
     <Compile Include="Consumables\ConsumableFactory.cs" />
     <Compile Include="Consumables\PowerUps\HealthConsumable.cs" />
+    <Compile Include="Consumables\PowerUps\OneUp.cs" />
     <Compile Include="Consumables\PowerUps\PowerUp.cs" />
     <Compile Include="Core\Collision.cs" />
     <Compile Include="Core\GlobalSolver.cs" />

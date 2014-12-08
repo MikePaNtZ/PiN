@@ -211,7 +211,9 @@ namespace PiN
             int rand = random.Next(100);
             if (rand < 50)
                 Level.SpawnConsumable(point.X, point.Y, "HealthConsumable");
-            else if (rand > 80)
+            else if (60 <= rand && rand < 70)
+                Level.SpawnConsumable(point.X, point.Y, "OneUp");
+            else if (rand > 85)
                 Level.SpawnConsumable(point.X, point.Y, "PowerUp");
         }
 
