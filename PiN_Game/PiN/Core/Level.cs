@@ -72,9 +72,8 @@ namespace PiN
 
         public bool GameOver
         {
-            get { return gameOver; }
+            get { return !Heroes[0].IsAlive && !Heroes[1].IsAlive && !Heroes[2].IsAlive; }
         }
-        bool gameOver;
 
         public TimeSpan TimeRemaining
         {
@@ -93,6 +92,14 @@ namespace PiN
 
         private SoundEffect exitReachedSound;
 
+        public int LevelIndex
+        {
+            get { return levelIndex; }
+            set { LevelIndex = value; }
+        }
+
+        private int levelIndex = -1;
+
         //for debugging
         bool drawNavMesh;
         //Vector2 playersTarget;
@@ -106,12 +113,14 @@ namespace PiN
         /// <param name="serviceProvider">
         /// The service provider that will be used to construct a ContentManager.
         /// </param>
-        public Level(IServiceProvider serviceProvider, Map currentMap, Camera camera)
+        public Level(IServiceProvider serviceProvider, Map currentMap, Camera camera, int lvlIndex)
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
             timeRemaining = TimeSpan.FromMinutes(15.0); //changed the time limit to 15 minutes for longer level testing
-            
+
+            levelIndex = lvlIndex;
+
             map = currentMap;
 
             GlobalSolver.LoadMesh(map.NavMesh);
@@ -369,6 +378,9 @@ namespace PiN
                 else
                     drawNavMesh = true;
             }
+
+            //GOD MODE!!!
+            //ActiveHero.Health = ActiveHero.MaxHealth;
         }
 
         /// <summary>
@@ -498,6 +510,7 @@ namespace PiN
         {
             
             ActiveHero.OnKilled(killedBy);
+            
         }
 
         /// <summary>
@@ -531,10 +544,7 @@ namespace PiN
                 activeHero = (Hero)Heroes[2];
             }
             else
-            {
-                gameOver = true;
                 return;
-            }
             
             ActiveHero.Reset(start);
         }

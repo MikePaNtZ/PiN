@@ -93,7 +93,7 @@ namespace PiN
 
             XnaDebugDrawer.DebugDrawer.LoadContent(ScreenManager.GraphicsDevice);
 
-            hud = new Hud(content);
+            
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
 
@@ -144,6 +144,7 @@ namespace PiN
             screenHeight = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             LoadNextLevel();
+            hud = new Hud(content);
             if (levelIndex == 0)
             {
                 try
@@ -272,7 +273,12 @@ namespace PiN
         private void LoadNextLevel()
         {
             // move to the next level
-            levelIndex = (levelIndex + 1) % maps.Count;
+            //levelIndex = (levelIndex + 1) % maps.Count;
+            levelIndex++;
+
+            // Unloads the content for the current level before loading the next one.
+            if (level != null)
+                level.Dispose();
 
             if (levelIndex == maps.Count)
             {
@@ -281,13 +287,12 @@ namespace PiN
                 ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
                 return;
             }
-            // Unloads the content for the current level before loading the next one.
-            if (level != null)
-                level.Dispose();
+            
+            
 
             // Load the level.
             //levelIndex = 2; //index level 2 is MikeBLevel
-            level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
+            level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam, levelIndex);
         }
 
         private void DrawScenery()

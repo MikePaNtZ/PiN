@@ -115,7 +115,10 @@ namespace PiN
             {
                 if (level.ReachedExit)
                 {
-                    status = winOverlay;
+                    if (level.LevelIndex == 2) //hardcoded == ugly but whatever we're done
+                        status = introOverlay;
+                    else
+                        status = winOverlay;
                 }
                 else
                 {
@@ -124,7 +127,10 @@ namespace PiN
             }
             else if (!level.ActiveHero.IsAlive)
             {
-                status = diedOverlay;
+                if (level.GameOver)
+                    status = gameEndOverlay;
+                else
+                    status = diedOverlay;
             }
 
             if (status != null)
