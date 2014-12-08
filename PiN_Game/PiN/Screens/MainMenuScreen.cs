@@ -1,5 +1,9 @@
 #region Using Statements
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Content;
 #endregion
 
 namespace PiN
@@ -10,6 +14,8 @@ namespace PiN
     class MainMenuScreen : MenuScreen
     {
         #region Initialization
+
+        ContentManager content;
 
         /// <summary>
         /// Constructor fills in the menu contents.
@@ -39,6 +45,20 @@ namespace PiN
             MenuEntries.Add(exitMenuEntry);
         }
 
+        public override void LoadContent()
+        {
+            content = new ContentManager(ScreenManager.Game.Services, "Content");
+            try
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(content.Load<Song>("Sounds/MainMenuMusic"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            //base.LoadContent();
+        }
 
         #endregion
 
@@ -95,8 +115,6 @@ namespace PiN
 
             MessageBoxScreen viewedInstructionsMsgBox = new MessageBoxScreen(message, false);
 
-            viewedInstructionsMsgBox.Accepted += ViewedInstructionsMsgBox;
-
             ScreenManager.AddScreen(viewedInstructionsMsgBox, 0);
         }
 
@@ -117,8 +135,6 @@ namespace PiN
                                    "and save the day!";
 
             MessageBoxScreen viewedStoryMsgBox = new MessageBoxScreen(message, false);
-
-            viewedStoryMsgBox.Accepted += ViewedStoryMsgBox;
 
             ScreenManager.AddScreen(viewedStoryMsgBox, 0);
         }
