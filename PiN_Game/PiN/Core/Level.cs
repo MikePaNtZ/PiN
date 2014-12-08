@@ -317,6 +317,9 @@ namespace PiN
                 // Still want to perform physics on the activeHero.
                 ActiveHero.PhysicsEngine.ApplyPhysics(gameTime);
 
+                ((Gun)Heroes[0].Weapon).UpdateBullets();
+                ((Gun)Heroes[1].Weapon).UpdateBullets();
+                ((Gun)Heroes[2].Weapon).UpdateBullets();
             }
             else if (ReachedExit)
             {
@@ -330,6 +333,23 @@ namespace PiN
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
                 ActiveHero.Update(gameTime, gameInputs);
+
+                if (ActiveHero is HeroStrength)
+                {
+                    ((Gun)Heroes[1].Weapon).UpdateBullets();
+                    ((Gun)Heroes[2].Weapon).UpdateBullets();
+                }
+                else if (ActiveHero is HeroSpeed)
+                {
+                    ((Gun)Heroes[0].Weapon).UpdateBullets();
+                    ((Gun)Heroes[2].Weapon).UpdateBullets();
+                }
+                else
+                {
+                    ((Gun)Heroes[0].Weapon).UpdateBullets();
+                    ((Gun)Heroes[1].Weapon).UpdateBullets();
+                }
+                    
                 UpdateConsumables(gameTime);
 
                 //playersTarget = gameInputs.MouseInput.Position;
@@ -414,7 +434,7 @@ namespace PiN
                 {
                     // Still want to perform physics on the enemy.
                     enemy.PhysicsEngine.ApplyPhysics(gameTime);
-
+                    ((Gun)enemy.Weapon).UpdateBullets();
                 }
                 enemy.Update(gameTime, gameInputs);
                 // Touching an enemy decreases health of the activeHero
@@ -591,6 +611,7 @@ namespace PiN
             foreach (Enemy enemy in enemies)
             {
                 enemy.Draw(gameTime, spriteBatch);
+                ((Gun)enemy.Weapon).DrawBullets(gameTime, spriteBatch);
                 if (enemy.IsAlive)
                 {
                     //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 1);
@@ -631,6 +652,22 @@ namespace PiN
 
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
+
+            if (ActiveHero is HeroStrength)
+            {
+                ((Gun)Heroes[1].Weapon).DrawBullets(gameTime,spriteBatch);
+                ((Gun)Heroes[2].Weapon).DrawBullets(gameTime, spriteBatch);
+            }
+            else if (ActiveHero is HeroSpeed)
+            {
+                ((Gun)Heroes[0].Weapon).DrawBullets(gameTime, spriteBatch);
+                ((Gun)Heroes[2].Weapon).DrawBullets(gameTime, spriteBatch);
+            }
+            else
+            {
+                ((Gun)Heroes[0].Weapon).DrawBullets(gameTime, spriteBatch);
+                ((Gun)Heroes[1].Weapon).DrawBullets(gameTime, spriteBatch);
+            }
             //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
 
             //Collision.Draw(spriteBatch);
