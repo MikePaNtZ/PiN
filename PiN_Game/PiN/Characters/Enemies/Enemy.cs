@@ -63,7 +63,7 @@ namespace PiN
             get { return 0.3F; }
         }
 
-        public bool IsKamikaze { get { return ((EnemyStateMachine)stateMachine).BehaviorState is KamikazeState; } }
+        public bool IsKamikaze { get { return ((EnemyStateMachine)stateMachine).BehaviorState is KamikazeState && IsAlive; } }
 
         /// <summary>
         /// How long to shoot
@@ -159,6 +159,26 @@ namespace PiN
             weapon = new EnemyGun(this);
 
             stateMachine = new EnemyStateMachine(this);
+        }
+
+        public override void determineColor(GameTime gameTime)
+        {
+            if (IsKamikaze)
+            {
+                Color[] kamikazeColors = {
+                               Color.Red,
+                               Color.Orange,
+                               Color.Yellow,
+                                               };
+
+                float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 50.0f;
+                int colorIndex = (int)t % kamikazeColors.Length;
+                color = kamikazeColors[colorIndex];
+            }
+            else
+            {
+                color = Color.White;
+            }
         }
 
 
