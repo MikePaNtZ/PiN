@@ -25,9 +25,9 @@ namespace PiN
 
         public virtual void Update(GameTime gameTime, InputHandler gameInputs)
         {
-            
-            MainState.Update(gameTime, gameInputs);
             ShooterState.Update(gameTime, gameInputs);
+            MainState.Update(gameTime, gameInputs);
+            
             
         }
 
