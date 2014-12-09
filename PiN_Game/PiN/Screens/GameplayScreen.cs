@@ -13,7 +13,7 @@ namespace PiN
     class GameplayScreen : GameScreen
     {
         ContentManager content;
-       
+
         int screenWidth;
         int screenHeight;
 
@@ -93,7 +93,7 @@ namespace PiN
 
             XnaDebugDrawer.DebugDrawer.LoadContent(ScreenManager.GraphicsDevice);
 
-            
+
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
 
@@ -138,7 +138,7 @@ namespace PiN
                 ScreenManager.Game.Exit();
             }
 
-            
+
 
             screenWidth = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth;
             screenHeight = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -262,7 +262,7 @@ namespace PiN
                         ScreenManager.AddScreen(new BackgroundScreen(), ControllingPlayer);
                         ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
                     }
-                        
+
                 }
 
                 wasContinuePressed = continuePressed;
@@ -287,8 +287,6 @@ namespace PiN
                 ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
                 return;
             }
-            
-            
 
             // Load the level.
             //levelIndex = 2; //index level 2 is MikeBLevel
@@ -301,44 +299,16 @@ namespace PiN
 
             if (levelIndex == 2)
             {
-                spriteBatch.Draw(lvl3Main, screenRectangle, Color.White);
-                //spriteBatch.Draw(background1, screenRectangle, Color.White);
-                //spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
-                //spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
+                spriteBatch.Draw(lvl2TreeSunsetMain, screenRectangle, Color.White);
             }
             else if (levelIndex == 0)
             {
-                //spriteBatch.Draw(background1, screenRectangle, Color.White);
-                //spriteBatch.Draw(background2, screenRectangle, Color.White); //the next background to draw if this works
-                //spriteBatch.Draw(middleground, screenRectangle, Color.White); //the next background to draw if this works
-
                 spriteBatch.Draw(lvl1Main, screenRectangle, Color.White);
-                //spriteBatch.Draw(lvl1Gradient, screenRectangle, Color.White);
-                //spriteBatch.Draw(lvl1Sky, screenRectangle, Color.White);
-                //spriteBatch.Draw(lvl1bg2, screenRectangle, Color.White);
-                //spriteBatch.Draw(lvl1bg1, screenRectangle, Color.White);
-                //spriteBatch.Draw(lvl1Middleground, screenRectangle, Color.White);
-                
-                
-
             }
             else if (levelIndex == 1)
             {
-
-                //MikeM level content (levelIndex 1)
-                spriteBatch.Draw(lvl2TreeSunsetMain, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/treeSunsetMain");
-                //spriteBatch.Draw(lvl2Gradient, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Gradient-z-6");
-                //spriteBatch.Draw(lvl2Sky2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky2-z-5");
-                //spriteBatch.Draw(lvl2Sky1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Sky-z-4");
-                //spriteBatch.Draw(lvl2bg2, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg2z-3");
-                //spriteBatch.Draw(lvl2bg1, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg1z-2");
-                //spriteBatch.Draw(lvl2bg0, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/bg0-z-1");
-                
-                //spriteBatch.Draw(lvl2Middleground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/Middleground-z0");
-                //spriteBatch.Draw(lvl2Middleplus, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/MiddlePlus-z1");
-                
-                //spriteBatch.Draw(lvl2Foreground, screenRectangle, Color.White);// = content.Load<Texture2D>("Backgrounds/MikeMLevel/foreground-z2");
-                
+                //MikeB level content (levelIndex 1)
+                spriteBatch.Draw(lvl3Main, screenRectangle, Color.White);
             }
         }
 
@@ -347,7 +317,7 @@ namespace PiN
             // This game has a blue background. Why? Because!
             ScreenManager.GraphicsDevice.Clear(ClearOptions.Target,
                                                Color.RoyalBlue, 0, 0);
-            
+
 
             // Our player and enemy are both actually just text strings.
             spriteBatch = ScreenManager.SpriteBatch;
@@ -360,7 +330,7 @@ namespace PiN
             hud.Draw(spriteBatch, level, WarningTime);
 
             base.Draw(gameTime);
-           
+
 
             // If the game is transitioning on or off, fade it out to black.
             if (TransitionPosition > 0 || pauseAlpha > 0)
@@ -369,7 +339,7 @@ namespace PiN
 
                 ScreenManager.FadeBackBufferToBlack(alpha);
             }
-            
+
         }
     }
 }

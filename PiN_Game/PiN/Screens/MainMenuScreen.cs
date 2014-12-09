@@ -109,6 +109,8 @@ namespace PiN
                                    "Hero 1..........1\n" +
                                    "Hero 2..........2\n" +
                                    "Hero 3..........3\n\n" +
+                                   "Green powerups revive dead allies, blue powerups give hero health,\n" +
+                                   "and red powerups grant invincibility for a short time.\n\n" +
                                    "Make it to the portal at the end of the level before time is up.\n" +
                                    "Game over if all heroes are dead.\n" +
                                    "Good luck soldier!";
