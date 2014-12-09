@@ -28,6 +28,9 @@ namespace PiN
                 return;
             }
 
+            if (!enemy.IsOnGround)
+                enemy.Move(enemy.FaceDirection);
+
             if (enemy.CanSeeTarget && Math.Abs(enemy.LineOfSightToTarget.X) <= enemy.MaxAttackDistance)
             {
                 //if (enemy.LineOfSightToTarget.X * (int)enemy.FaceDirection < 0) //make sure enemy is facing the right direction

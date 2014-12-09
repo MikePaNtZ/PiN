@@ -11,6 +11,7 @@ namespace PiN
         public KamikazeState(EnemyStateMachine ESM)
             : base(ESM)
         {
+            enemy.Weapon.AttackRate = 5;
             esm.ShooterState = new EnemyFiringState(esm);
             
         }
@@ -24,8 +25,9 @@ namespace PiN
                 //enemy.FaceDirection = (FaceDirection)(-(int)enemy.FaceDirection); //if not turn around
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            float posX = enemy.Position.X + enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
-            int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth) - (int)enemy.FaceDirection;
+            // Calculate tile position based on the side we are walking towards.
+            float posX = enemy.Position.X;// +enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
+            int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth);// -(int)enemy.FaceDirection;
             int tileY = (int)Math.Floor(enemy.Position.Y / enemy.Level.TileHeight);
             // move in the current direction.
             enemy.Move(enemy.FaceDirection);

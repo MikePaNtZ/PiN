@@ -93,7 +93,7 @@ namespace PiN
 
             XnaDebugDrawer.DebugDrawer.LoadContent(ScreenManager.GraphicsDevice);
 
-            hud = new Hud(content);
+            
 
             cam = new Camera(spriteBatch.GraphicsDevice.Viewport);
 
@@ -124,8 +124,8 @@ namespace PiN
             try //This is where the maps are added
             {
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\TomLevel.tmx"), content));
-                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
                 maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeBLevel.tmx"), content));
+                maps.Add(new Map(Path.Combine(content.RootDirectory, "Levels\\MikeMLevel.tmx"), content));
             }
             catch (FileNotFoundException e)
             {
@@ -144,6 +144,7 @@ namespace PiN
             screenHeight = spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             LoadNextLevel();
+            hud = new Hud(content);
             if (levelIndex == 0)
             {
                 try
@@ -272,20 +273,26 @@ namespace PiN
         private void LoadNextLevel()
         {
             // move to the next level
-            levelIndex = (levelIndex + 1) % maps.Count;
+            //levelIndex = (levelIndex + 1) % maps.Count;
+            levelIndex++;
 
-            if (levelIndex == maps.Count)
-            {
-                //Victry
-                return;
-            }
             // Unloads the content for the current level before loading the next one.
             if (level != null)
                 level.Dispose();
 
+            if (levelIndex == maps.Count)
+            {
+                ExitScreen();
+                ScreenManager.AddScreen(new BackgroundScreen(), ControllingPlayer);
+                ScreenManager.AddScreen(new MainMenuScreen(), ControllingPlayer);
+                return;
+            }
+            
+            
+
             // Load the level.
-            levelIndex = 2; //index level 2 is MikeBLevel
-            level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam);
+            //levelIndex = 2; //index level 2 is MikeBLevel
+            level = new Level(ScreenManager.Game.Services, maps[levelIndex], cam, levelIndex);
         }
 
         private void DrawScenery()

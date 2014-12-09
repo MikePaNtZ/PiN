@@ -16,6 +16,8 @@ namespace PiN
                     return new HealthConsumable(level, position);
                 case "PowerUp":
                     return new PowerUp(level, position);
+                case "OneUp":
+                    return new OneUp(level, position);
                 default:
                     throw new IndexOutOfRangeException();
             }

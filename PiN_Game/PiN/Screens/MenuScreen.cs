@@ -22,7 +22,7 @@ namespace PiN
         List<MenuEntry> menuEntries = new List<MenuEntry>();
         int selectedEntry = 0;
         string menuTitle;
-        ContentManager content;
+        
 
         #endregion
 
@@ -54,6 +54,8 @@ namespace PiN
             TransitionOnTime = TimeSpan.FromSeconds(0.5);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
         }
+
+        
 
 
         #endregion
@@ -174,20 +176,7 @@ namespace PiN
             }
         }
 
-        public override void LoadContent()
-        {
-            content = new ContentManager(ScreenManager.Game.Services, "Content");
-            try
-            {
-                MediaPlayer.IsRepeating = true;
-                MediaPlayer.Play(content.Load<Song>("Sounds/MainMenuMusic"));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            //base.LoadContent();
-        }
+        
 
 
         /// <summary>

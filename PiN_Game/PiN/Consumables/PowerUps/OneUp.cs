@@ -15,13 +15,12 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace PiN
 {
-    class HealthConsumable : Consumable
+    class OneUp : Consumable
     {
-        protected int healthGain;
-        public HealthConsumable(Level level, Vector2 position): base(level, position)
+        public OneUp(Level level, Vector2 position)
+            : base(level, position)
         {
-            healthGain = 20;
-            color = Color.White;
+            color = Color.Gold;
             LoadContent();
         }
 
@@ -34,7 +33,8 @@ namespace PiN
         override public void OnCollected(Hero collectedBy)
         {
             collectedSound.Play();
-            collectedBy.Health += healthGain;
+            Level.HealOneHero();
         }
     }
 }
+

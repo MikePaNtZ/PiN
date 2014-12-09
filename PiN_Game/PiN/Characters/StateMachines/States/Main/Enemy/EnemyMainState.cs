@@ -35,7 +35,7 @@ namespace PiN
                 }
                 else if (hitBy is HeroFlight) //ideally hit by bullet, but really anything for now
                 {
-                    enemy.Health -= 2;
+                    enemy.Health -= 3;
                     enemy.HurtSound.Play();
                 }
                 else if (hitBy is GameObject) //ideally hit by bullet, but really anything for now

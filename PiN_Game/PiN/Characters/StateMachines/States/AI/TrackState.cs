@@ -28,12 +28,12 @@ namespace PiN
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             // Calculate tile position based on the side we are walking towards.
-            float posX = enemy.Position.X + enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
-            int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth) - (int)enemy.FaceDirection;
+            float posX = enemy.Position.X;// +enemy.BoundingRectangle.Width / 2 * (int)enemy.FaceDirection;
+            int tileX = (int)Math.Floor(posX / enemy.Level.TileWidth);// -(int)enemy.FaceDirection;
             int tileY = (int)Math.Floor(enemy.Position.Y / enemy.Level.TileHeight);
-
+            // move in the current direction.
             enemy.Move(enemy.FaceDirection);
-            // If we are about to run into a wall then jump.
+
             if (enemy.Level.GetCollision(tileX + (int)enemy.FaceDirection, tileY - 1) == TileCollision.Impassable ||
                     enemy.Level.GetCollision(tileX + (int)enemy.FaceDirection, tileY) == TileCollision.Passable)
             {

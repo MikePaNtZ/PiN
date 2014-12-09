@@ -63,7 +63,7 @@ namespace PiN
             get { return 0.3F; }
         }
 
-        public bool IsKamikaze { get { return ((EnemyStateMachine)stateMachine).BehaviorState is KamikazeState; } }
+        public bool IsKamikaze { get { return ((EnemyStateMachine)stateMachine).BehaviorState is KamikazeState && IsAlive; } }
 
         /// <summary>
         /// How long to shoot
@@ -161,6 +161,26 @@ namespace PiN
             stateMachine = new EnemyStateMachine(this);
         }
 
+        public override void determineColor(GameTime gameTime)
+        {
+            if (IsKamikaze)
+            {
+                Color[] kamikazeColors = {
+                               Color.Red,
+                               Color.Orange,
+                               Color.Yellow,
+                                               };
+
+                float t = ((float)gameTime.TotalGameTime.TotalSeconds + powerUpTime / MaxPowerUpTime) * 50.0f;
+                int colorIndex = (int)t % kamikazeColors.Length;
+                color = kamikazeColors[colorIndex];
+            }
+            else
+            {
+                color = Color.White;
+            }
+        }
+
 
         /// <summary>
         /// Updates the ai and position of enemy.
@@ -211,7 +231,9 @@ namespace PiN
             int rand = random.Next(100);
             if (rand < 50)
                 Level.SpawnConsumable(point.X, point.Y, "HealthConsumable");
-            else if (rand > 80)
+            else if (60 <= rand && rand < 70)
+                Level.SpawnConsumable(point.X, point.Y, "OneUp");
+            else if (rand > 85)
                 Level.SpawnConsumable(point.X, point.Y, "PowerUp");
         }
 

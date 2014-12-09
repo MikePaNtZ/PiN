@@ -8,8 +8,6 @@ namespace PiN
 {
     class SearchState : BehaviorState
     {
-        
-
         public SearchState(EnemyStateMachine ESM)
             : base(ESM)
         {

@@ -72,9 +72,8 @@ namespace PiN
 
         public bool GameOver
         {
-            get { return gameOver; }
+            get { return !Heroes[0].IsAlive && !Heroes[1].IsAlive && !Heroes[2].IsAlive; }
         }
-        bool gameOver;
 
         public TimeSpan TimeRemaining
         {
@@ -93,6 +92,14 @@ namespace PiN
 
         private SoundEffect exitReachedSound;
 
+        public int LevelIndex
+        {
+            get { return levelIndex; }
+            set { LevelIndex = value; }
+        }
+
+        private int levelIndex = -1;
+
         //for debugging
         bool drawNavMesh;
         //Vector2 playersTarget;
@@ -106,12 +113,14 @@ namespace PiN
         /// <param name="serviceProvider">
         /// The service provider that will be used to construct a ContentManager.
         /// </param>
-        public Level(IServiceProvider serviceProvider, Map currentMap, Camera camera)
+        public Level(IServiceProvider serviceProvider, Map currentMap, Camera camera, int lvlIndex)
         {
             // Create a new content manager to load content used just by this level.
             content = new ContentManager(serviceProvider, "Content");
             timeRemaining = TimeSpan.FromMinutes(15.0); //changed the time limit to 15 minutes for longer level testing
-            
+
+            levelIndex = lvlIndex;
+
             map = currentMap;
 
             GlobalSolver.LoadMesh(map.NavMesh);
@@ -308,6 +317,9 @@ namespace PiN
                 // Still want to perform physics on the activeHero.
                 ActiveHero.PhysicsEngine.ApplyPhysics(gameTime);
 
+                ((Gun)Heroes[0].Weapon).UpdateBullets();
+                ((Gun)Heroes[1].Weapon).UpdateBullets();
+                ((Gun)Heroes[2].Weapon).UpdateBullets();
             }
             else if (ReachedExit)
             {
@@ -321,6 +333,23 @@ namespace PiN
             {
                 timeRemaining -= gameTime.ElapsedGameTime;
                 ActiveHero.Update(gameTime, gameInputs);
+
+                if (ActiveHero is HeroStrength)
+                {
+                    ((Gun)Heroes[1].Weapon).UpdateBullets();
+                    ((Gun)Heroes[2].Weapon).UpdateBullets();
+                }
+                else if (ActiveHero is HeroSpeed)
+                {
+                    ((Gun)Heroes[0].Weapon).UpdateBullets();
+                    ((Gun)Heroes[2].Weapon).UpdateBullets();
+                }
+                else
+                {
+                    ((Gun)Heroes[0].Weapon).UpdateBullets();
+                    ((Gun)Heroes[1].Weapon).UpdateBullets();
+                }
+                    
                 UpdateConsumables(gameTime);
 
                 //playersTarget = gameInputs.MouseInput.Position;
@@ -369,6 +398,9 @@ namespace PiN
                 else
                     drawNavMesh = true;
             }
+
+            //GOD MODE!!!
+            //ActiveHero.Health = ActiveHero.MaxHealth;
         }
 
         /// <summary>
@@ -402,7 +434,7 @@ namespace PiN
                 {
                     // Still want to perform physics on the enemy.
                     enemy.PhysicsEngine.ApplyPhysics(gameTime);
-
+                    ((Gun)enemy.Weapon).UpdateBullets();
                 }
                 enemy.Update(gameTime, gameInputs);
                 // Touching an enemy decreases health of the activeHero
@@ -498,6 +530,7 @@ namespace PiN
         {
             
             ActiveHero.OnKilled(killedBy);
+            
         }
 
         /// <summary>
@@ -531,12 +564,28 @@ namespace PiN
                 activeHero = (Hero)Heroes[2];
             }
             else
-            {
-                gameOver = true;
                 return;
-            }
             
             ActiveHero.Reset(start);
+        }
+
+        /// <summary>
+        /// Restores a hero to full health
+        /// </summary>
+        public void HealOneHero()
+        {
+            if (!Heroes[0].IsAlive)
+                Heroes[0].Reset(Heroes[0].Position);
+            else if (!Heroes[1].IsAlive)
+                Heroes[1].Reset(Heroes[1].Position);
+            else if (!Heroes[2].IsAlive)
+                Heroes[2].Reset(Heroes[2].Position);
+            else
+            {
+                int rand = random.Next(0,Heroes.Count());
+                rand = (int)MathHelper.Clamp(rand, 0, Heroes.Count()-1);
+                Heroes[rand].Health = Heroes[rand].MaxHealth;
+            }
         }
 
         #endregion
@@ -562,6 +611,7 @@ namespace PiN
             foreach (Enemy enemy in enemies)
             {
                 enemy.Draw(gameTime, spriteBatch);
+                ((Gun)enemy.Weapon).DrawBullets(gameTime, spriteBatch);
                 if (enemy.IsAlive)
                 {
                     //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, enemy.BoundingRectangle, Color.Red, 1);
@@ -602,6 +652,22 @@ namespace PiN
 
             //draw the active hero
             ActiveHero.Draw(gameTime, spriteBatch);
+
+            if (ActiveHero is HeroStrength)
+            {
+                ((Gun)Heroes[1].Weapon).DrawBullets(gameTime,spriteBatch);
+                ((Gun)Heroes[2].Weapon).DrawBullets(gameTime, spriteBatch);
+            }
+            else if (ActiveHero is HeroSpeed)
+            {
+                ((Gun)Heroes[0].Weapon).DrawBullets(gameTime, spriteBatch);
+                ((Gun)Heroes[2].Weapon).DrawBullets(gameTime, spriteBatch);
+            }
+            else
+            {
+                ((Gun)Heroes[0].Weapon).DrawBullets(gameTime, spriteBatch);
+                ((Gun)Heroes[1].Weapon).DrawBullets(gameTime, spriteBatch);
+            }
             //XnaDebugDrawer.DebugDrawer.DrawRectangle(spriteBatch, ActiveHero.BoundingRectangle, Color.Red, 1);
 
             //Collision.Draw(spriteBatch);

@@ -21,7 +21,7 @@ namespace PiN
         public override void Update(GameTime gameTime, InputHandler gameInputs)
         {
             hero.Weapon.UpdateWeaponState(gameInputs.MouseInput.Position, gameTime);
-
+            base.Update(gameTime, gameInputs);
             
         }
     }

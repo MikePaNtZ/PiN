@@ -105,10 +105,7 @@ namespace PiN
 //                0);
 
             //Draw the bullets
-            foreach (GameObject bullet in bullets)
-            {
-                bullet.Draw(gameTime, spriteBatch);
-            }
+            DrawBullets(gameTime, spriteBatch);
 
             //XnaDebugDrawer.DebugDrawer.DrawLineSegment(spriteBatch, position, target, Color.Blue, 1);
             
@@ -152,11 +149,19 @@ namespace PiN
             }
         }
 
-        private void UpdateBullets()
+        public void UpdateBullets()
         {
             foreach (Bullet bullet in bullets)
             {
                 bullet.Update();
+            }
+        }
+
+        public void DrawBullets(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            foreach (GameObject bullet in bullets)
+            {
+                bullet.Draw(gameTime, spriteBatch);
             }
         }
 
