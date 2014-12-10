@@ -434,8 +434,13 @@ namespace PiN
                 {
                     // Still want to perform physics on the enemy.
                     enemy.PhysicsEngine.ApplyPhysics(gameTime);
-                    ((Gun)enemy.Weapon).UpdateBullets();
+                    
                 }
+
+                if (!enemy.IsAlive)
+                    ((Gun)enemy.Weapon).UpdateBullets();
+
+
                 enemy.Update(gameTime, gameInputs);
                 // Touching an enemy decreases health of the activeHero
 
